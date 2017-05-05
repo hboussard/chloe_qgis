@@ -222,3 +222,11 @@ class APILand:
             proc = subprocess.Popen(['java',xmx,xss,jarOption,jarPath,'chloe',method,"{"+inputFile+"}",processType,'circle','null','null','{21}','1','false','0',metrics,outputFile, 'true','true','null','null'], stdout=subprocess.PIPE)
             sortie = proc.communicate()[0]
             self.iface.addRasterLayer(inputFile, "generatedLayer");
+            # the layer will have a gray style, it is possible to save a layer's style in qGIS (file.qml)
+            # And set it on a layer, an example below.
+            # def apply_rasterStyle(layers):
+            #     for layer in layers:
+            #         if layer.type() == 1:
+            #             layer.loadNamedStyle('path/to/qml')
+            #         qgis.utils.iface.legendInterface().refreshLayerSymbology(layer)
+            # QgsMapLayerRegistry.instance().layersAdded.connect(apply_rasterStyle)
