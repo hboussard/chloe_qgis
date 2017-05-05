@@ -184,11 +184,12 @@ class APILand:
         del self.toolbar
 
     def select_input_file(self):
-        filename = QFileDialog.getSaveFileName(self.dlg, "Select input file ","", '*')
-        self.dlg.lineEdit.setText(filename)
+        fileName =  QFileDialog.getOpenFileNames(self.dlg, "Select input files","", '*')
+        fileNameStr = "{"+",".join(fileName)+"}"
+        self.dlg.lineEdit.setText(fileNameStr)
 
     def select_output_file(self):
-        filename = QFileDialog.getSaveFileName(self.dlg, "Select output file ","", '*')
+        filename = QFileDialog.getSaveFileName(self.dlg, "Select output file","", '*')
         self.dlg.lineEdit_4.setText(filename)
 
 
@@ -203,8 +204,19 @@ class APILand:
 
         # See if OK was pressed
         if result:
+            # Get form values
+            inputFile = self.dlg.lineEdit.displayText()
+            outputFile = self.dlg.lineEdit_4.displayText()
+            method = self.dlg.lineEdit_2.displayText()
+            metrics = self.dlg.lineEdit_3.displayText()
 
+            print "inputFile: "+inputFile
+            print "outputFile: "+inputFile
+            print "metrics: "+metrics
+            print "method: "+method
+
+            # load module
             import subprocess
 
-            proc = subprocess.Popen(['java','-Xmx2048m','-Xss8m','-jar','chloe4qgis/bin/chloe.jar','chloe','map','{chloe4qgis/carte.asc}','qualitative','{SHDI}','chloe4qgis/maptest.csv'], stdout=subprocess.PIPE)
+            proc = subprocess.Popen(['java','-Xmx2048m','-Xss8m','-jar','chloe4qgis/bin/chloe.jar','chloe',method,inputFile,'qualitative',metrics,outputFile], stdout=subprocess.PIPE)
             sortie = proc.communicate()[0]
