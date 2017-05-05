@@ -38,13 +38,15 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	APILand.py APILand_dialog.py
+	APILand.py APILand_dialog.py \
+	ProcessingExampleProviderPlugin.py ExampleAlgorithmProvider.py
 
 PLUGINNAME = APILand
 
 PY_FILES = \
 	__init__.py \
-	APILand.py APILand_dialog.py
+	APILand.py APILand_dialog.py \
+	ProcessingExampleProviderPlugin.py ExampleAlgorithmProvider.py
 
 UI_FILES = APILand_dialog_base.ui
 

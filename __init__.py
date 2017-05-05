@@ -22,6 +22,7 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+from .ProcessingExampleProviderPlugin import ProcessingExampleProviderPlugin
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
@@ -31,5 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     #
-    from .APILand import APILand
-    return APILand(iface)
+
+    return ProcessingExampleProviderPlugin()
