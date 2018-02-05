@@ -39,7 +39,7 @@ class TestInit(unittest.TestCase):
             'description',
             'version',
             'qgisMinimumVersion',
-            'email',
+            '            email                : hugues.boussard at inra.fr',
             'author']
 
         file_path = os.path.abspath(os.path.join(

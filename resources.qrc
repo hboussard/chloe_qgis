@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/APILand" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

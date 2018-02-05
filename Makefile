@@ -1,22 +1,14 @@
 #/***************************************************************************
-# APILand
+# Chole
 #
-# Interface with APILand
+# description
 #							 -------------------
-#		begin				: 2017-05-04
+#		begin				: 2017-10-17
 #		git sha				: $Format:%H$
-#		copyright			: (C) 2017 by vbeauzee
-#		email				: v.beauzee@alkante.com
+#		copyright			: 
+#		            email                : hugues.boussard at inra.fr				: contact@alkante.com
 # ***************************************************************************/
-#
-#/***************************************************************************
-# *																		 *
-# *   This program is free software; you can redistribute it and/or modify  *
-# *   it under the terms of the GNU General Public License as published by  *
-# *   the Free Software Foundation; either version 2 of the License, or	 *
-# *   (at your option) any later version.								   *
-# *																		 *
-# ***************************************************************************/
+
 
 #################################################
 # Edit the following to match your sources lists
@@ -26,7 +18,7 @@
 #Add iso code for any locales you want to support here (space separated)
 # default is no locales
 # LOCALES = af
-LOCALES =
+LOCALES = en fr
 
 # If locales are enabled, set the name of the lrelease binary on your system. If
 # you have trouble compiling the translations, you may have to specify the full path to
@@ -38,21 +30,21 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	APILand.py APILand_dialog.py
+	chloe.py 
 
-PLUGINNAME = APILand
+PLUGINNAME = Chole
 
 PY_FILES = \
 	__init__.py \
-	APILand.py APILand_dialog.py
+	chloe.py 
 
-UI_FILES = APILand_dialog_base.ui
+UI_FILES = 
 
-EXTRAS = metadata.txt icon.png
+EXTRAS = metadata.txt 
 
 EXTRA_DIRS =
 
-COMPILED_RESOURCE_FILES = resources.py
+COMPILED_RESOURCE_FILES = 
 
 PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 
@@ -65,7 +57,7 @@ HELP = help/build/html
 
 PLUGIN_UPLOAD = $(c)/plugin_upload.py
 
-RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
+RESOURCE_SRC=$(shell grep '^ *<file'  | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
 
 QGISDIR=.qgis2
 
