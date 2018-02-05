@@ -7,17 +7,16 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=APILand
-qgisMinimumVersion=2.0
-description=Interface with APILand
-version=0.1
-author=vbeauzee
-email=v.beauzee@alkante.com
+name=Chloe - landscape metrics
+qgisMinimumVersion=2.14
+description=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe
+about=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe
+version=0.9.3
+author=Jean-Charles Naud, Olivier Bedel, Hugues Boussard
+email=hugues.boussard@inra.fr
 
-about=Interface with APILand
+repository=https://github.com/hboussard/chloe_qgis
 
-tracker=local
-repository=local
 # End of mandatory metadata
 
 # Recommended items:
@@ -26,14 +25,13 @@ repository=local
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=
+tags=processing
 
-homepage=
-category=Plugins
-icon=icon.png
+homepage= https://www6.rennes.inra.fr/sad/Outils-Produits/Outils-informatiques/Chloe
+category=Analysis
+icon=images/chloe_icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-

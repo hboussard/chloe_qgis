@@ -1,35 +1,31 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- APILand
+ Chole
                                  A QGIS plugin
- Interface with APILand
-                             -------------------
-        begin                : 2017-05-04
-        copyright            : (C) 2017 by vbeauzee
-        email                : v.beauzee@alkante.com
-        git sha              : $Format:%H$
+ description
+                              -------------------
+        begin                : 2017-10-17
+        author : Jean-Charles Naud, Olivier Bedel, Hugues Boussard
+
+        email                : hugues.boussard at inra.fr
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+
+__author__ = 'Jean-Charles Naud/Alkante'
+__date__ = '2017-10-17'
+
 
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
-    """Load APILand class from file APILand.
+    """Load Chole class from file Chole.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .APILand import APILand
-    return APILand(iface)
+    from .chloe import CholePlugin
+    return CholePlugin()
