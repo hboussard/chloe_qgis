@@ -134,7 +134,7 @@ class FromCSVParametersPanel(ChloeParametersPanel):
 
         dlg = QFileDialog()
         dlg.setFileMode(QFileDialog.AnyFile)
-        dlg.setFilter("ASC File (*.asc);; All File (*.*)")
+        dlg.setFilter("ASC File (*.asc);; TXT File (*.txt);;All File (*.*)")
         filenames = QStringList()
 
         if dlg.exec_():
