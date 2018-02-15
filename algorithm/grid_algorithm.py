@@ -110,8 +110,6 @@ class GridAlgorithm(CholeAlgorithm):
             "average",
             "count_negatives",
             "count_positives",
-            "maximum",
-            "minimum",
             "size",
             "square_sum",
             "standard_deviation",
