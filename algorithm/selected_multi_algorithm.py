@@ -216,6 +216,8 @@ class SelectedMultiAlgorithm(CholeAlgorithm):
         self.addParameter(ParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES, 
             description=self.tr('Maximum rate of mising values'),
+            minValue=0, 
+            maxValue=100,
             default=100))
 
         self.addParameter(ParameterString(
