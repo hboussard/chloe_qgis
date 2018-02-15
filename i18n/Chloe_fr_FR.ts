@@ -10,6 +10,14 @@
     </message>
 </context>
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <location filename="../gui/components/AboutDialog.py" line="41"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
+</context>
+<context>
     <name>ChloeAlgorithmDialog</name>
     <message>
         <location filename="../gui/ChloeAlgorithmDialog.py" line="60"/>
@@ -17,25 +25,25 @@
         <translation type="obsolete">Exécuter comme processus batch</translation>
     </message>
     <message>
-        <location filename="../gui/ChloeAlgorithmDialog.py" line="101"/>
+        <location filename="../gui/ChloeAlgorithmDialog.py" line="94"/>
         <source>About</source>
-        <translation>A propos</translation>
+        <translation type="obsolete">À propos</translation>
     </message>
 </context>
 <context>
     <name>ChloeParametersPanel</name>
     <message>
-        <location filename="../gui/ChloeAlgorithmDialog.py" line="119"/>
+        <location filename="../gui/ChloeAlgorithmDialog.py" line="112"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/ChloeAlgorithmDialog.py" line="194"/>
+        <location filename="../gui/ChloeAlgorithmDialog.py" line="166"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/ChloeAlgorithmDialog.py" line="210"/>
+        <location filename="../gui/ChloeAlgorithmDialog.py" line="173"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
@@ -43,7 +51,7 @@
 <context>
     <name>ChloeProvider</name>
     <message>
-        <location filename="../chloe_provider.py" line="130"/>
+        <location filename="../chloe_provider.py" line="126"/>
         <source>Chloe - Landscape metrics</source>
         <translation>Chloe - métriques paysagères</translation>
     </message>
@@ -51,12 +59,12 @@
 <context>
     <name>CholeAlgorithm</name>
     <message>
-        <location filename="../algorithm/chloe_algorithm.py" line="251"/>
+        <location filename="../algorithm/chloe_algorithm.py" line="203"/>
         <source>No help available for this algorithm</source>
         <translation>Aucune aide pour cet algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/chloe_algorithm.py" line="275"/>
+        <location filename="../algorithm/chloe_algorithm.py" line="228"/>
         <source>No short help available for this algorithm</source>
         <translation>Aucune aide pour cet algorithme</translation>
     </message>
@@ -64,22 +72,22 @@
 <context>
     <name>ClassificationAlgorithm</name>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="90"/>
+        <location filename="../algorithm/classification_algorithm.py" line="91"/>
         <source>Input layer</source>
         <translation>Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="94"/>
+        <location filename="../algorithm/classification_algorithm.py" line="95"/>
         <source>New classification</source>
         <translation>Nouvelle classification</translation>
     </message>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="99"/>
+        <location filename="../algorithm/classification_algorithm.py" line="100"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="105"/>
+        <location filename="../algorithm/classification_algorithm.py" line="106"/>
         <source>Ouput Raster ascii</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -89,12 +97,12 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="85"/>
+        <location filename="../algorithm/classification_algorithm.py" line="86"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/classification_algorithm.py" line="87"/>
+        <location filename="../algorithm/classification_algorithm.py" line="88"/>
         <source>classification</source>
         <translation>Classification</translation>
     </message>
@@ -106,6 +114,11 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/ClassificationAlgorithmDialog.py" line="58"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
 </context>
 <context>
     <name>ClassificationParametersPanel</name>
@@ -115,12 +128,12 @@
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/ClassificationAlgorithmDialog.py" line="165"/>
+        <location filename="../gui/ClassificationAlgorithmDialog.py" line="156"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/ClassificationAlgorithmDialog.py" line="173"/>
+        <location filename="../gui/ClassificationAlgorithmDialog.py" line="163"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
@@ -133,7 +146,7 @@
 <context>
     <name>ClassificationTablePanel</name>
     <message>
-        <location filename="../gui/ClassificationTablePanel.py" line="76"/>
+        <location filename="../gui/ClassificationTablePanel.py" line="75"/>
         <source>Fill the class mapping table</source>
         <translation>Remplir la table de classification</translation>
     </message>
@@ -141,42 +154,42 @@
 <context>
     <name>ClusterAlgorithm</name>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="97"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="98"/>
         <source>Input layer</source>
         <translation>Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="101"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="102"/>
         <source>Clusters from value(s)</source>
         <translation>Clusterisation à partir de(s) valeur(s)</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="109"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="110"/>
         <source>Cluster type</source>
         <translation>Type de clusterisation</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="115"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="116"/>
         <source>Distance in meters (only for euclidean and functional distance)</source>
         <translation>Distance en mètres (seulement pour les distances euclidienne et fonctionnelle)</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="121"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="122"/>
         <source>Friction file</source>
         <translation>Fichier de friction</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="129"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="130"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="134"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="135"/>
         <source>Output csv (*.csv)</source>
         <translation>Fichier CSV de sortie.(*.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="138"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="139"/>
         <source>Ouput Raster ascii</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -186,12 +199,12 @@
         <translation type="obsolete">Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="92"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="93"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/cluster_algorithm.py" line="94"/>
+        <location filename="../algorithm/cluster_algorithm.py" line="95"/>
         <source>cluster</source>
         <translation>Clusterisation</translation>
     </message>
@@ -203,6 +216,11 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/ClusterAlgorithmDialog.py" line="59"/>
+        <source>About</source>
+        <translation type="unfinished">À propos</translation>
+    </message>
 </context>
 <context>
     <name>ClusterParametersPanel</name>
@@ -212,12 +230,12 @@
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/ClusterAlgorithmDialog.py" line="179"/>
+        <location filename="../gui/ClusterAlgorithmDialog.py" line="169"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/ClusterAlgorithmDialog.py" line="186"/>
+        <location filename="../gui/ClusterAlgorithmDialog.py" line="176"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
@@ -230,7 +248,7 @@
 <context>
     <name>DialListCheckBox</name>
     <message>
-        <location filename="../gui/components/DialListCheckBox.py" line="102"/>
+        <location filename="../gui/components/DialListCheckBox.py" line="96"/>
         <source>Select values</source>
         <translation>Sélectionner les valeurs </translation>
     </message>
@@ -271,32 +289,32 @@
 <context>
     <name>DistanceAlgorithm</name>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="92"/>
+        <location filename="../algorithm/distance_algorithm.py" line="93"/>
         <source>Input layer</source>
         <translation>Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="96"/>
+        <location filename="../algorithm/distance_algorithm.py" line="97"/>
         <source>Values</source>
         <translation>Valeurs</translation>
     </message>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="101"/>
+        <location filename="../algorithm/distance_algorithm.py" line="102"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="108"/>
+        <location filename="../algorithm/distance_algorithm.py" line="109"/>
         <source>Result</source>
         <translation>Résultat</translation>
     </message>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="87"/>
+        <location filename="../algorithm/distance_algorithm.py" line="88"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/distance_algorithm.py" line="89"/>
+        <location filename="../algorithm/distance_algorithm.py" line="90"/>
         <source>distance</source>
         <translation>Distance</translation>
     </message>
@@ -308,26 +326,31 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="61"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
 </context>
 <context>
     <name>DistanceParametersPanel</name>
     <message>
-        <location filename="../gui/DistanceAlgorithmDialog.py" line="99"/>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="96"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/DistanceAlgorithmDialog.py" line="176"/>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="158"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/DistanceAlgorithmDialog.py" line="193"/>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="166"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/DistanceAlgorithmDialog.py" line="111"/>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="108"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -366,27 +389,27 @@
 <context>
     <name>FilterAlgorithm</name>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="91"/>
+        <location filename="../algorithm/filter_algorithm.py" line="92"/>
         <source>Input layer</source>
         <translation>Couche d&apos;entrée</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="95"/>
+        <location filename="../algorithm/filter_algorithm.py" line="96"/>
         <source>Ascii Grid Filter</source>
         <translation>Couche de filtre asciigrid (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="99"/>
+        <location filename="../algorithm/filter_algorithm.py" line="100"/>
         <source>Filter value(s)</source>
         <translation>valeur(s) de filtre</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="107"/>
+        <location filename="../algorithm/filter_algorithm.py" line="108"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="112"/>
+        <location filename="../algorithm/filter_algorithm.py" line="113"/>
         <source>Ouput Raster ascii</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -396,12 +419,12 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="86"/>
+        <location filename="../algorithm/filter_algorithm.py" line="87"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/filter_algorithm.py" line="88"/>
+        <location filename="../algorithm/filter_algorithm.py" line="89"/>
         <source>filter</source>
         <translation>Filtre</translation>
     </message>
@@ -413,6 +436,11 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/FilterAlgorithmDialog.py" line="59"/>
+        <source>About</source>
+        <translation type="unfinished">À propos</translation>
+    </message>
 </context>
 <context>
     <name>FilterParametersPanel</name>
@@ -422,12 +450,12 @@
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/FilterAlgorithmDialog.py" line="164"/>
+        <location filename="../gui/FilterAlgorithmDialog.py" line="160"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/FilterAlgorithmDialog.py" line="171"/>
+        <location filename="../gui/FilterAlgorithmDialog.py" line="167"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
@@ -482,58 +510,58 @@
     <message>
         <location filename="../gui/ui/DlgTableReplaceInput.ui" line="143"/>
         <source>&lt;- Apply Csv Map</source>
-        <translation type="unfinished">&lt;- Appliquer</translation>
+        <translation>&lt;- Appliquer</translation>
     </message>
 </context>
 <context>
     <name>FromCSVAlgorithm</name>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="96"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="97"/>
         <source>Input file csv</source>
         <translation>Fichier CSV d&apos;entrée (.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="104"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="103"/>
         <source>Fields selection</source>
         <translation>Sélection des champs</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="142"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="141"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="148"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="147"/>
         <source>Ouput Raster ascii</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="109"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="108"/>
         <source>Columns count</source>
         <translation>Nombre de colonnes (&apos;ncols&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="115"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="114"/>
         <source>Rows count</source>
         <translation>Nombre de lignes (&apos;nrows&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="121"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="120"/>
         <source>X bottom left corner coordinate</source>
         <translation>Coordonnée X en bas à gauche (&apos;xllcorner&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="126"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="125"/>
         <source>Y bottom left corner coordinate</source>
         <translation>Coordonnée Y en bas à gauche (&apos;yllcorner&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="131"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="130"/>
         <source>Cell size</source>
         <translation>Taille du pixel (&apos;cellsize&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="136"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="135"/>
         <source>Value if no-data</source>
         <translation>valeur si pas d&apos;infomation (&apos;NODATA_value&apos;)</translation>
     </message>
@@ -543,12 +571,12 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="91"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="92"/>
         <source>generate ascii grid</source>
         <translation>Générer un fichier ASCII GRID</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_csv_algorithm.py" line="93"/>
+        <location filename="../algorithm/from_csv_algorithm.py" line="94"/>
         <source>from csv</source>
         <translation>A partir d&apos;un fichier CSV</translation>
     </message>
@@ -560,31 +588,36 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="67"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
 </context>
 <context>
     <name>FromCSVParametersPanel</name>
     <message>
-        <location filename="../gui/FromCSVAlgorithmDialog.py" line="108"/>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="104"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/FromCSVAlgorithmDialog.py" line="234"/>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="210"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/FromCSVAlgorithmDialog.py" line="245"/>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="217"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/FromCSVAlgorithmDialog.py" line="126"/>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="122"/>
         <source>Import header</source>
         <translation>Importer une entête</translation>
     </message>
     <message>
-        <location filename="../gui/FromCSVAlgorithmDialog.py" line="120"/>
+        <location filename="../gui/FromCSVAlgorithmDialog.py" line="116"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -592,32 +625,32 @@
 <context>
     <name>FromShapefileAlgorithm</name>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="97"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="98"/>
         <source>Input vector layer</source>
         <translation>Fichier vectoriel shapefile d&apos;entrée (.shp)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="108"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="109"/>
         <source>Field selection</source>
         <translation>Sélection du champ</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="127"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="128"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="133"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="134"/>
         <source>Ouput Raster ascii</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="115"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="116"/>
         <source>Cell size</source>
         <translation>Taille du pixel</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="121"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="122"/>
         <source>Region extent</source>
         <translation>Enveloppe de rasterisation</translation>
     </message>
@@ -627,17 +660,17 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="103"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="104"/>
         <source>Lookup table</source>
         <translation>Table de hachage</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="90"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="91"/>
         <source>generate ascii grid</source>
         <translation>Générer un fichier ASCII GRID</translation>
     </message>
     <message>
-        <location filename="../algorithm/from_shapefile_algorithm.py" line="92"/>
+        <location filename="../algorithm/from_shapefile_algorithm.py" line="93"/>
         <source>from shapefile</source>
         <translation>A partir d&apos;un fichier SHAPEFILE</translation>
     </message>
@@ -649,26 +682,31 @@
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
     </message>
+    <message>
+        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="60"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
 </context>
 <context>
     <name>FromShapefileParametersPanel</name>
     <message>
-        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="101"/>
+        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="87"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="179"/>
+        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="150"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="190"/>
+        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="157"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="113"/>
+        <location filename="../gui/FromShapefileAlgorithmDialog.py" line="99"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -676,7 +714,7 @@
 <context>
     <name>GridAlgorithm</name>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="163"/>
+        <location filename="../algorithm/grid_algorithm.py" line="164"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
@@ -686,7 +724,7 @@
         <translation type="obsolete">Taille de grille (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="172"/>
+        <location filename="../algorithm/grid_algorithm.py" line="173"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
@@ -696,17 +734,17 @@
         <translation type="obsolete">Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="182"/>
+        <location filename="../algorithm/grid_algorithm.py" line="185"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="187"/>
+        <location filename="../algorithm/grid_algorithm.py" line="190"/>
         <source>Output csv (*.csv)</source>
         <translation>Fichier CSV de sortie (.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="191"/>
+        <location filename="../algorithm/grid_algorithm.py" line="194"/>
         <source>Output ascii (*.asc)</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -716,22 +754,22 @@
         <translation type="obsolete">Aide de l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="167"/>
+        <location filename="../algorithm/grid_algorithm.py" line="168"/>
         <source>Grid size (pixels)</source>
         <translation>Taille de la grille (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="177"/>
+        <location filename="../algorithm/grid_algorithm.py" line="180"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="158"/>
+        <location filename="../algorithm/grid_algorithm.py" line="159"/>
         <source>landscape metrics</source>
         <translation>métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_algorithm.py" line="160"/>
+        <location filename="../algorithm/grid_algorithm.py" line="161"/>
         <source>grid</source>
         <translation>Par grille</translation>
     </message>
@@ -739,40 +777,45 @@
 <context>
     <name>GridAlgorithmDialog</name>
     <message>
-        <location filename="../gui/GridAlgorithmDialog.py" line="62"/>
+        <location filename="../gui/GridAlgorithmDialog.py" line="61"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/GridAlgorithmDialog.py" line="64"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>GridMultiAlgorithm</name>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="170"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="171"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="174"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="175"/>
         <source>Grid sizes (pixels)</source>
         <translation>Tailles des grilles (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="178"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="179"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="183"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="186"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="188"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="191"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="193"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="196"/>
         <source>Output directory</source>
         <translation>Dossier de sortie</translation>
     </message>
@@ -782,17 +825,17 @@
         <translation type="obsolete">Aide de l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="165"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="166"/>
         <source>landscape metrics</source>
         <translation>Métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="167"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="168"/>
         <source>grid multi</source>
         <translation>Par multiples grilles</translation>
     </message>
     <message>
-        <location filename="../algorithm/grid_multi_algorithm.py" line="197"/>
+        <location filename="../algorithm/grid_multi_algorithm.py" line="200"/>
         <source>Open all ascii</source>
         <translation>Ouvrir tous les fichiers ascci grid</translation>
     </message>
@@ -800,30 +843,35 @@
 <context>
     <name>GridMultiAlgorithmDialog</name>
     <message>
-        <location filename="../gui/GridMultiAlgorithmDialog.py" line="62"/>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="60"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="63"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>GridMultiParametersPanel</name>
     <message>
-        <location filename="../gui/GridMultiAlgorithmDialog.py" line="106"/>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="99"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/GridMultiAlgorithmDialog.py" line="383"/>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="342"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/GridMultiAlgorithmDialog.py" line="394"/>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="349"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/GridMultiAlgorithmDialog.py" line="120"/>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="113"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -831,22 +879,22 @@
 <context>
     <name>GridParametersPanel</name>
     <message>
-        <location filename="../gui/GridAlgorithmDialog.py" line="106"/>
+        <location filename="../gui/GridAlgorithmDialog.py" line="100"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/GridAlgorithmDialog.py" line="355"/>
+        <location filename="../gui/GridAlgorithmDialog.py" line="204"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/GridAlgorithmDialog.py" line="366"/>
+        <location filename="../gui/GridAlgorithmDialog.py" line="211"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/GridAlgorithmDialog.py" line="120"/>
+        <location filename="../gui/GridAlgorithmDialog.py" line="114"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -854,17 +902,17 @@
 <context>
     <name>MapAlgorithm</name>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="163"/>
+        <location filename="../algorithm/map_algorithm.py" line="164"/>
         <source>Input layer asc</source>
         <translation>Fichier raster ascigriid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="167"/>
+        <location filename="../algorithm/map_algorithm.py" line="168"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="172"/>
+        <location filename="../algorithm/map_algorithm.py" line="173"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
@@ -879,17 +927,17 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="177"/>
+        <location filename="../algorithm/map_algorithm.py" line="178"/>
         <source>Output csv (*.csv)</source>
         <translation>Fichier CSV de sortie.(*.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="158"/>
+        <location filename="../algorithm/map_algorithm.py" line="159"/>
         <source>landscape metrics</source>
         <translation>Métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/map_algorithm.py" line="160"/>
+        <location filename="../algorithm/map_algorithm.py" line="161"/>
         <source>map</source>
         <translation>Par carte entière</translation>
     </message>
@@ -897,71 +945,66 @@
 <context>
     <name>MapAlgorithmDialog</name>
     <message>
-        <location filename="../gui/MapAlgorithmDialog.py" line="63"/>
+        <location filename="../gui/MapAlgorithmDialog.py" line="61"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/MapAlgorithmDialog.py" line="64"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>MapMultiAlgorithm</name>
     <message>
-        <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="188"/>
-        <source>Input layer asc</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="192"/>
         <source>Select metrics</source>
-        <translation type="unfinished">Sélection d&apos;une métrique</translation>
+        <translation type="obsolete">Sélection d&apos;une métrique</translation>
     </message>
     <message>
         <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="197"/>
         <source>Properties file</source>
-        <translation type="unfinished">Fichier de propriétés</translation>
+        <translation type="obsolete">Fichier de propriétés</translation>
     </message>
     <message>
         <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="202"/>
         <source>Output directory</source>
-        <translation type="unfinished">Dossier de sortie</translation>
-    </message>
-    <message>
-        <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="183"/>
-        <source>landscape metrics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../algorithm/map_multi_algorithm_TODEL.py" line="185"/>
-        <source>map multi</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Dossier de sortie</translation>
     </message>
 </context>
 <context>
     <name>MapMultiAlgorithmDialog</name>
     <message>
-        <location filename="../gui/MapMultiAlgorithmDialog.py" line="62"/>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="60"/>
         <source>Run as batch process...</source>
         <translation type="unfinished">Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="63"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>MapMultiParametersPanel</name>
     <message>
-        <location filename="../gui/MapMultiAlgorithmDialog.py" line="107"/>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="100"/>
         <source>Chloe/Java console call</source>
         <translation type="unfinished">Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/MapMultiAlgorithmDialog.py" line="275"/>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="250"/>
         <source>[temporary file]</source>
         <translation type="unfinished">[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/MapMultiAlgorithmDialog.py" line="286"/>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="257"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation type="unfinished">Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/MapMultiAlgorithmDialog.py" line="119"/>
+        <location filename="../gui/MapMultiAlgorithmDialog.py" line="112"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -969,22 +1012,22 @@
 <context>
     <name>MapParametersPanel</name>
     <message>
-        <location filename="../gui/MapAlgorithmDialog.py" line="108"/>
+        <location filename="../gui/MapAlgorithmDialog.py" line="101"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/MapAlgorithmDialog.py" line="310"/>
+        <location filename="../gui/MapAlgorithmDialog.py" line="282"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/MapAlgorithmDialog.py" line="321"/>
+        <location filename="../gui/MapAlgorithmDialog.py" line="289"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/MapAlgorithmDialog.py" line="122"/>
+        <location filename="../gui/MapAlgorithmDialog.py" line="115"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1080,27 +1123,27 @@
 <context>
     <name>OrderedMultipleInputDialog</name>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="50"/>
+        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="48"/>
         <source>Up</source>
         <translation>Remonter</translation>
     </message>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="53"/>
+        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="51"/>
         <source>Down</source>
         <translation>Descendre</translation>
     </message>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="57"/>
+        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="55"/>
         <source>Select all</source>
         <translation>Sélectionner tout</translation>
     </message>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="60"/>
+        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="58"/>
         <source>Clear selection</source>
         <translation>Effacer la sélection</translation>
     </message>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="63"/>
+        <location filename="../gui/components/OrderedMultipleInputDialog.py" line="61"/>
         <source>Toggle selection</source>
         <translation>Inverser la sélection</translation>
     </message>
@@ -1113,7 +1156,7 @@
         <translation>aucune couche sélectionnée</translation>
     </message>
     <message>
-        <location filename="../gui/components/OrderedMultipleInputPanel.py" line="77"/>
+        <location filename="../gui/components/OrderedMultipleInputPanel.py" line="73"/>
         <source>%d elements selected</source>
         <translation>%d couche(s) sélectionnée(s)</translation>
     </message>
@@ -1121,17 +1164,17 @@
 <context>
     <name>OverlayAlgorithm</name>
     <message>
-        <location filename="../algorithm/overlay_algorithm.py" line="82"/>
+        <location filename="../algorithm/overlay_algorithm.py" line="83"/>
         <source>Matrix to overlay</source>
         <translation>Matrices à empiler</translation>
     </message>
     <message>
-        <location filename="../algorithm/overlay_algorithm.py" line="88"/>
+        <location filename="../algorithm/overlay_algorithm.py" line="89"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/overlay_algorithm.py" line="93"/>
+        <location filename="../algorithm/overlay_algorithm.py" line="94"/>
         <source>Output ascii (*.asc)</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -1141,12 +1184,12 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/overlay_algorithm.py" line="77"/>
+        <location filename="../algorithm/overlay_algorithm.py" line="78"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/overlay_algorithm.py" line="79"/>
+        <location filename="../algorithm/overlay_algorithm.py" line="80"/>
         <source>overlay</source>
         <translation>Superposition</translation>
     </message>
@@ -1154,30 +1197,35 @@
 <context>
     <name>OverlayAlgorithmDialog</name>
     <message>
-        <location filename="../gui/OverlayAlgorithmDialog.py" line="62"/>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="60"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="63"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>OverlayParametersPanel</name>
     <message>
-        <location filename="../gui/OverlayAlgorithmDialog.py" line="109"/>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="102"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/OverlayAlgorithmDialog.py" line="162"/>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="148"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/OverlayAlgorithmDialog.py" line="172"/>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="155"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/OverlayAlgorithmDialog.py" line="121"/>
+        <location filename="../gui/OverlayAlgorithmDialog.py" line="114"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1185,32 +1233,32 @@
 <context>
     <name>SearchAndReplaceAlgorithm</name>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="88"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="89"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="92"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="93"/>
         <source>CSV Map</source>
         <translation>Correspondance CSV</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="99"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="100"/>
         <source>Values to search and replace</source>
         <translation>Valeurs à chercher et remplacer</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="103"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="104"/>
         <source>Nodata value</source>
         <translation>Valeur de donnée manquante (&apos;NODATA_value&apos;)</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="109"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="110"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="114"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="115"/>
         <source>Output ascii (*.asc)</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -1220,12 +1268,12 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="83"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="84"/>
         <source>util</source>
         <translation>Outils</translation>
     </message>
     <message>
-        <location filename="../algorithm/search_and_replace_algorithm.py" line="85"/>
+        <location filename="../algorithm/search_and_replace_algorithm.py" line="86"/>
         <source>search and replace</source>
         <translation>Rechercher et remplacer</translation>
     </message>
@@ -1233,30 +1281,35 @@
 <context>
     <name>SearchAndReplaceAlgorithmDialog</name>
     <message>
-        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="68"/>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="65"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="68"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>SearchAndReplaceParametersPanel</name>
     <message>
-        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="116"/>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="107"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="315"/>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="284"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="326"/>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="291"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="128"/>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="119"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1264,17 +1317,17 @@
 <context>
     <name>SelectedAlgorithm</name>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="178"/>
+        <location filename="../algorithm/selected_algorithm.py" line="179"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="182"/>
+        <location filename="../algorithm/selected_algorithm.py" line="183"/>
         <source>Window shape</source>
         <translation>Forme de la fenêtre d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="187"/>
+        <location filename="../algorithm/selected_algorithm.py" line="188"/>
         <source>Friction file</source>
         <translation>Fichier de friction</translation>
     </message>
@@ -1284,17 +1337,17 @@
         <translation type="obsolete">Taille de la fenêtre d&apos;analyse (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="196"/>
+        <location filename="../algorithm/selected_algorithm.py" line="197"/>
         <source>Pixels/points selection</source>
         <translation>Sélection de points ou de pixels</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="201"/>
+        <location filename="../algorithm/selected_algorithm.py" line="202"/>
         <source>Pixels file</source>
         <translation>Fichier de pixels</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="205"/>
+        <location filename="../algorithm/selected_algorithm.py" line="206"/>
         <source>Points file</source>
         <translation>Fichier de points</translation>
     </message>
@@ -1319,7 +1372,7 @@
         <translation type="obsolete">Filtre - ne pas analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="231"/>
+        <location filename="../algorithm/selected_algorithm.py" line="210"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
@@ -1329,17 +1382,17 @@
         <translation type="obsolete">Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="241"/>
+        <location filename="../algorithm/selected_algorithm.py" line="222"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="246"/>
+        <location filename="../algorithm/selected_algorithm.py" line="227"/>
         <source>Output csv (*.csv)</source>
         <translation>Fichier CSV de sortie (.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="250"/>
+        <location filename="../algorithm/selected_algorithm.py" line="231"/>
         <source>Output ascii (*.asc)</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -1349,27 +1402,27 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="191"/>
+        <location filename="../algorithm/selected_algorithm.py" line="192"/>
         <source>Windows sizes (pixels)</source>
         <translation>Taille de la fenêtre impaire (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="236"/>
+        <location filename="../algorithm/selected_algorithm.py" line="217"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="267"/>
+        <location filename="../algorithm/selected_algorithm.py" line="248"/>
         <source>window sizes is not odd</source>
         <translation>la taille de la fenêtre n&apos;est pas impaire</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="173"/>
+        <location filename="../algorithm/selected_algorithm.py" line="174"/>
         <source>landscape metrics</source>
         <translation>Métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_algorithm.py" line="175"/>
+        <location filename="../algorithm/selected_algorithm.py" line="176"/>
         <source>selected</source>
         <translation>A partir de points choisis</translation>
     </message>
@@ -1377,45 +1430,50 @@
 <context>
     <name>SelectedAlgorithmDialog</name>
     <message>
-        <location filename="../gui/SelectedAlgorithmDialog.py" line="63"/>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="61"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="64"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>SelectedMultiAlgorithm</name>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="185"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="186"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="189"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="190"/>
         <source>Window shape</source>
         <translation>Forme de la fenêtre d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="194"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="195"/>
         <source>Friction file</source>
         <translation>Fichier de friction</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="198"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="199"/>
         <source>Windows sizes (pixels) [constraint V1.0: &quot;select only one&quot;]</source>
         <translation>Taille des fenêtres d&apos;analyse impaires (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="202"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="203"/>
         <source>Pixels/points selection</source>
         <translation>Sélection de points ou de pixels</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="207"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="208"/>
         <source>Pixels file</source>
         <translation>Fichier de pixels</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="211"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="212"/>
         <source>Points file</source>
         <translation>Fichier de points</translation>
     </message>
@@ -1440,22 +1498,22 @@
         <translation type="obsolete">Filtre - ne pas analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="237"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="216"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="242"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="223"/>
         <source>Select metrics [constraint V1.0: &quot;select only one&quot;]</source>
         <translation>Sélection des métriques</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="247"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="228"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="252"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="233"/>
         <source>Output directory</source>
         <translation>Dossier de sortie</translation>
     </message>
@@ -1465,17 +1523,17 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="180"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="181"/>
         <source>landscape metrics</source>
         <translation>Métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="182"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="183"/>
         <source>selected multi</source>
         <translation>Par multiples analyses de points choisis</translation>
     </message>
     <message>
-        <location filename="../algorithm/selected_multi_algorithm.py" line="256"/>
+        <location filename="../algorithm/selected_multi_algorithm.py" line="237"/>
         <source>Open all ascii</source>
         <translation>Ouvrir tous les fichiers ascci grid</translation>
     </message>
@@ -1483,30 +1541,35 @@
 <context>
     <name>SelectedMultiAlgorithmDialog</name>
     <message>
-        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="62"/>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="60"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="63"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>SelectedMultiParametersPanel</name>
     <message>
-        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="109"/>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="102"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="451"/>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="378"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="462"/>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="385"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="123"/>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="116"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1514,22 +1577,22 @@
 <context>
     <name>SelectedParametersPanel</name>
     <message>
-        <location filename="../gui/SelectedAlgorithmDialog.py" line="111"/>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="104"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedAlgorithmDialog.py" line="472"/>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="246"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedAlgorithmDialog.py" line="483"/>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="253"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/SelectedAlgorithmDialog.py" line="125"/>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="118"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1537,17 +1600,17 @@
 <context>
     <name>SlidingAlgorithm</name>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="178"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="174"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="182"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="178"/>
         <source>Window shape</source>
         <translation>Forme de la fenêtre d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="187"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="183"/>
         <source>Friction file</source>
         <translation>Fichier de friction</translation>
     </message>
@@ -1557,27 +1620,27 @@
         <translation type="obsolete">Taille de la fenêtre d&apos;analyse (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="196"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="192"/>
         <source>Delta od displacement (pixels)</source>
         <translation>Pas de déplacement (en pixels et  impair)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="201"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="197"/>
         <source>Interpolate Values</source>
         <translation>Interpolation des valeurs</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="207"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="203"/>
         <source>Filters - Analyse only (optional)</source>
         <translation>Filtre - seulement analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="213"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="209"/>
         <source>Filters - Do not analyse (optional)</source>
         <translation>Filtre - ne pas analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="219"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="215"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
@@ -1587,17 +1650,17 @@
         <translation type="obsolete">Sélection de la métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="229"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="227"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="234"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="232"/>
         <source>Output csv (*.csv)</source>
         <translation>Fichier CSV de sortie (.csv)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="238"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="236"/>
         <source>Output ascii (*.asc)</source>
         <translation>Fichier raster asciigrid de sortie (.asc)</translation>
     </message>
@@ -1607,27 +1670,27 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="191"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="187"/>
         <source>Window size (pixels)</source>
         <translation>Taille de la fenêtre impaire (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="224"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="222"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="256"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="254"/>
         <source>window sizes is not odd</source>
         <translation>la taille de la fenêtre n&apos;est pas impaire</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="173"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="169"/>
         <source>landscape metrics</source>
         <translation>métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_algorithm.py" line="175"/>
+        <location filename="../algorithm/sliding_algorithm.py" line="171"/>
         <source>sliding</source>
         <translation>Par fenêtre glissante</translation>
     </message>
@@ -1635,70 +1698,75 @@
 <context>
     <name>SlidingAlgorithmDialog</name>
     <message>
-        <location filename="../gui/SlidingAlgorithmDialog.py" line="64"/>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="62"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="65"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>SlidingMultiAlgorithm</name>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="187"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="188"/>
         <source>Input layer asc</source>
         <translation>Fichier raster asciigrid d&apos;entrée (.asc)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="191"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="192"/>
         <source>Window shape</source>
         <translation>Forme de la fenêtre d&apos;analyse</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="196"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="197"/>
         <source>Friction file</source>
         <translation>Fichier de friction</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="200"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="201"/>
         <source>Windows sizes (pixels)</source>
         <translation>Taille des fenêtres d&apos;analyse impaires (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="204"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="205"/>
         <source>Delta od displacement (pixels)</source>
         <translation>Pas de déplacement (en pixels)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="209"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="210"/>
         <source>Interpolate Values</source>
         <translation>Interpolation des valeurs</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="214"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="215"/>
         <source>Filters - Analyse only (optional)</source>
         <translation>Filtre - seulement analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="220"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="221"/>
         <source>Filters - Do not analyse (optional)</source>
         <translation>Filtre - ne pas analyser (optionel)</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="226"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="227"/>
         <source>Maximum rate of mising values</source>
         <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="231"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="234"/>
         <source>Select metrics</source>
         <translation>Sélection d&apos;une métrique</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="236"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="239"/>
         <source>Properties file</source>
         <translation>Fichier de propriétés</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="241"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="244"/>
         <source>Output directory</source>
         <translation>Dossier de sortie</translation>
     </message>
@@ -1708,17 +1776,17 @@
         <translation type="obsolete">Aide sur l&apos;algorithme</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="182"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="183"/>
         <source>landscape metrics</source>
         <translation>Métriques paysagères</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="184"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="185"/>
         <source>sliding multi</source>
         <translation>Par multiples fenêtres glissantes</translation>
     </message>
     <message>
-        <location filename="../algorithm/sliding_multi_algorithm.py" line="245"/>
+        <location filename="../algorithm/sliding_multi_algorithm.py" line="248"/>
         <source>Open all ascii</source>
         <translation>Ouvrir tous les fichiers ascci grid</translation>
     </message>
@@ -1726,30 +1794,35 @@
 <context>
     <name>SlidingMultiAlgorithmDialog</name>
     <message>
-        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="63"/>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="61"/>
         <source>Run as batch process...</source>
         <translation>Exécuter comme processus batch</translation>
+    </message>
+    <message>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="64"/>
+        <source>About</source>
+        <translation>À propos</translation>
     </message>
 </context>
 <context>
     <name>SlidingMultiParametersPanel</name>
     <message>
-        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="110"/>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="103"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="405"/>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="373"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="416"/>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="380"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="124"/>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="117"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1757,22 +1830,22 @@
 <context>
     <name>SlidingParametersPanel</name>
     <message>
-        <location filename="../gui/SlidingAlgorithmDialog.py" line="111"/>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="104"/>
         <source>Chloe/Java console call</source>
         <translation>Appel de Chloé en mode console</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingAlgorithmDialog.py" line="404"/>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="241"/>
         <source>[temporary file]</source>
         <translation>[fichier temporaire]</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingAlgorithmDialog.py" line="415"/>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="248"/>
         <source>Invalid value for parameter &apos;%s&apos;</source>
         <translation>Valeur du paramètre &apos;%s&apos; invalide</translation>
     </message>
     <message>
-        <location filename="../gui/SlidingAlgorithmDialog.py" line="125"/>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="118"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
@@ -1786,8 +1859,8 @@
     </message>
     <message>
         <location filename="../gui/components/TableInputDialog.py" line="71"/>
-        <source>The expression entered is not correct. A domain should follow the interval syntax. Examples: [0,1[ or [2,2]</source>
-        <translation>L&apos;expression entrée est incorrecte . Un domaine doit avoir la syntaxe comme l&apos;exemple : [0,1[ or [2,2]</translation>
+        <source>The expression entered is not correct. A domain should follow the interval syntax. Examples: [0,1[ or ],-1] or [2,[</source>
+        <translation type="unfinished">L&apos;expression entrée est incorrecte . Un domaine doit avoir la syntaxe comme l&apos;exemple : [0,1[ or [2,2]</translation>
     </message>
     <message>
         <location filename="../gui/components/TableInputDialog.py" line="77"/>
@@ -1811,6 +1884,83 @@
         <location filename="../gui/components/TableReplaceInputDialog.py" line="43"/>
         <source>Value to search and replace</source>
         <translation>Valuers à rechercher et remplacer</translation>
+    </message>
+</context>
+<context>
+    <name>dlgAbout</name>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="14"/>
+        <source>About OpenLayers Plugin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="24"/>
+        <source>Terms of Service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="36"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Noto Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Chloe Qgis design by INRA, France&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;About this plugins&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://www6.rennes.inra.fr/sad/Outils-Produits/Outils-informatiques/Chloe&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;INRA Chloe project&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;https://github.com/hboussard/chloe_qgis&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0057ae;&quot;&gt;Source code on github&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;Documentation&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;xxx&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;xxx&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;License&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;xxxx&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;xxx&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="66"/>
+        <source>About</source>
+        <translation>À propos</translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="78"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Noto Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;Development/Support:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;Chloe and QGIS Chloe plugin is developed and maintained by&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;Hugues boussard, INRA, France&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;Other developer&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;- Jean-Charles Naud&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;- Olivier Bedel&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;Sponsors:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;Ubuntu&apos;;&quot;&gt;- INRA&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="107"/>
+        <source>Publishing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../gui/ui/DlgAbout.ui" line="119"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Noto Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:&apos;Ubuntu&apos;; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Image INRA&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;Install the QGIS Cloud plugin and publish your map &lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;on &lt;/span&gt;&lt;a href=&quot;https://qgiscloud.com/?ol&quot;&gt;&lt;span style=&quot; font-size:11pt; text-decoration: underline; color:#2980b9;&quot;&gt;QGIS Cloud &lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;with a few mouse clicks!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

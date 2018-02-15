@@ -1,6 +1,5 @@
 
 # -*- coding: utf-8 -*-
-
 """
 ***************************************************************************
     ChloeAlgorithmDialog.py
@@ -35,10 +34,11 @@ from .ValuesSelectionPanel              import ValuesSelectionPanel
 from .components.CustomInputLayerSelectorPanel import CustomInputLayerSelectorPanel
 from .components.AboutDialog            import AboutDialog
 
+from PyQt4.QtCore import *
+
 from processing.tools import dataobjects
 from processing.core.outputs import OutputRaster, OutputTable
 from qgis.utils import iface
-
 
 from ..ChloeUtils     import ChloeUtils
 
@@ -91,9 +91,8 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
         except Exception: 
           pass
         
-    
-    def addAbout(self,layout):
-        pbAbout = QPushButton(self.tr("About")) # New button "About"
+    def addAbout(self, layout, name):
+        pbAbout = QPushButton(name)
         layout.addWidget(pbAbout)
         self.about = AboutDialog()
         pbAbout.clicked.connect(self.about.run)

@@ -65,7 +65,7 @@ class FromCSVAlgorithmDialog(ChloeAlgorithmDialog):
         runAsBatchButton = QPushButton(self.tr("Run as batch process...")) # New button "Run as Batch"
         runAsBatchButton.clicked.connect(self.runAsBatch)
         layout.addWidget(runAsBatchButton)
-        self.addAbout(layout)
+        self.addAbout(layout, self.tr("About"))
 
         cornerWidget.setLayout(layout)                # Add layout -in-> QWidget
 

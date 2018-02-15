@@ -20,7 +20,6 @@ SOURCES  = ../plugin_upload.py \
         ../gui/OverlayAlgorithmDialog.py \
         ../gui/GridAlgorithmDialog.py \
         ../gui/CSVFieldSelectionPanel.py \
-        ../gui/MapAlgorithmDialog.save_old.py \
         ../gui/GridMultiAlgorithmDialog.py \
         ../gui/ListSelectionPanel.py \
         ../gui/SlidingAlgorithmDialog.py \
@@ -32,6 +31,7 @@ SOURCES  = ../plugin_upload.py \
         ../gui/DistanceAlgorithmDialog.py \
         ../gui/DoubleCmbBoxSelectionPanel.py \
         ../gui/components/__init__.py \
+        ../gui/components/AboutDialog.py \
         ../gui/components/FileSelectionCSVTXTPanel.py \
         ../gui/components/TableInputDialog.py \
         ../gui/components/OrderedMultipleInputPanel.py \
@@ -60,13 +60,13 @@ SOURCES  = ../plugin_upload.py \
         ../algorithm/selected_multi_algorithm.py \
         ../algorithm/sliding_algorithm.py \
         ../algorithm/sliding_multi_algorithm.py \
-        ../algorithm/map_multi_algorithm_TODEL.py \
         ../algorithm/distance_algorithm.py \
         ../algorithm/filter_algorithm.py \
         ../chloe_provider.py \
         ../chloe.py
 
-FORMS   = ../gui/ui/DlgNumberInput.ui \
+FORMS   = ../gui/ui/DlgAbout.ui \
+        ../gui/ui/DlgNumberInput.ui \
         ../gui/ui/DlgTableInput.ui \
         ../gui/ui/DlgTableReplaceInput.ui \
         ../gui/ui/IntListSelector.ui \
