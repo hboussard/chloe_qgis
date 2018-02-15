@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr_FR" sourcelanguage="en_GB">
+<TS version="2.0" language="fr_FR" sourcelanguage="en_GB">
 <context>
     <name>@default</name>
     <message>
@@ -482,7 +482,7 @@
     <message>
         <location filename="../gui/ui/DlgTableReplaceInput.ui" line="143"/>
         <source>&lt;- Apply Csv Map</source>
-        <translation>&lt;- Appliquer la correspondance</translation>
+        <translation type="unfinished">&lt;- Appliquer</translation>
     </message>
 </context>
 <context>
