@@ -81,7 +81,7 @@ class SelectedAlgorithm(CholeAlgorithm):
     OUTPUT_ASC        = 'OUTPUT_ASC'
 
 
-    types_of_pixel_point_select = ['pixel(s) file', 'point(s) file', 'generated pixel(s)']
+    types_of_pixel_point_select = ['pixel(s) file', 'point(s) file']
     types_of_shape =['SQUARE','CIRCLE','FUNCTIONAL']
 
     types_of_metrics = {
