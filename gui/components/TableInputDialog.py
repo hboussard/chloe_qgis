@@ -69,7 +69,7 @@ class TableInputDialog(BASE, WIDGET):
         if not (itemDomain is None):
           if not self.checkFormatDomain(str(itemDomain.text())):
             QMessageBox.critical(self, self.tr('Wrong domain expression'),
-                                 self.tr('The expression entered is not correct. A domain should follow the interval syntax. Examples: [0,1[ or [2,2]'))
+                                 self.tr('The expression entered is not correct. A domain should follow the interval syntax. Examples: [0,1[ or ],-1] or [2,['))
             res = False
           else:
             itemClass = table.item(row, 1)
@@ -117,6 +117,6 @@ class TableInputDialog(BASE, WIDGET):
       return res
 
     def checkFormatDomain(self, str):
-      p = re.compile("[\[\]][0-9\.]+,[0-9\.]+[\[\]]")
+      p = re.compile("[\[\]]-?[0-9\.]*,-?[0-9\.]*[\[\]]")
       res = not (p.match(str) is None)
       return res
