@@ -21,6 +21,7 @@ __revision__ = '$Format:%H$'
 import os
 import subprocess
 import time
+import re
 
 import platform
 import copy
@@ -48,7 +49,6 @@ class ChloeUtils:
    
   @staticmethod
   def runChole(commands, progress=None):
-
     cwd=os.path.dirname(__file__) + os.sep + 'Chloe2012'
     
     if progress is None:
@@ -66,7 +66,7 @@ class ChloeUtils:
       loglines = []
       loglines.append('Execution console output :')
       try:
-        proc = subprocess.Popen(
+        process = subprocess.Popen(
           fused_command,
           shell=True,
           stdout=subprocess.PIPE,
@@ -74,10 +74,24 @@ class ChloeUtils:
           stderr=subprocess.STDOUT,
           universal_newlines=True,
           cwd=cwd,
-        ).stdout
-        for line in proc:
-          progress.setConsoleInfo(line)
-          loglines.append(line)
+        )
+
+        regex = re.compile(r'^\s*##\s*(?P<percentage>\d+)\s*\/\s*\d+\s*$')
+        while True:
+          output = process.stdout.readline()
+          if output == '' and process.poll() is not None:
+              break
+          if output:
+              line = output.strip()
+              res = regex.search(line)
+              if res:
+                percentage = int(res.group('percentage'))
+                progress.setPercentage(percentage)
+              else:
+                progress.setConsoleInfo(line)
+              loglines.append(line)
+          rc = process.poll()
+
         success = True
       except IOError as e:
         if retry_count < 5:
