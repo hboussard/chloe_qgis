@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="2.0" language="fr_FR" sourcelanguage="en_GB">
+<!DOCTYPE TS>
+<TS version="2.1" language="fr_FR" sourcelanguage="en_GB">
 <context>
     <name>@default</name>
     <message>
@@ -18,7 +19,7 @@
     <message>
         <location filename="../gui/ChloeAlgorithmDialog.py" line="101"/>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>A propos</translation>
     </message>
 </context>
 <context>
@@ -134,7 +135,7 @@
     <message>
         <location filename="../gui/ClassificationTablePanel.py" line="76"/>
         <source>Fill the class mapping table</source>
-        <translation type="unfinished"></translation>
+        <translation>Remplir la table de classification</translation>
     </message>
 </context>
 <context>
@@ -1441,7 +1442,7 @@
     <message>
         <location filename="../algorithm/selected_multi_algorithm.py" line="237"/>
         <source>Maximum rate of mising values</source>
-        <translation type="unfinished">Pourcentage maximum de valeurs manquantes</translation>
+        <translation>Pourcentage maximum de valeurs manquantes</translation>
     </message>
     <message>
         <location filename="../algorithm/selected_multi_algorithm.py" line="242"/>
