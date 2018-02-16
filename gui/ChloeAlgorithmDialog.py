@@ -200,6 +200,8 @@ class ChloeParametersPanel(ParametersPanel):
             if param.optional:
                 items.append((self.NOT_SELECTED, None))
             for layer in layers:
+                self.NONE_SELECTED = self.tr('Choose a layer')
+                items.append((self.NONE_SELECTED, None))
                 items.append((self.getExtendedLayerName(layer), layer))
             item = CustomInputLayerSelectorPanel(items, param)
 
@@ -208,3 +210,4 @@ class ChloeParametersPanel(ParametersPanel):
             item = ParametersPanel.getWidgetFromParameter(self,param)
 
         return item
+

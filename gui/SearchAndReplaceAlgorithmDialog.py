@@ -156,10 +156,15 @@ class SearchAndReplaceParametersPanel(ChloeParametersPanel):
     #@pyqtSlot(str)
     def changeInputDependent(self):
         w = self.widgets['INPUT_LAYER_ASC']
-        if isinstance(w.getValue(), QgsRasterLayer):
-            rasterLayerParam = w.getValue().source().encode('utf-8')
-        else:
-            rasterLayerParam = w.getValue().encode('utf-8')
+
+        try:
+            val = w.getValue()
+            if isinstance(val, QgsRasterLayer):
+                rasterLayerParam = val.source().encode('utf-8')
+            else:
+                rasterLayerParam = val.encode('utf-8')
+        except:
+            pass
 
         # == Clean table
         w = self.widgets['CHANGES']

@@ -183,19 +183,23 @@ class MapParametersPanel(ChloeParametersPanel):
     #@pyqtSlot(str)
     def initCalculateMetric(self):
         w = self.widgets['INPUT_LAYER_ASC']
-        if isinstance(w.getValue(), QgsRasterLayer):
-            rasterLayerParam = w.getValue().source().encode('utf-8')
-        else:
-            rasterLayerParam = w.getValue().encode('utf-8')
-        
-        int_values_and_nodata = ChloeUtils.extractValueNotNull(rasterLayerParam)
+        try:
+            val = w.getValue()
+            if isinstance(val, QgsRasterLayer):
+                rasterLayerParam = val.source().encode('utf-8')
+            else:
+                rasterLayerParam = val.encode('utf-8')
+            
+            int_values_and_nodata = ChloeUtils.extractValueNotNull(rasterLayerParam)
 
-        self.types_of_metrics = ChloeUtils.calculateMetric(
-            self.alg.types_of_metrics,
-            self.alg.types_of_metrics_simple,
-            self.alg.types_of_metrics_cross,
-            int_values_and_nodata
-        )
+            self.types_of_metrics = ChloeUtils.calculateMetric(
+                self.alg.types_of_metrics,
+                self.alg.types_of_metrics_simple,
+                self.alg.types_of_metrics_cross,
+                int_values_and_nodata
+            )
+        except:
+            self.types_of_metrics = []
 
 
     @staticmethod
