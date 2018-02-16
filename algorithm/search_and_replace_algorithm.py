@@ -119,9 +119,6 @@ class SearchAndReplaceAlgorithm(CholeAlgorithm):
     def processAlgorithm(self, progress):
         """Here is where the processing itself takes place"""
 
-        if hasattr(self, "f_path"):
-            print("path : "+str(self.f_path))
-
         # === INPUT_LAYER
         # @inprogress test utf8 encoding strategy
         self.input_asc = self.getParameterValue(self.INPUT_LAYER_ASC).encode('utf-8')
