@@ -190,6 +190,9 @@ class DistanceParametersPanel(ChloeParametersPanel):
             items = []
             if param.optional:
                 items.append((self.NOT_SELECTED, None))
+
+            self.NONE_SELECTED = self.tr('Chose a layer')
+            items.append((self.NONE_SELECTED, "")) # Not use None
             for layer in layers:
                 items.append((self.getExtendedLayerName(layer), layer))
             item = CustomInputLayerSelectorPanel(items, param)

@@ -129,8 +129,8 @@ class ClusterParametersPanel(ChloeParametersPanel):
             elif isinstance(w, ValuesSelectionPanel):
                 w.leText.textChanged.connect(self.parametersHaveChanged)
             elif isinstance(w, CustomInputLayerSelectorPanel):
-                w.currentIndexChanged.connect(self.parametersHaveChanged)
                 w.currentIndexChanged.connect(self.cleanFieldDependent) # Clean 
+                w.currentIndexChanged.connect(self.parametersHaveChanged)
 
         # Update console display
         self.valueItems["SAVE_PROPERTIES"].leText.textChanged.connect(self.parametersHaveChanged)
@@ -199,6 +199,9 @@ class ClusterParametersPanel(ChloeParametersPanel):
             items = []
             if param.optional:
                 items.append((self.NOT_SELECTED, None))
+
+            self.NONE_SELECTED = self.tr('Chose a layer')
+            items.append((self.NONE_SELECTED, "")) # Not use None
             for layer in layers:
                 items.append((self.getExtendedLayerName(layer), layer))
             item = CustomInputLayerSelectorPanel(items, param)
@@ -206,6 +209,6 @@ class ClusterParametersPanel(ChloeParametersPanel):
         else:
             # == default Wigdet from Parameter, i.e. use parent method
 
-            item = ParametersPanel.getWidgetFromParameter(self,param)
+            item = ChloeParametersPanel.getWidgetFromParameter(self,param)
 
         return item

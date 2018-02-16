@@ -82,11 +82,10 @@ class ValuesSelectionPanel(BASE, WIDGET):
             int_checked_values = []
         values = ""
 
-
-        if not (self.rasterLayerParam is None):
-
+        try:
             p = self.rasterLayerParam
             f_input = p.value
+            print("p.value : "+str(p.value))
             # === Test algorithm
             ds = gdal.Open(f_input)                 # DataSet
             band =  ds.GetRasterBand(1)             # -> band
@@ -98,11 +97,11 @@ class ValuesSelectionPanel(BASE, WIDGET):
             # Dialog list check box
             dial = DialListCheckBox(int_values_and_nodata,int_checked_values)
             result = dial.run()
+        except:
+            result=""
 
-            # result
-            self.leText.setText(result)
-
-
+        # result
+        self.leText.setText(result)
 
     def getValue(self):
         return unicode(self.leText.text())

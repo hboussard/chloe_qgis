@@ -183,31 +183,17 @@ class ChloeParametersPanel(ParametersPanel):
         return item : Qwidget(Panel)
         """
 
-        if isinstance(param, ParameterString) and param.name in ["VALUES_RANGES"]:
-            # === Overload ParameterString for special parameter name like VALUES_RANGES,..
+        # if isinstance(param, ParameterString) and param.name in ["VALUES_RANGES"]:
+        #     # === Overload ParameterString for special parameter name like VALUES_RANGES,..
 
-            if param.name == "VALUES_RANGES":
-                item = ValuesSelectionPanel(self.parent, self.alg, param.default)
+        #     if param.name == "VALUES_RANGES":
+        #         item = ValuesSelectionPanel(self.parent, self.alg, param.default)
 
-                if param.default:
-                    item.setText(unicode(param.default))
+        #         if param.default:
+        #             item.setText(unicode(param.default))
 
-        elif isinstance(param, ParameterRaster): 
-            # === Overload of Panel for Raster in order to add signal for updating param
 
-            layers = dataobjects.getRasterLayers()
-            items = []
-            if param.optional:
-                items.append((self.NOT_SELECTED, None))
-            for layer in layers:
-                self.NONE_SELECTED = self.tr('Choose a layer')
-                items.append((self.NONE_SELECTED, None))
-                items.append((self.getExtendedLayerName(layer), layer))
-            item = CustomInputLayerSelectorPanel(items, param)
-
-        else:
-            # == default Wigdet from Parameter, i.e. use parent method
-            item = ParametersPanel.getWidgetFromParameter(self,param)
+        # == default Wigdet from Parameter, i.e. use parent method
+        item = ParametersPanel.getWidgetFromParameter(self,param)
 
         return item
-

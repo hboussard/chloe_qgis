@@ -182,16 +182,21 @@ class ClassificationParametersPanel(ChloeParametersPanel):
 
         elif isinstance(param, ParameterRaster): 
             # === Overload of Panel for Raster in order to add signal for updating param
+
             layers = dataobjects.getRasterLayers()
             items = []
             if param.optional:
                 items.append((self.NOT_SELECTED, None))
+
+            self.NONE_SELECTED = self.tr('Chose a layer')
+            items.append((self.NONE_SELECTED, "")) # Not use None
             for layer in layers:
                 items.append((self.getExtendedLayerName(layer), layer))
             item = CustomInputLayerSelectorPanel(items, param)
 
         else:
             # == default Wigdet from Parameter, i.e. use parent method
-            item = ParametersPanel.getWidgetFromParameter(self,param)
+            item = ChloeParametersPanel.getWidgetFromParameter(self,param)
+            #item = ParametersPanel.getWidgetFromParameter(self,param)
 
         return item
