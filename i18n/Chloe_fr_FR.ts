@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="fr_FR">
+<!DOCTYPE TS>
+<TS version="2.0" language="fr_FR">
 <context>
     <name>@default</name>
     <message>
@@ -149,7 +150,7 @@
     <message>
         <location filename="../gui/ClassificationAlgorithmDialog.py" line="191"/>
         <source>Chose a layer</source>
-        <translation type="unfinished">Choisir un layer</translation>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -256,7 +257,7 @@
     <message>
         <location filename="../gui/ClusterAlgorithmDialog.py" line="203"/>
         <source>Chose a layer</source>
-        <translation type="unfinished">Choisir un layer</translation>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -368,6 +369,11 @@
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
+    <message>
+        <location filename="../gui/DistanceAlgorithmDialog.py" line="194"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
+    </message>
 </context>
 <context>
     <name>DlgNumberInput</name>
@@ -477,6 +483,11 @@
         <location filename="../gui/FilterAlgorithmDialog.py" line="108"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
+    </message>
+    <message>
+        <location filename="../gui/FilterAlgorithmDialog.py" line="193"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -889,6 +900,11 @@
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
+    <message>
+        <location filename="../gui/GridMultiAlgorithmDialog.py" line="382"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
+    </message>
 </context>
 <context>
     <name>GridParametersPanel</name>
@@ -911,6 +927,11 @@
         <location filename="../gui/GridAlgorithmDialog.py" line="114"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
+    </message>
+    <message>
+        <location filename="../gui/GridAlgorithmDialog.py" line="243"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -1044,6 +1065,11 @@
         <location filename="../gui/MapAlgorithmDialog.py" line="115"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
+    </message>
+    <message>
+        <location filename="../gui/MapAlgorithmDialog.py" line="319"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -1327,6 +1353,11 @@
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
+    <message>
+        <location filename="../gui/SearchAndReplaceAlgorithmDialog.py" line="321"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
+    </message>
 </context>
 <context>
     <name>SelectedAlgorithm</name>
@@ -1587,6 +1618,11 @@
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
+    <message>
+        <location filename="../gui/SelectedMultiAlgorithmDialog.py" line="424"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
+    </message>
 </context>
 <context>
     <name>SelectedParametersPanel</name>
@@ -1609,6 +1645,11 @@
         <location filename="../gui/SelectedAlgorithmDialog.py" line="118"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
+    </message>
+    <message>
+        <location filename="../gui/SelectedAlgorithmDialog.py" line="289"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>
@@ -1840,6 +1881,11 @@
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
     </message>
+    <message>
+        <location filename="../gui/SlidingMultiAlgorithmDialog.py" line="418"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
+    </message>
 </context>
 <context>
     <name>SlidingParametersPanel</name>
@@ -1862,6 +1908,11 @@
         <location filename="../gui/SlidingAlgorithmDialog.py" line="118"/>
         <source>Open output file after running algorithm</source>
         <translation>Ouvrir le fichier en sortie après l&apos;exécution de l&apos;algorithme</translation>
+    </message>
+    <message>
+        <location filename="../gui/SlidingAlgorithmDialog.py" line="282"/>
+        <source>Chose a layer</source>
+        <translation>Choisir un layer</translation>
     </message>
 </context>
 <context>

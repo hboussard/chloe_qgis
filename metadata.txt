@@ -11,7 +11,7 @@ name=Chloe - landscape metrics
 qgisMinimumVersion=2.14
 description=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe
 about=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe
-version=0.9.3
+version=0.9.5
 author=Jean-Charles Naud, Olivier Bedel, Hugues Boussard
 email=hugues.boussard@inra.fr
 

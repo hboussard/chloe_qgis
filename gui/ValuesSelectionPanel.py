@@ -85,7 +85,6 @@ class ValuesSelectionPanel(BASE, WIDGET):
         try:
             p = self.rasterLayerParam
             f_input = p.value
-            print("p.value : "+str(p.value))
             # === Test algorithm
             ds = gdal.Open(f_input)                 # DataSet
             band =  ds.GetRasterBand(1)             # -> band

@@ -43,3 +43,23 @@ Générer le ficheir .qml
 ```bash
 /usr/bin/qtchooser --run-tool=lrelease -qt=4  ./i18n/Chloe_fr_FR.pro 
 ```
+
+
+## Deployer le plugin
+Incrémenter la version dans le fichier metadata
+```
+version=0.9.4
+```
+
+Se rendre dans le répertoire contenant le dossier du plugin Chloe
+Par exemple, sous linux :
+```bash
+cd ~/.qgis/python/plugin
+```
+
+Puis créez l'archive du plugin
+```bash
+zip -r Chloe.0.9.4.zip --exclude=Chloe/.git* Chloe
+```
+
+Déposez l'archive sur  votre dépôt (ex: simple serveur apache2)
