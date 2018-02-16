@@ -94,12 +94,9 @@ class FromCSVAlgorithm(CholeAlgorithm):
         self.i18n_name  = self.tr('from csv')
 
         # === INPUT PARAMETERS ===
-        self.addParameter(ParameterFile(
+        self.addParameter(ParameterTable(
             name=self.INPUT_FILE_CSV,
-            description=self.tr('Input file csv'),
-            isFolder=False,
-            optional=False,
-            ext='csv'))
+            description=self.tr('Input file csv')))
 
 
         self.addParameter(ParameterString(
@@ -156,9 +153,9 @@ class FromCSVAlgorithm(CholeAlgorithm):
 
         # === INPUT_LAYER
         # @inprogress test utf8 encoding strategy
-        self.input_csv = self.getParameterValue(self.INPUT_FILE_CSV.encode('utf-8'))
+        self.input_csv = self.getParameterValue(self.INPUT_FILE_CSV).encode('utf-8')
 
-        self.variables    = self.getParameterValue(self.FIELDS.encode('utf-8'))
+        self.variables    = self.getParameterValue(self.FIELDS)
         self.ncols        = self.getParameterValue(self.N_COLS)
         self.nrows        = self.getParameterValue(self.N_ROWS)
         self.xllcorner    = self.getParameterValue(self.XLL_CORNER)

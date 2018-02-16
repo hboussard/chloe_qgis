@@ -80,18 +80,17 @@ class CSVFieldSelectionPanel(BASE, WIDGET):
         if f_input:
             with open(f_input,'r') as f:
                 line = f.readline()
-
                 line = line.rstrip('\n') # Delete \n
                 fields = line.split(';')
                 fields.remove('X')       # remove "X" field
                 fields.remove('Y')       # remove "Y" field
 
 
-
-        # Dialog list check box
-        dial = DialListCheckBox(values=fields,checked_values=texts)
-        result = dial.run()
-    
+            # Dialog list check box
+            dial = DialListCheckBox(values=fields,checked_values=texts)
+            result = dial.run()
+        else:
+            result = ""
         # result
         self.leText.setText(result)
 

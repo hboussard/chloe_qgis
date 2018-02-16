@@ -29,9 +29,10 @@ from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
 from processing.gui.ParametersPanel import ParametersPanel
 from processing.gui.MultipleInputPanel import MultipleInputPanel
 from processing.gui.NumberInputPanel import NumberInputPanel
-from processing.core.parameters import ParameterString, ParameterRaster, ParameterFile
+from processing.core.parameters import ParameterString, ParameterRaster, ParameterFile, ParameterTable
 from .CSVFieldSelectionPanel import CSVFieldSelectionPanel
-from .components.CustomFileSelectionPanel import CustomFileSelectionPanel
+# from .components.CustomFileSelectionPanel import CustomFileSelectionPanel
+from processing.gui.InputLayerSelectorPanel import InputLayerSelectorPanel
 
 from .ChloeAlgorithmDialog import ChloeAlgorithmDialog
 from .ChloeAlgorithmDialog import ChloeParametersPanel
@@ -78,6 +79,8 @@ class FromCSVAlgorithmDialog(ChloeAlgorithmDialog):
 
         self.resize(self.size().width(), self.size().height()-100) # widows heigth - 100 pixel
 
+
+
     def setParamValue(self, param, widget, alg=None):
         """
         Overload of Widget-to->param update mecanisme
@@ -85,9 +88,12 @@ class FromCSVAlgorithmDialog(ChloeAlgorithmDialog):
         if isinstance(widget, CSVFieldSelectionPanel):
             text = widget.leText.text()
             return param.setValue(text)
+        if isinstance(widget, InputLayerSelectorPanel):
+            text = widget.cmbText.currentText()
+            return param.setValue(text)
         else:
             return AlgorithmDialog.setParamValue(self, param, widget, alg)
-        
+
 
 class FromCSVParametersPanel(ChloeParametersPanel):
 
@@ -177,9 +183,12 @@ class FromCSVParametersPanel(ChloeParametersPanel):
                 w.hasChanged.connect(self.parametersHaveChanged)
             elif isinstance(w, CSVFieldSelectionPanel):
                 w.leText.textChanged.connect(self.parametersHaveChanged)
-            elif isinstance(w, CustomFileSelectionPanel):
-                w.leText.textChanged.connect(self.parametersHaveChanged)
-                w.leText.textChanged.connect(self.cleanFieldDependent)   # Clean 
+            elif isinstance(w, InputLayerSelectorPanel):
+                w.cmbText.currentIndexChanged.connect(self.cleanFieldDependent)   # Clean 
+                w.cmbText.currentIndexChanged.connect(self.parametersHaveChanged)
+            # elif isinstance(w, CustomFileSelectionPanel):
+            #     w.leText.textChanged.connect(self.parametersHaveChanged)
+            #     w.leText.textChanged.connect(self.cleanFieldDependent)   # Clean 
 
         # Update console display
         self.valueItems["SAVE_PROPERTIES"].leText.textChanged.connect(self.parametersHaveChanged)
@@ -235,12 +244,29 @@ class FromCSVParametersPanel(ChloeParametersPanel):
             if param.default:
                 item.setText(unicode(param.default))
 
-         
 
+        elif param.name in ["INPUT_FILE_CSV"]:
+            layers = dataobjects.getTables()
+            items = []
+            if param.optional:
+                items.append((self.NOT_SELECTED, None))
+            for layer in layers:
+                items.append((layer.name(), layer))
+            # if already set, put first in list
+            for i, (name, layer) in enumerate(items):
+                if layer and layer.source() == param.value:
+                    items.insert(0, items.pop(i))
+            item = InputLayerSelectorPanel(items, param)
 
-        elif isinstance(param, ParameterFile):
-            # === Overload of Panel for Raster in order to add signal for updating param
-            item = CustomFileSelectionPanel(param.isFolder, param.ext)
+        #     # === Overload ParameterString for special parameter name like FIELDS,..
+            
+        #     item = CSVFieldSelectionPanel(self.parent, self.alg, param.default)
+        #     if param.default:
+        #         item.setText(unicode(param.default))
+
+        # elif isinstance(param, ParameterFile):
+        #     # === Overload of Panel for Raster in order to add signal for updating param
+        #     item = CustomFileSelectionPanel(param.isFolder, param.ext)
 
         else:
             # == default Wigdet from Parameter, i.e. use parent method
