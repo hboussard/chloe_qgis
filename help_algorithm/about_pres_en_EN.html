@@ -1,0 +1,24 @@
+<html>
+<header><meta charset="UTF-8"></header>
+<p style="text-align: center;"><strong><span style="font-size: 18px;">Chloe software and landscape metrics analysis</span></strong></p>
+<p>autor Hugues Boussard - INRA - SAD - BAGAP - Rennes</p>
+<p>Chloe is a software for spatial analysis of maps (ex: land use map) with a sliding window method (see figure1) characterizing landscapes biological points of view.</p>
+<p style="text-align: center;"><img src="./images/chloe1.png?width=292&amp;height=313" height="313" width="292" alt="chloe1.png"/></p>
+<p style="text-align: center;">figure 1: principle of sliding window analysis</p>
+<p>Chloe works this way.</p>
+<p>On a raster map, each pixel is characterized by a landscape metric calculation taking into account spatial environment modelled by a window. For example, The analyse of the following land use map with the Shannon Diversity Index (SHDI) i shown on figure 2.</p>
+<p style="text-align: center;"><img src="./images/chloe2.png?width=668&amp;height=250" height="250" width="668" alt="chloe2.png"/></p>
+<p style="text-align: center;">figure 2: analyse a map with the Shannon Diversity Index.</p>
+<p>The result of the analyse is a raster map with same format as the input map. We can see emergence of homogeneous and heterogeneous areas whose could have sense according to species and especially in term of continuities. Few stages must be implemented in order to do those kind of analysis, including:</p>
+<p>1. rasterization of vectorial data: rasterization is a significant stage for dealing with a specific species. Be careful not to choose a too big cell-size because important landscape element regarding biological aspect but too small could not appear in the final map. For example hedgerows that could be corridors during dispersion or roads that could be barrier. But do not choose a tiny cell-size for technical aspects (memory, time consuming). Dividing a cell-size by 2 is multipliyng the computation time by 4 !!!</p>
+<p style="text-align: center;"><img src="./images/chloe4.png?width=967&amp;height=266" height="266" width="967" alt="chloe4.png"/></p><p style="text-align: center;">figure 3: 3 rasterizations using 3 different cell-sizes (20m, 5m et 1m).</p>
+<p>2. window size: it represents the spatial area influencing local species. It could be a dispersal behaviour or a visual perception. The figure 4 shows 3 maps coming from the same landscape metric calculation (SHDI) for 3 different window sizes: 105m, 255m and 505m. We can see that landscape characterization change according to window size.</p>
+<p style="text-align: center;"><img src="./images/chloe5.png?width=978&amp;height=268" height="268" width="978" alt="chloe5.png"/></p><p style="text-align: center;">figure 4: impact of widow size choice.</p><div class="wikimodel-emptyline"></div><p>3. window shape: Chloe propose 3 different type of window shapes, square, circle or functional. In that last case, shape is spatially dynamic because it depends on local landscape elements and species preferences.</p>
+<p style="text-align: center;"><img src="./images/chloe6.png?width=337&amp;height=176" height="176" width="337" alt="chloe6.png"/></p>
+<p style="text-align: center;">figure 5: functional window, spatially dynamic window</p>
+<p>4. landscape metrics: it is obviously primary. A single map could characterize through numbers of landscape metrics representing different informations for the ecological process. The figure 6 shows 3 landscape metrics, the Largest Patch Index (LPI), the Number of Paths (NP) and the maize density (NV_i).</p>
+<p style="text-align: center;"><img src="./images/chloe7.png?width=956&amp;height=285" height="285" width="956" alt="chloe7.png"/></p>
+<p>Such produced maps can be combine in order to get more complex spatial informations (see QGIS model builder).</p><div class="wikimodel-emptyline"></div>
+<p>Chloe software and is documentation can uploaded <span class="wikiexternallink"><a href="https://www6.rennes.inra.fr/sad/Outils-Produits/Outils-informatiques/Chloe">here.</a></span></p>
+<p>For more informations, send a email to hugues.boussard@inra.fr.</p>
+</html>

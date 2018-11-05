@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="images">
+    <file alias="chloe2_fr_FR">help_algorithm/images/chloe2.png</file>
+    <file alias="chloe1_fr_FR">help_algorithm/images/chloe1.png</file>
+  </qresource>
+</RCC>

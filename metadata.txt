@@ -1,0 +1,20 @@
+[general]
+name=Chloe - landscape metrics
+description=QGIS processing provider for the Multi-scale analysis tool Chloe
+about=The Chloe software is a multi-scales analysis tool which is based on the principle of counting invented by Bruce Milnes (American Naturalist). The Chloe software is part of the APILand library and conceptually improved by the French research network INRA PAYOTE about landscape modelling and environmental process. It is designed by Jacques Baudry and Hugues Boussard and maintained by Hugues Boussard. The plugin embeds a runnable version of the Chloe software as a jar program. Call the Chloe program are done through command line calls. The implementation of the QGIS plugin "Chloe - landscape metrics" has been done by Alkante. The QGIS plugin "Chloe - landscape metrics" has been funded by ACE Nouvelle Aquitaine, UR C.A.U.E Nouvelle-Aquitaine, Nouvelle Aquitaine region and its prefecture, and Europe. Special thanks to Yannick Coulaud from UR C.A.U.E Nouvelle-Aquitaine. More info at https://www6.rennes.inra.fr/sad/Outils-Produits/Outils-informatiques/Chloe
+category=Analysis
+qgisMinimumVersion=2.14
+version=0.9.7
+
+author=Hugues Boussard (INRA), Jean-Charles Naud (Alkante), Olivier Bedel (Alkante)
+email=hugues.boussard@inra.fr
+
+icon=images/chloe_icon.png
+tags=processing,Chloe,INRA,multi-scales analysis,landscape metrics
+
+homepage=https://www6.rennes.inra.fr/sad/Outils-Produits/Outils-informatiques/Chloe
+tracker=https://github.com/hboussard/chloe_qgis/issues
+repository=https://github.com/hboussard/chloe_qgis
+
+experimental=False
+deprecated=False
