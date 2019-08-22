@@ -1,28 +1,23 @@
 # -*- coding: utf-8 -*-
 
-#####################################################################################################
-# Chloe - landscape metrics
-#
-# Copyright 2018 URCAUE-Nouvelle Aquitaine
-# Author(s) J-C. Naud, O. Bedel - Alkante (http://www.alkante.com) ;
-#           H. Boussard - INRA UMR BAGAP (https://www6.rennes.inra.fr/sad)
-# 
-# Created on Mon Oct 22 2018
-# This file is part of Chloe - landscape metrics.
-# 
-# Chloe - landscape metrics is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-# 
-# Chloe - landscape metrics is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with Chloe - landscape metrics.  If not, see <http://www.gnu.org/licenses/>.
-#####################################################################################################
+"""
+***************************************************************************
+    NumberInputDialog.py
+    ---------------------
+    Date                 : January 2017
+
+        email                : hugues.boussard at inra.fr
+***************************************************************************
+
+"""
+
+__author__ = 'Jean-Charles Naud'
+__date__ = 'January 2017'
+
+
+# This will get replaced with a git SHA1 when you do a git archive
+
+__revision__ = '$Format:%H$'
 
 import os
 import re
@@ -69,16 +64,16 @@ class TableInputDialog(BASE, WIDGET):
     def checkValues(self, table):
       values = []
       res = True
-      for row in xrange(table.rowCount()):
+      for row in range(table.rowCount()):
         itemDomain = table.item(row, 0)
-        if not (itemDomain is None):
+        if not ((itemDomain is None) or (str(itemDomain.text())=='')):
           if not self.checkFormatDomain(str(itemDomain.text())):
             QMessageBox.critical(self, self.tr('Wrong domain expression'),
                                  self.tr('The expression entered is not correct. A domain should follow the interval syntax. Examples: [0,1[ or ],-1] or [2,['))
             res = False
           else:
             itemClass = table.item(row, 1)
-            if (not (itemDomain is None)) and (not self.checkFormatClass(str(itemClass.text()))):
+            if (not (itemDomain is None or str(itemDomain.text())=='')) and (not self.checkFormatClass(str(itemClass.text()))):
               QMessageBox.critical(self, self.tr('Wrong class expression'),
                                   self.tr('The expression entered is not correct. A class value should be a positive integer'))
               res = False
@@ -86,9 +81,9 @@ class TableInputDialog(BASE, WIDGET):
 
     def exportValues(self, table):
       values = []
-      for row in xrange(table.rowCount()):
+      for row in range(table.rowCount()):
         rowValues = []
-        for col in xrange(table.columnCount()):
+        for col in range(table.columnCount()):
           item = table.item(row, col)
           if not (item is None):
             rowValues.append(str(item.text()))
