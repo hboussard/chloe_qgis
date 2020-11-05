@@ -77,3 +77,6 @@ class ChloePlugin(object):
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)
+
+    def test(self):
+        print('ok')
