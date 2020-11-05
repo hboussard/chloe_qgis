@@ -59,11 +59,12 @@ with warnings.catch_warnings():
 
 class ValuesSelectionPanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, default=None, rasterLayerParamName='INPUT_ASC'):
+    def __init__(self, dialog, alg, default=None, rasterLayerParamName='INPUT_ASC', batchGui=False):
         super(ValuesSelectionPanel, self).__init__(None)
         self.setupUi(self) 
         self.dialog = dialog
         self.alg = alg
+        self.batchGui = batchGui
         # getting rasterLayer param from its name
         self.rasterLayerParamName = rasterLayerParamName
         
@@ -88,8 +89,11 @@ class ValuesSelectionPanel(BASE, WIDGET):
 
         try:
             parameters = {}
-            p = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
-            
+            if self.batchGui:
+                p = self.dialog.mainWidget().wrappers[0][0].value()
+            else:
+                p = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+
             if p is None:
                 return
             elif isinstance(p, QgsRasterLayer): 

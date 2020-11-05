@@ -26,6 +26,7 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
+    QgsProcessing,
     QgsProcessingAlgorithm,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
@@ -66,12 +67,12 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
-        self.addParameter(QgsProcessingParameterVectorLayer(
+        self.addParameter(QgsProcessingParameterFeatureSource ( #QgsProcessingParameterFeatureSource
             name=self.INPUT_SHAPEFILE,
             description=self.tr('Input vector layer'),
-            #shapetype=[-1],
             optional=False))
 
+        # FIELD
         self.addParameter(QgsProcessingParameterField(
             name=self.FIELD,
             description=self.tr('Field selection'),
@@ -79,11 +80,13 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
             type=QgsProcessingParameterField.Any,
             optional=False))
 
+        # LOOKUP TABLE
         self.addParameter(QgsProcessingParameterFile(
             name=self.LOOKUP_TABLE,
             description=self.tr('Lookup table'),
             optional=True))
 
+        # CELL SIZE
         self.addParameter(QgsProcessingParameterNumber(
             name=self.CELL_SIZE,
             description=self.tr('Cell size'),
@@ -91,6 +94,7 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
             minValue=0,
             defaultValue=1.0))
 
+        # EXTENT
         self.addParameter(QgsProcessingParameterExtent(
             name=self.EXTENT,
             description=self.tr('Region extent'),
@@ -131,12 +135,12 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
         # === INPUT
         self.input_shp = self.parameterAsString(
             parameters, self.INPUT_SHAPEFILE, context)
-        if self.input_shp==None or self.input_shp=='':
+        if self.input_shp==None or self.input_shp=='' or not self.input_shp.endswith('.shp'):
             shp_layer = self.parameterAsVectorLayer(
                 parameters, self.INPUT_SHAPEFILE, context)
             self.input_shp = shp_layer.dataProvider().dataSourceUri().split('|')[0]
-        #print('INPUT_SHAPEFILE ' + str(parameters[self.INPUT_SHAPEFILE]))
-
+        #print(self.parameterAsVectorLayer(
+                #parameters, self.INPUT_SHAPEFILE, context).dataProvider().dataSourceUri().split('|')[0])
 
         self.field = self.parameterAsString(parameters, self.FIELD, context)
         self.lookup_table = self.parameterAsString(
@@ -160,7 +164,6 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
         #ext_out = os.path.splitext(base_out)[1]
-
 
         # === SAVE_PROPERTIES
         #f_save_properties = self.getParameterValue(self.SAVE_PROPERTIES)
@@ -199,6 +202,6 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
             fd.write("cellsizes={"+ str(self.cellsize)+"}\n")
             if not self.extent.isNull():
                 fd.write("minx="    + str(self.extent.xMinimum()) + "\n")
-                fd.write("maxx="    + str(self.extent.yMinimum()) + "\n")
-                fd.write("miny="    + str(self.extent.xMaximum()) + "\n")
+                fd.write("maxx="    + str(self.extent.xMaximum()) + "\n")
+                fd.write("miny="    + str(self.extent.yMinimum()) + "\n")
                 fd.write("maxy="    + str(self.extent.yMaximum()) + "\n")

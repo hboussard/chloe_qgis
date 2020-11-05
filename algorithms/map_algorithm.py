@@ -79,6 +79,7 @@ class MapAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # METRICS
         metricsParam = QgsProcessingParameterString(
             name=self.METRICS,
             description=self.tr('Select metrics'))
@@ -87,7 +88,7 @@ class MapAlgorithm(ChloeAlgorithm):
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeMultipleMetricsSelectorWidgetWrapper',
                 'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
+                'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
                 'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
             }

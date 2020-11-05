@@ -51,19 +51,33 @@ WIDGET, BASE = uic.loadUiType(
 
 class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, dictValues={}, initialValue=None, rasterLayerParamName=None):
+    def __init__(self, dialog, alg, dictValues={}, initialValue=None, rasterLayerParamName=None, standardGui=True):
         super(DoubleCmbBoxSelectionPanel, self).__init__(None)
         self.setupUi(self) 
         self.dialog = dialog
         self.alg = alg
         self.dictValues = dictValues
         self.initialValue = initialValue
+        self.standardGui = standardGui
         self.rasterLayerParamName = rasterLayerParamName
         self.cbFilter.currentIndexChanged.connect(self.updateMetric)
         
         self.cbFilter.addItems(self.dictValues.keys())
         self.updateMetric()
         self.cbFilter.setCurrentText(self.initialValue)
+
+        if self.standardGui:
+            self.lineEdit.setVisible(False)
+        else:
+            self.lineEdit.setVisible(True)
+            self.cbValue.currentIndexChanged.connect(self.updateMetricLineEdit)
+
+    def updateMetricLineEdit(self):
+        metric = self.cbValue.currentText()
+        if metric:
+            self.lineEdit.setText(metric)
+        else:
+            self.lineEdit.setText("")
 
     def updateMetric(self):
         filter_txt = self.cbFilter.currentText()
@@ -74,14 +88,15 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
                 w_value.addItems(self.dictValues[filter_txt])
 
     def initCalculateMetric(self):
+
         rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+        
         if rasterLayerParam is None:
             return
-        elif isinstance(rasterLayerParam, QgsRasterLayer): 
+        elif isinstance(rasterLayerParam, QgsRasterLayer):
             rasterLayerParam = rasterLayerParam.dataProvider().dataSourceUri()
         elif not isinstance(rasterLayerParam,str):
             rasterLayerParam = str(rasterLayerParam)   
-        
         try:
             int_values_and_nodata = ChloeUtils.extractValueNotNull(rasterLayerParam)
             self.dictValues = ChloeUtils.calculateMetric(
@@ -94,9 +109,18 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
             self.dictValues = []
 
     def getValue(self):
-        return unicode(self.cbValue.currentText())
+        if self.standardGui:
+            return unicode(self.cbValue.currentText())
+        else:
+            return unicode(self.lineEdit.text())
 
     def text(self):
-        return self.cbValue.currentText()
+        if self.standardGui:
+            return self.cbValue.currentText()
+        else:
+            return self.lineEdit.text()
+
+    def setValue(self, value):
+        self.updateMetric()
 
 

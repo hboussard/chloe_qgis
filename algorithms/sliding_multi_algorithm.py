@@ -27,6 +27,7 @@ import os
 import glob
 
 from qgis.core import (
+    QgsProcessingParameterDefinition,
     QgsProcessingAlgorithm,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
@@ -80,6 +81,73 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # METRICS
+        metricsParam = QgsProcessingParameterString(
+            name=self.METRICS,
+            description=self.tr('Select metrics'))
+
+        metricsParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeMultipleMetricsSelectorWidgetWrapper',
+                'dictValues': self.types_of_metrics,
+                'initialValue': 'diversity metrics',
+                'rasterLayerParamName': self.INPUT_LAYER_ASC,
+                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
+            }
+        })
+        
+        self.addParameter(metricsParam)
+
+        # WINDOWS SIZE
+        windowSizeParam = QgsProcessingParameterString(
+            name=self.WINDOW_SIZES,
+            description=self.tr('Windows sizes (pixels)')) # [constraint V2.0: "select only one"]
+        
+        windowSizeParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeIntListWidgetWrapper',
+                'initialValue': 3,
+                'minValue' : 3,
+                'maxValue' : 100001,
+                'oddNum' : True
+            }
+        })
+        
+        self.addParameter(windowSizeParam)
+
+
+        # === ADVANCED PARAMETERS ===
+
+        # WINDOWS SHAPE
+        windowShapeParam = QgsProcessingParameterEnum(
+            name=self.WINDOW_SHAPE,
+            description=self.tr('Window shape'),
+            options=self.types_of_shape)
+
+        windowShapeParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
+                'dependantWidgetConfig': [{ 
+                    'paramName': self.FRICTION_FILE, 
+                    'enableValue': 2
+                }]
+            }
+        })
+
+        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(windowShapeParam)
+
+        # FRICTION FILE 
+        frictionFile = QgsProcessingParameterFile(
+            name=self.FRICTION_FILE,
+            description=self.tr('Friction file'),
+            optional=True)
+
+        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(frictionFile)
+
         # ANALYZE TYPE
 
         analyzeTypeParam = QgsProcessingParameterEnum(
@@ -97,110 +165,80 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             }
         })
 
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
         self.addParameter(analyzeTypeParam)
 
         # DISTANCE FUNCTION
 
-        self.addParameter(QgsProcessingParameterString(
+        distanceFunctionParam = QgsProcessingParameterString(
             name=self.DISTANCE_FUNCTION,
             description=self.tr('Distance function'),
-            optional=True))
+            optional=True)
+        distanceFunctionParam.setFlags(distanceFunctionParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(distanceFunctionParam)
 
-        windowShapeParam = QgsProcessingParameterEnum(
-            name=self.WINDOW_SHAPE,
-            description=self.tr('Window shape'),
-            options=self.types_of_shape)
-
-        windowShapeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.FRICTION_FILE, 
-                    'enableValue': 2
-                }]
-            }
-        })
-
-        self.addParameter(windowShapeParam)
-
-        self.addParameter(QgsProcessingParameterFile(
-            name=self.FRICTION_FILE,
-            description=self.tr('Friction file'),
-            optional=True))
-
-        windowSizeParam = QgsProcessingParameterString(
-            name=self.WINDOW_SIZES,
-            description=self.tr('Windows sizes (pixels)')) # [constraint V2.0: "select only one"]
-        
-        windowSizeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeIntListWidgetWrapper',
-                'initialValue': 3,
-                'minValue' : 3,
-                'maxValue' : 100001,
-                'oddNum' : True
-            }
-        })
-        
-        self.addParameter(windowSizeParam)
-        
-        self.addParameter(QgsProcessingParameterNumber(
+        # DELTA DISPLACEMENT
+        deltaDisplacement = QgsProcessingParameterNumber(
             name=self.DELTA_DISPLACEMENT,
             description=self.tr('Delta displacement (pixels)'),
             defaultValue=1,
-            minValue=1))
+            minValue=1)
+        deltaDisplacement.setFlags(deltaDisplacement.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
 
-        self.addParameter(QgsProcessingParameterBoolean(
+        self.addParameter(deltaDisplacement)
+
+        # INTERPOLATE VALUES BOOL
+        interpolateValues = QgsProcessingParameterBoolean(
             name=self.INTERPOLATE_VALUES_BOOL,
             description=self.tr('Interpolate Values'),
-            defaultValue=False))
+            defaultValue=False)
+        interpolateValues.setFlags(interpolateValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
 
-        fieldsParam = QgsProcessingParameterString(
+        self.addParameter(interpolateValues)
+
+        # FILTER PARAM
+        # FILTER
+        fieldsParamFilter = QgsProcessingParameterString(
             name=self.FILTER,
             description=self.tr('Filters - Analyse only'),
             defaultValue='',
             optional=True)
-        fieldsParam.setMetadata({
+        fieldsParamFilter.setMetadata({
             'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper',
+                'input_asc': self.INPUT_LAYER_ASC
             }
         })
-        self.addParameter(fieldsParam)
+        fieldsParamFilter.setFlags(fieldsParamFilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(fieldsParamFilter)
 
-        fieldsParam = QgsProcessingParameterString(
+        # UNFILTER
+        fieldsParamUnfilter = QgsProcessingParameterString(
             name=self.UNFILTER,
             description=self.tr('Filters - Do not analyse'),
             defaultValue='',
             optional=True)
-        fieldsParam.setMetadata({
+        fieldsParamUnfilter.setMetadata({
             'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper',
+                'input_asc': self.INPUT_LAYER_ASC
             }
         })
-        self.addParameter(fieldsParam)
 
-        self.addParameter(QgsProcessingParameterNumber(
+        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(fieldsParamUnfilter)
+
+        # MAX RATE MISSING VALUES
+        maxRateMissingValues = QgsProcessingParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES,
             description=self.tr('Maximum rate of missing values'),
             minValue=0,
             maxValue=100,
-            defaultValue=100))
+            defaultValue=100)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
 
-        metricsParam = QgsProcessingParameterString(
-            name=self.METRICS,
-            description=self.tr('Select metrics'))
-
-        metricsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeMultipleMetricsSelectorWidgetWrapper',
-                'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
-                'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
-            }
-        })
-        
-        self.addParameter(metricsParam)
+        self.addParameter(maxRateMissingValues)
 
         # === OUTPUT PARAMETERS ===
         
@@ -301,12 +339,12 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'output_folder=' + self.output_dir + "\n", isWindows()))
 
-            fd.write("window_sizes={" + self.window_sizes + "}\n")
+            fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
                          
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula))
+                fd.write("distance_function=" + str(self.distance_formula) + "\n")
 
             fd.write("metrics={" + self.metrics + "}\n")
             fd.write("delta_displacement="
@@ -334,7 +372,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         self.outputFilenames = []
         baseOutAsc = os.path.basename(self.input_layer_asc)
         radical = os.path.splitext(baseOutAsc)[0]
-        for ws in self.window_sizes:
+        lst_files =  str(self.window_sizes).split(';')
+        for ws in lst_files:
             for m  in self.metrics.split(';'):
                 fName = radical + "_" + str(self.types_of_shape_abrev[self.window_shape]) + "_w" + str(ws) + "_" + str(m) + "_d_" + str(self.delta_displacement) + ".asc"
                 fFullName = self.output_dir + os.sep + fName

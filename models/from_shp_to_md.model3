@@ -1,0 +1,273 @@
+<!DOCTYPE model>
+<Option type="Map">
+  <Option type="Map" name="children">
+    <Option type="Map" name="chloe:distance_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="chloe:distance" name="alg_id"/>
+      <Option type="QString" value="Distance" name="component_description"/>
+      <Option type="double" value="445" name="component_pos_x"/>
+      <Option type="double" value="472" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="chloe:distance_1" name="id"/>
+      <Option name="outputs"/>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="DISTANCE_FRICTION">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="DISTANCE_MAX">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="invalid" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="DISTANCE_TYPE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="0" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INPUT_ASC">
+          <Option type="Map">
+            <Option type="QString" value="chloe:from shapefile_1" name="child_id"/>
+            <Option type="QString" value="OUTPUT_ASC" name="output_name"/>
+            <Option type="int" value="1" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="VALUES_RANGES">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="3" name="static_value"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option type="Map" name="chloe:from shapefile_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="chloe:from shapefile" name="alg_id"/>
+      <Option type="QString" value="A partir d'un fichier SHAPEFILE" name="component_description"/>
+      <Option type="double" value="419" name="component_pos_x"/>
+      <Option type="double" value="340" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="chloe:from shapefile_1" name="id"/>
+      <Option name="outputs"/>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="CELL_SIZE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="double" value="10" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="EXTENT">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="invalid" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="FIELD">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="type" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INPUT_SHAPEFILE">
+          <Option type="Map">
+            <Option type="QString" value="inputvector" name="parameter_name"/>
+            <Option type="int" value="0" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="LOOKUP_TABLE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+    <Option type="Map" name="chloe:sliding_1">
+      <Option type="bool" value="true" name="active"/>
+      <Option name="alg_config"/>
+      <Option type="QString" value="chloe:sliding" name="alg_id"/>
+      <Option type="QString" value="Par fenêtre glissante" name="component_description"/>
+      <Option type="double" value="455" name="component_pos_x"/>
+      <Option type="double" value="616" name="component_pos_y"/>
+      <Option name="dependencies"/>
+      <Option type="QString" value="chloe:sliding_1" name="id"/>
+      <Option type="Map" name="outputs">
+        <Option type="Map" name="output_csv">
+          <Option type="QString" value="chloe:sliding_1" name="child_id"/>
+          <Option type="QString" value="output_csv" name="component_description"/>
+          <Option type="double" value="711" name="component_pos_x"/>
+          <Option type="double" value="870" name="component_pos_y"/>
+          <Option type="invalid" name="default_value"/>
+          <Option type="bool" value="false" name="mandatory"/>
+          <Option type="QString" value="output_csv" name="name"/>
+          <Option type="QString" value="OUTPUT_CSV" name="output_name"/>
+        </Option>
+        <Option type="Map" name="output_md">
+          <Option type="QString" value="chloe:sliding_1" name="child_id"/>
+          <Option type="QString" value="output_md" name="component_description"/>
+          <Option type="double" value="711" name="component_pos_x"/>
+          <Option type="double" value="900" name="component_pos_y"/>
+          <Option type="invalid" name="default_value"/>
+          <Option type="bool" value="false" name="mandatory"/>
+          <Option type="QString" value="output_md" name="name"/>
+          <Option type="QString" value="OUTPUT_ASC" name="output_name"/>
+        </Option>
+        <Option type="Map" name="output_prop">
+          <Option type="QString" value="chloe:sliding_1" name="child_id"/>
+          <Option type="QString" value="output_prop" name="component_description"/>
+          <Option type="double" value="711" name="component_pos_x"/>
+          <Option type="double" value="930" name="component_pos_y"/>
+          <Option type="invalid" name="default_value"/>
+          <Option type="bool" value="false" name="mandatory"/>
+          <Option type="QString" value="output_prop" name="name"/>
+          <Option type="QString" value="SAVE_PROPERTIES" name="output_name"/>
+        </Option>
+      </Option>
+      <Option type="bool" value="true" name="outputs_collapsed"/>
+      <Option type="bool" value="true" name="parameters_collapsed"/>
+      <Option type="Map" name="params">
+        <Option type="List" name="ANALYZE_TYPE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="0" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="DELTA_DISPLACEMENT">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="1" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="DISTANCE_FUNCTION">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="FILTER">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="FRICTION_FILE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INPUT_ASC">
+          <Option type="Map">
+            <Option type="QString" value="chloe:distance_1" name="child_id"/>
+            <Option type="QString" value="OUTPUT_ASC" name="output_name"/>
+            <Option type="int" value="1" name="source"/>
+          </Option>
+        </Option>
+        <Option type="List" name="INTERPOLATE_VALUES_BOOL">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="bool" value="false" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="MAXIMUM_RATE_MISSING_VALUES">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="100" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="METRICS">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="MD" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="UNFILTER">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="QString" value="" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="WINDOW_SHAPE">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="0" name="static_value"/>
+          </Option>
+        </Option>
+        <Option type="List" name="WINDOW_SIZES">
+          <Option type="Map">
+            <Option type="int" value="2" name="source"/>
+            <Option type="int" value="61" name="static_value"/>
+          </Option>
+        </Option>
+      </Option>
+    </Option>
+  </Option>
+  <Option name="help"/>
+  <Option name="modelVariables"/>
+  <Option type="QString" value="" name="model_group"/>
+  <Option type="QString" value="from_shp_to_md" name="model_name"/>
+  <Option type="Map" name="parameterDefinitions">
+    <Option type="Map" name="chloe:sliding_1:output_csv">
+      <Option type="bool" value="true" name="create_by_default"/>
+      <Option type="invalid" name="default"/>
+      <Option type="QString" value="output_csv" name="description"/>
+      <Option type="QString" value="CSV (*.csv)" name="file_filter"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="chloe:sliding_1:output_csv" name="name"/>
+      <Option type="QString" value="fileDestination" name="parameter_type"/>
+      <Option type="bool" value="false" name="supports_non_file_outputs"/>
+    </Option>
+    <Option type="Map" name="chloe:sliding_1:output_md">
+      <Option type="bool" value="true" name="create_by_default"/>
+      <Option type="invalid" name="default"/>
+      <Option type="QString" value="output_md" name="description"/>
+      <Option type="QString" value="ASC (*.asc)" name="file_filter"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="chloe:sliding_1:output_md" name="name"/>
+      <Option type="QString" value="fileDestination" name="parameter_type"/>
+      <Option type="bool" value="false" name="supports_non_file_outputs"/>
+    </Option>
+    <Option type="Map" name="chloe:sliding_1:output_prop">
+      <Option type="bool" value="true" name="create_by_default"/>
+      <Option type="invalid" name="default"/>
+      <Option type="QString" value="output_prop" name="description"/>
+      <Option type="QString" value="Properties (*.properties)" name="file_filter"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="chloe:sliding_1:output_prop" name="name"/>
+      <Option type="QString" value="fileDestination" name="parameter_type"/>
+      <Option type="bool" value="false" name="supports_non_file_outputs"/>
+    </Option>
+    <Option type="Map" name="inputvector">
+      <Option type="List" name="data_types">
+        <Option type="int" value="5"/>
+      </Option>
+      <Option type="invalid" name="default"/>
+      <Option type="QString" value="input_vector" name="description"/>
+      <Option type="int" value="0" name="flags"/>
+      <Option name="metadata"/>
+      <Option type="QString" value="inputvector" name="name"/>
+      <Option type="QString" value="vector" name="parameter_type"/>
+    </Option>
+  </Option>
+  <Option type="Map" name="parameters">
+    <Option type="Map" name="inputvector">
+      <Option type="QString" value="inputvector" name="component_description"/>
+      <Option type="double" value="329" name="component_pos_x"/>
+      <Option type="double" value="152" name="component_pos_y"/>
+      <Option type="QString" value="inputvector" name="name"/>
+    </Option>
+  </Option>
+</Option>

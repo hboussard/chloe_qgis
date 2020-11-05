@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>326</width>
-    <height>74</height>
+    <width>312</width>
+    <height>125</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,6 +36,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="cbValue"/>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit"/>
      </item>
     </layout>
    </item>

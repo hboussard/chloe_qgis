@@ -1,4 +1,4 @@
-﻿# This file contains metadata for your plugin. Since
+# This file contains metadata for your plugin. Since
 # version 2.0 of QGIS this is the proper way to supply
 # information about a plugin. The old method of
 # embedding metadata in __init__.py will
@@ -10,7 +10,7 @@
 name=Chloe - landscape metrics
 qgisMinimumVersion=3.4
 description=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe.
-version=1.0.5
+version=1.0.7
 author=Jean-Charles Naud, Olivier Bedel, Hugues Boussard, Daan Guillerme
 email=hugues.boussard@inra.fr
 

@@ -59,8 +59,6 @@ class TableInputDialog(BASE, WIDGET):
         self.exec_()
         return self.value
 
-        
-    
     def checkValues(self, table):
       values = []
       res = True
@@ -73,7 +71,7 @@ class TableInputDialog(BASE, WIDGET):
             res = False
           else:
             itemClass = table.item(row, 1)
-            if (not (itemDomain is None or str(itemDomain.text())=='')) and (not self.checkFormatClass(str(itemClass.text()))):
+            if (not (itemClass is None or str(itemClass.text())=='')) and (not self.checkFormatClass(str(itemClass.text()))):
               QMessageBox.critical(self, self.tr('Wrong class expression'),
                                   self.tr('The expression entered is not correct. A class value should be a positive integer'))
               res = False

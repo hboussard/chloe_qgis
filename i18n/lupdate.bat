@@ -15,6 +15,6 @@ REM for /r .. %%X in (*.ts) do call echo    %%X \ >> %file%
 REM for /r .. %%X in (*.py) do call set "list=%%list%% \ \n %%X";   
 echo Mise a jour du fichier %tsfile%...
 REM type %file%
-"c:\Program Files (x86)\QGIS 3.4\apps\Python37\Scripts\pyside2-lupdate.exe" -noobsolete %file%
+"c:\Program Files\QGIS 3.4\apps\Python37\Scripts\pyside2-lupdate.exe" -noobsolete %file%
 echo OK
 

@@ -34,6 +34,11 @@ from qgis.core import QgsRasterLayer
 from qgis.utils import iface
 from processing.tools import dataobjects
 
+from osgeo import gdal
+import numpy as np
+import math
+
+
 pluginPath = os.path.dirname(__file__)
 WIDGET, BASE = uic.loadUiType(
     os.path.join(pluginPath, 'ui', 'DlgTableReplaceInput.ui'))
@@ -41,12 +46,12 @@ WIDGET, BASE = uic.loadUiType(
 
 class TableReplaceInputPanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, default=None):
+    def __init__(self, dialog, alg, default=None, batchGui=False):
         super(TableReplaceInputPanel, self).__init__(None)
         self.setupUi(self) 
         self.dialog = dialog
         self.alg = alg
-        
+        self.batchGui = batchGui
         #self.dialog[linked_param].valuechanged.connect(self.test)
         #print(str(self.dialog))
         #parametersPanel = self.dialog.mainWidget()
@@ -56,7 +61,54 @@ class TableReplaceInputPanel(BASE, WIDGET):
         self.pbApply.clicked.connect(self.applyCSVMap)
         self.twAssociation.itemChanged.connect(self.updateLeText)
     
-   
+    def updateTable(self):
+
+        if self.batchGui:
+            rasterLayerParam = self.dialog.mainWidget().wrappers[0][0].value()
+            print('batch Gui updateMapAsc')
+        else:
+            rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+        
+        if rasterLayerParam is None:
+            return
+        elif isinstance(rasterLayerParam, QgsRasterLayer):
+            rasterLayerParam = rasterLayerParam.dataProvider().dataSourceUri()
+        elif not isinstance(rasterLayerParam,str):
+            rasterLayerParam = str(rasterLayerParam)   
+
+    def updateMapASC(self):
+        
+        if self.batchGui:
+            p = self.dialog.mainWidget().wrappers[0][0].value()
+            print('batch Gui updateMapAsc')
+        else:
+            p = self.dialog.mainWidget().wrappers['INPUT_ASC'].value()
+
+        if p is None:
+            return
+        elif isinstance(p, QgsRasterLayer): 
+            f_input = p.dataProvider().dataSourceUri()
+        elif isinstance(p,str):
+            f_input = p
+        else:
+            f_input = str(p)   
+
+            # === Test algorithm
+        ds = gdal.Open(f_input)                 # DataSet
+        band =  ds.GetRasterBand(1)             # -> band
+        array = np.array(band.ReadAsArray())    # -> matrice values
+        values = np.unique(array)   
+        values_and_nodata = np.insert(values, 0, band.GetNoDataValue()) # Add nodata values in numpy array
+        int_values_and_nodata = np.unique([int(math.floor(x)) for x in values_and_nodata ])
+
+            # Dialog list check box
+        row=0
+        for tup in int_values_and_nodata:
+          item = QTableWidgetItem()
+          item.setText(str(tup))
+          self.twAssociation.setItem(row, 0, item)
+          row += 1
+
     def updateMapCSV(self, mapFile):
         self.mapFile = mapFile
         self.cmbBox.clear()
@@ -72,20 +124,21 @@ class TableReplaceInputPanel(BASE, WIDGET):
         except:
             pass
 
-
     #@pyqtSlot(str)
     def applyCSVMap(self):
         #print('applyCSVMap' + str(self.mapFile))
-        # Index
-        if self.mapFile:
-            if os.path.exists(self.mapFile):
-                #print('before open header')
-                with open(self.mapFile, 'r') as f:
-                    line = next(f)
-                headers = list(filter(None, re.split('\n|;| |,', line)))
-                name_col = self.cmbBox.currentText()
-                idex_col = headers[1:].index(name_col) +1
-
+        # Inde
+        try:
+            if self.mapFile:
+                if os.path.exists(self.mapFile):
+                        #print('before open header')
+                    with open(self.mapFile, 'r') as f:
+                        line = next(f)
+                    headers = list(filter(None, re.split('\n|;| |,', line)))
+                    name_col = self.cmbBox.currentText()
+                    idex_col = headers[1:].index(name_col) +1
+        except:
+            return
 
         t_ass =[] # Table d'association
         if self.mapFile:
@@ -102,7 +155,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
                         data = list(filter(None, re.split('\n|;| |,', line)))
                         t_ass.append([data[0],data[idex_col]]) # Table two dimention
 
-        print(str(t_ass))
         if t_ass:   # Update with associtation table
             wt = self.twAssociation
             for t_as in t_ass:
