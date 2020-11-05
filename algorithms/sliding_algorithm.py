@@ -26,6 +26,7 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
+    QgsProcessingParameterDefinition,
     QgsProcessingAlgorithm,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
@@ -83,31 +84,25 @@ class SlidingAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
-        # ANALYZE TYPE
+        # METRICS
 
-        analyzeTypeParam = QgsProcessingParameterEnum(
-            name=self.ANALYZE_TYPE,
-            description=self.tr('Analyze type'),
-            options=self.types_of_analyze)
+        metricsParam = QgsProcessingParameterString(
+            name=self.METRICS,
+            description=self.tr('Select metrics'))
 
-        analyzeTypeParam.setMetadata({
+        metricsParam.setMetadata({
             'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.DISTANCE_FUNCTION, 
-                    'enableValue': 1
-                }]
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
+                'dictValues': self.types_of_metrics,
+                'initialValue': 'diversity metrics',
+                'rasterLayerParamName': self.INPUT_ASC,
+                'parentWidgetConfig': { 'paramName': self.INPUT_ASC, 'refreshMethod': 'refreshMappingCombobox'}
             }
         })
+        
+        self.addParameter(metricsParam)
 
-        self.addParameter(analyzeTypeParam)
-
-        # DISTANCE FUNCTION
-
-        self.addParameter(QgsProcessingParameterString(
-            name=self.DISTANCE_FUNCTION,
-            description=self.tr('Distance function'),
-            optional=True))
+        ###### ADVANCED PARAMETERS ######
 
         # WINDOW SHAPE
 
@@ -126,19 +121,116 @@ class SlidingAlgorithm(ChloeAlgorithm):
             }
         })
         
+        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(windowShapeParam)
 
         # FRICTION FILE (OPTIONAL)
-        self.addParameter(QgsProcessingParameterFile(
+
+        frictionFile = QgsProcessingParameterFile(
             name=self.FRICTION_FILE,
             description=self.tr('Friction file'),
-            optional=True))
+            optional=True)
+
+        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(frictionFile)
+
+        # ANALYZE TYPE
+
+        analyzeTypeParam = QgsProcessingParameterEnum(
+            name=self.ANALYZE_TYPE,
+            description=self.tr('Analyze type'),
+            options=self.types_of_analyze)
+
+        analyzeTypeParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
+                'dependantWidgetConfig': [{ 
+                    'paramName': self.DISTANCE_FUNCTION, 
+                    'enableValue': 1
+                }]
+            }
+        })
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(analyzeTypeParam)
+
+        # DISTANCE FUNCTION
+
+        distanceFunctionParam = QgsProcessingParameterString(
+            name=self.DISTANCE_FUNCTION,
+            description=self.tr('Distance function'),
+            optional=True)
+        distanceFunctionParam.setFlags(distanceFunctionParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(distanceFunctionParam)
+        
+        # DELTA DISPLACEMENT
+        deltaDisplacement = QgsProcessingParameterNumber(
+            name=self.DELTA_DISPLACEMENT,
+            description=self.tr('Delta displacement (pixels)'),
+            defaultValue=1,
+            minValue=1)
+        deltaDisplacement.setFlags(deltaDisplacement.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(deltaDisplacement)
+
+
+        # INTERPOLATE VALUES BOOL
+        interpolateValues = QgsProcessingParameterBoolean(
+            name=self.INTERPOLATE_VALUES_BOOL,
+            description=self.tr('Interpolate Values'),
+            defaultValue=False)
+        interpolateValues.setFlags(interpolateValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(interpolateValues)
+
+
+        # FILTER
+        fieldsParamFilter = QgsProcessingParameterString(
+            name=self.FILTER,
+            description=self.tr('Filters - Analyse only'),
+            defaultValue='',
+            optional=True)
+        fieldsParamFilter.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+            }
+        })
+        fieldsParamFilter.setFlags(fieldsParamFilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(fieldsParamFilter)
+
+
+        # UNFILTER
+        fieldsParamUnfilter = QgsProcessingParameterString(
+            name=self.UNFILTER,
+            description=self.tr('Filters - Do not analyse'),
+            defaultValue='',
+            optional=True)
+        fieldsParamUnfilter.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+            }
+        })
+
+        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(fieldsParamUnfilter)
+
+        # MAX RATE MISSING VALUES
+        maxRateMissingValues = QgsProcessingParameterNumber(
+            name=self.MAXIMUM_RATE_MISSING_VALUES,
+            description=self.tr('Maximum rate of missing values'),
+            minValue=0,
+            maxValue=100,
+            defaultValue=100)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(maxRateMissingValues)
 
         # WINDOW SIZE
         
+        ''' USING Odd Even Spinbox wrapper
         windowSizeParam = QgsProcessingParameterNumber(
             name=self.WINDOW_SIZES,
-            description=self.tr('Windows sizes (pixels)')
+            description=self.tr('Windows sizes (pixels)')            
         )
         windowSizeParam.setMetadata({
             'widget_wrapper': {
@@ -149,66 +241,19 @@ class SlidingAlgorithm(ChloeAlgorithm):
                 'oddNum' : True
             }
         })
-
+    '''
+        windowSizeParam = QgsProcessingParameterNumber(
+            name=self.WINDOW_SIZES,
+            description=self.tr('Windows sizes (pixels)'),
+            defaultValue=3,
+            minValue=3            
+        )
+        
         self.addParameter(windowSizeParam)
 
-        self.addParameter(QgsProcessingParameterNumber(
-            name=self.DELTA_DISPLACEMENT,
-            description=self.tr('Delta displacement (pixels)'),
-            defaultValue=1,
-            minValue=1))
-
-        self.addParameter(QgsProcessingParameterBoolean(
-            name=self.INTERPOLATE_VALUES_BOOL,
-            description=self.tr('Interpolate Values'),
-            defaultValue=False))
-
-        fieldsParam = QgsProcessingParameterString(
-            name=self.FILTER,
-            description=self.tr('Filters - Analyse only'),
-            defaultValue='',
-            optional=True)
-        fieldsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
-            }
-        })
-        self.addParameter(fieldsParam)
-
-        fieldsParam = QgsProcessingParameterString(
-            name=self.UNFILTER,
-            description=self.tr('Filters - Do not analyse'),
-            defaultValue='',
-            optional=True)
-        fieldsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
-            }
-        })
-        self.addParameter(fieldsParam)
-
-        self.addParameter(QgsProcessingParameterNumber(
-            name=self.MAXIMUM_RATE_MISSING_VALUES,
-            description=self.tr('Maximum rate of missing values'),
-            minValue=0,
-            maxValue=100,
-            defaultValue=100))
-
-        metricsParam = QgsProcessingParameterString(
-            name=self.METRICS,
-            description=self.tr('Select metrics'))
-
-        metricsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
-                'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
-                'rasterLayerParamName': self.INPUT_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_ASC, 'refreshMethod': 'refreshMappingCombobox'}
-            }
-        })
         
-        self.addParameter(metricsParam)
+
+       
 
         # === OUTPUT PARAMETERS ===
         
@@ -327,12 +372,12 @@ class SlidingAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'output_asc=' + self.output_asc + "\n", isWindows()))
 
-            fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
+            fd.write("window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
 
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula))
+                fd.write("distance_function=" + str(self.distance_formula) + "\n")
                 
             fd.write("metrics={" + self.metrics + "}\n")
             fd.write("delta_displacement="

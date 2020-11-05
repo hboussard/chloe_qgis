@@ -92,6 +92,7 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # MAP CSV
         fieldsParam = QgsProcessingParameterFile(
             name=self.MAP_CSV,
             description=self.tr('CSV Map'),
@@ -104,27 +105,28 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(fieldsParam)
 
+        # CHANGES
         fieldsParam = QgsProcessingParameterString(
             name= self.CHANGES,
             description=self.tr('Values to search and replace'),
             defaultValue='')
-        #fieldsParam.setIsDynamic(True)
-        #fieldsParam.setDynamicLayerParameterName('MAP_CSV')
+        fieldsParam.setIsDynamic(True)
+        fieldsParam.setDynamicLayerParameterName('INPUT_ASC')
         #m_param.setDynamicPropertyDefinition(QgsPropertyDefinition(self.M_VALUE, self.tr("M Value"), QgsPropertyDefinition.Double))
 
         fieldsParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeMappingTableWidgetWrapper',
-                'parentWidgetConfig': { 'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox'}
+                'parentWidgetConfig': { 'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox', 'paramName2': self.INPUT_ASC, 'refreshMethod2':'refreshMappingAsc'}
             }
         })
         self.addParameter(fieldsParam)
 
+        # NO DATA VALUE
         self.addParameter(QgsProcessingParameterNumber(
             name=self.NODATA_VALUE, 
             description=self.tr('Nodata value'),
             defaultValue=-1))
-
 
         # === OUTPUT PARAMETERS ===
          

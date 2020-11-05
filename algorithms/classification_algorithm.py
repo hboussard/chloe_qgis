@@ -105,6 +105,7 @@ class ClassificationAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # DOMAINS
         fieldsParam = QgsProcessingParameterString(
             name= self.DOMAINS,
             description=self.tr('New classification'),
@@ -117,8 +118,7 @@ class ClassificationAlgorithm(ChloeAlgorithm):
         self.addParameter(fieldsParam)
             
         # === OUTPUT PARAMETERS ===
-        
-        
+      
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))

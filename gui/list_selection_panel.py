@@ -50,7 +50,7 @@ WIDGET, BASE = uic.loadUiType(
 
 class ListSelectionPanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, typesOfMetrics={}, initialValue=None, rasterLayerParamName='INPUT_ASC'):
+    def __init__(self, dialog, alg, typesOfMetrics={}, initialValue=None, rasterLayerParamName='INPUT_ASC', standardGui=True): # standardGui => Flag used when in modeler or batch mode
         super(ListSelectionPanel, self).__init__(None)
         self.setupUi(self) 
         self.dialog = dialog
@@ -58,7 +58,7 @@ class ListSelectionPanel(BASE, WIDGET):
         self.typesOfMetrics = typesOfMetrics
         self.initialValue = initialValue
         self.rasterLayerParamName = rasterLayerParamName
-        
+        self.standardGui = standardGui
         self.metrics_selected = set()
 
         self.initGui()
@@ -72,7 +72,10 @@ class ListSelectionPanel(BASE, WIDGET):
         self.cbFilter.addItems(self.typesOfMetrics.keys())
         self.listSrc.clear()
         self.listDest.clear()
-        self.lineEdit.setReadOnly(True)
+        if self.standardGui: # if standard GUI Flag is FALSE disable readOnly since listSelectionPanel widget cannot be properly used in modeler nor batch mode
+            self.lineEdit.setReadOnly(True)
+        else:
+            self.lineEdit.setReadOnly(False)
         
         # connecting signals
         self.pbRight.clicked.connect(self.addInListDst)

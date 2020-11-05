@@ -90,12 +90,17 @@ class CSVFieldSelectionPanel(BASE, WIDGET):
         #p = self.alg.parameterAsString(parameters, self.alg.INPUT_FILE_CSV, context)
 
         #f_input = p.source.asExpression().strip("'")
-        f_input = p.strip("'")
+        if p:
+            f_input = p.strip("'")
+        else:
+            f_input = None
         #print(f_input)
         if f_input:
             with open(f_input,'r') as f:
                 line = f.readline()
                 line = line.rstrip('\n') # Delete \n
+                line = line.replace('"','') # Delete "
+                line = line.replace("'",'') # Delete '
                 fields = line.split(';')
                 fields.remove('X')       # remove "X" field
                 fields.remove('Y')       # remove "Y" field

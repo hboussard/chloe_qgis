@@ -50,7 +50,7 @@ WIDGET, BASE = uic.loadUiType(
 
 class FactorTablePanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, default=None, inputMatrix=None): #
+    def __init__(self, dialog, alg, default=None, inputMatrix=None): # standardGui => Flag used when in modeler or batch mode
         super(FactorTablePanel, self).__init__(None)
         self.setupUi(self) 
         self.dialog = dialog
@@ -59,9 +59,9 @@ class FactorTablePanel(BASE, WIDGET):
         self.resultCombination = ''
         self.resultMatrix = ''
         if hasattr(self.leText, 'setPlaceholderText'):
-            self.leText.setPlaceholderText('Combination Formula')
-            self.leText.setReadOnly(True)
-        self.btnSelect.clicked.connect(self.selectValues) # Bouton "..."
+            self.leText.setPlaceholderText(self.tr('Combination Formula'))
+        self.leText.setReadOnly(True)
+        self.btnSelect.clicked.connect(self.selectValues) # Bouton "...
 
     def selectValues(self):
         """Values selector
@@ -71,10 +71,16 @@ class FactorTablePanel(BASE, WIDGET):
         text = self.leText.text()
         parameters = {}
         listElement = []
-        # create array to fill the factor table widget
+        # create an array to fill the factor table widget
  
         if (self.inputMatrix!=None):
-            listLayers = self.dialog.mainWidget().wrappers[self.alg.INPUTS_MATRIX].value()
+            try:
+                listLayers = self.dialog.mainWidget().wrappers[self.alg.INPUTS_MATRIX].value()
+            except:
+                pass
+
+            if listLayers == None:
+                return
             
             if len(listLayers) == 0:
                 QMessageBox.critical(self, self.tr('Select rasters'),self.tr('No rasters selected'))
@@ -85,7 +91,7 @@ class FactorTablePanel(BASE, WIDGET):
                     lyrName = ChloeUtils.deduceLayerName(l)
                     # check if listLayers items are strings or layer objects
                     if type(l) is str:
-                        path = str(l)
+                        path = str(l) 
                     else:
                         path = str(l.dataProvider().dataSourceUri())
                     listElement.append(('m'+str(i), lyrName, path))

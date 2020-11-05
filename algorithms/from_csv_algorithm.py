@@ -107,6 +107,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             optional=False,
             types=[QgsProcessing.TypeVectorPoint]))
 
+        # FIELDS
         fieldsParam = QgsProcessingParameterString(
             name=self.FIELDS,
             description=self.tr('Fields selection'),
@@ -120,6 +121,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
         )
         self.addParameter(fieldsParam)
 
+        # N COLS
         self.addParameter(QgsProcessingParameterNumber(
             name=self.N_COLS,
             description=self.tr('Columns count'),

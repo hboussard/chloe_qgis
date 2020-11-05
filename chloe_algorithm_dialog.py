@@ -43,6 +43,7 @@ from qgis.PyQt.QtWidgets import (QWidget,
 
 from qgis.core import (QgsProcessingFeedback,
                        QgsProcessingParameterDefinition,
+                       QgsProcessingParameterString,
                        QgsSettings)
 from qgis.gui import (QgsMessageBar,
                       QgsProjectionSelectionWidget,
@@ -92,6 +93,7 @@ from processing.core.ProcessingLog import ProcessingLog
 from processing.core.ProcessingConfig import ProcessingConfig
 from processing.core.ProcessingResults import resultsList
 from processing.gui.ParametersPanel import ParametersPanel
+from processing.gui.BatchPanel import BatchPanel
 from processing.gui.BatchAlgorithmDialog import BatchAlgorithmDialog
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
 from processing.gui.AlgorithmExecutor import executeIterating, execute#, execute_in_place
@@ -102,7 +104,7 @@ from processing.tools import dataobjects
 
 import os
 import warnings
-
+import copy
 from functools import partial
 
 from qgis.core import (QgsProcessingParameterDefinition,
@@ -112,6 +114,7 @@ from qgis.core import (QgsProcessingParameterDefinition,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterVectorDestination,
+                       QgsProcessingParameterFileDestination,
                        QgsProject)
 #from qgis.gui import (QgsProcessingContextGenerator,
                       #QgsProcessingParameterWidgetContext)
@@ -119,7 +122,7 @@ from qgis.utils import iface
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtCore import QCoreApplication, Qt
-from qgis.PyQt.QtWidgets import (QWidget, QHBoxLayout, QToolButton,
+from qgis.PyQt.QtWidgets import (QWidget, QHBoxLayout, QToolButton, QComboBox,
                                  QLabel, QCheckBox, QSizePolicy)
 from qgis.PyQt.QtGui import QIcon
 
@@ -146,7 +149,6 @@ pluginPath = os.path.join(
     'plugins',
     'processing')
 
-
 class ChloeAlgorithmDialog(AlgorithmDialog):
 
     def __init__(self, alg):
@@ -159,7 +161,7 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
     def accept(self):
         #print("accept")
         super().accept()
-    
+   
     def finish(self, successful, result, context, feedback):
         #print("finish...")
         super().finish(successful, result, context, feedback)
@@ -284,7 +286,8 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
             if isinstance(param, 
                 (ChloeCSVParameterFileDestination, 
                 ChloeASCParameterFileDestination, 
-                ChloeParameterFolderDestination)):
+                ChloeParameterFolderDestination
+                )):
                 paramName = param.name()
                 if paramName in parameters:
                     p = parameters[paramName]
@@ -295,7 +298,6 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
                     newValue = { "data": value, "openLayer" : toBeOpened }
                     #print("newValue " + str(newValue))
                     parameters[paramName] = newValue
-
         return self.algorithm().preprocessParameters(parameters)
 
 class ChloeParametersPanel(ParametersPanel):
@@ -342,9 +344,6 @@ class ChloeParametersPanel(ParametersPanel):
         #         self.layoutMain.insertWidget(self.layoutMain.count() - 1, check)
         #         self.checkBoxes[output_name] = check
 
-
-
-
     def initWidgets(self): # Heavy overload
         # If there are advanced parameters — show corresponding groupbox
         for param in self.alg.parameterDefinitions():
@@ -361,7 +360,7 @@ class ChloeParametersPanel(ParametersPanel):
             if param.flags() & QgsProcessingParameterDefinition.FlagHidden:
                 continue
 
-            print('initWidgets - param.name(): {}'.format(param.name()))
+            #print('initWidgets - param.name(): {}'.format(param.name()))
             if param.isDestination(): # and param.name() != 'OUTPUT_ASC':
                 continue
             else:
@@ -395,7 +394,8 @@ class ChloeParametersPanel(ParametersPanel):
 
                 if widget is not None:
                     if is_python_wrapper:
-                        widget.setToolTip(param.toolTip())
+                        #widget.setToolTip(param.toolTip())
+                        print(param.toolTip())
 
                     if isinstance(param, QgsProcessingParameterFeatureSource):
                         layout = QHBoxLayout()
@@ -406,7 +406,7 @@ class ChloeParametersPanel(ParametersPanel):
                         icon = QIcon(os.path.join(pluginPath, 'images', 'iterate.png'))
                         button.setIcon(icon)
                         button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-                        button.setToolTip(self.tr('Iterate over this layer, creating a separate output for every feature in the layer'))
+                        #button.setToolTip(self.tr('Iterate over this layer, creating a separate output for every feature in the layer'))
                         button.setCheckable(True)
                         layout.addWidget(button)
                         layout.setAlignment(button, Qt.AlignTop)
@@ -478,8 +478,7 @@ class ChloeParametersPanel(ParametersPanel):
                 if hasattr(output,'addToMapDefaultState'):
                     check.setChecked(output.addToMapDefaultState)
 
-
-            widget.setToolTip(param.toolTip())
+            #widget.setToolTip(param.toolTip())
             self.outputWidgets[output.name()] = widget
 
         for wrapper in list(self.wrappers.values()):
@@ -517,16 +516,20 @@ class ChloeParametersPanel(ParametersPanel):
         # alk: addition of wrapper special config handling
         # for dependancy between wrapper, i.e. changing the value 
         # of a FileSelectionPanel entails the update of another widget
+
         for k in self.wrappers:
             w = self.wrappers[k]
             if hasattr(w,'getParentWidgetConfig'):
-                print(str(w) + " "  + "getParentWidgetConfig")
+                #print(str(w) + " "  + "getParentWidgetConfig")
                 config = w.getParentWidgetConfig()
                 if config != None:
+
+                    # LINKED PARAMETER ONE
                     p = self.wrappers[config['paramName']]
                     m = getattr(w, config['refreshMethod'])
+           
                     if m!=None:
-                        print(str(p) + " " + str(p.widget))
+
                         # todo generalize valueChanged handling 
                         # to any type of widget componant
                         if isinstance(p.widget, FileSelectionPanel):
@@ -536,8 +539,22 @@ class ChloeParametersPanel(ParametersPanel):
                                 p.combo.valueChanged.connect(m) # QGIS 3.8 version
                             except:
                                 p.combo.currentIndexChanged.connect(m) # QGIS LTR 3.4
-                            
 
+                    # LINKED PARAMETER TWO
+                        try:
+                            p2 = self.wrappers[config['paramName2']]
+                            m2 =getattr(w, config['refreshMethod2'])
+
+                            if isinstance(p2.widget, FileSelectionPanel):
+                                p2.widget.leText.textChanged.connect(m2)
+
+                            elif isinstance(p2, RasterWidgetWrapper):
+                                try:
+                                    p2.combo.valueChanged.connect(m2) # QGIS 3.8 version
+                                except:
+                                    p2.combo.currentIndexChanged.connect(m2) # QGIS LTR 3.4
+                        except:
+                            pass
 
     def connectParameterSignals(self):
         for wrapper in list(self.wrappers.values()):
@@ -609,32 +626,37 @@ class ChloeFieldsFromCSVWidgetWrapper(WidgetWrapper):
 
     def createWidget(self):
         """Widget creation to put like panel in dialog"""
-        if self.dialogType == DIALOG_STANDARD:
-            #return CSVFieldSelectionPanel(self.dialog, self.param.algorithm(), None)
-            return CSVFieldSelectionPanel(self.dialog, self.param.algorithm(), None)
-        elif self.dialogType == DIALOG_BATCH:
-            #todo
-            return None
-        else:
-            #todo
-            return CSVFieldSelectionPanel(self.dialog, self.param.algorithm(), None)
 
+        # STANDARD GUI
+        if self.dialogType == DIALOG_STANDARD:
+            return CSVFieldSelectionPanel(self.dialog, self.param.algorithm(), None)
+        # BATCH AND MODELER GUI
+        else:
+            widget = QLineEdit()
+            widget.setPlaceholderText('Field 1;Field 2')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
+       
     def setValue(self, value):
         """Set value on the widget/component."""
         if value is None:
             return
+        # STANDARD GUI
         if self.dialogType == DIALOG_STANDARD:
             self.widget.setValue(str(value))
+        # BATCH AND MODELER GUI
         else:
-            # todo
-            self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
+        # STANDARD GUI
         if self.dialogType == DIALOG_STANDARD:
             return self.widget.getValue()
+        # BATCH AND MODELER GUI
         else:
-            return self.widget.getValue()
+            return self.widget.text()
 
 class ChloeValuesWidgetWrapper(WidgetWrapper):
     def createLabel(self):
@@ -644,33 +666,41 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
         else:
             return super().createLabel()
 
-    def createWidget(self):
+    def createWidget(self,input_asc='INPUT_ASC'):
         """Widget creation to put like panel in dialog"""
+        # STANDARD GUI
         if self.dialogType == DIALOG_STANDARD:
-            return ValuesSelectionPanel(self.dialog, self.param.algorithm(), None)
+            return ValuesSelectionPanel(self.dialog, self.param.algorithm(), None, input_asc)
+        # BATCH GUI
         elif self.dialogType == DIALOG_BATCH:
-            #todo
-            return None
+            return ValuesSelectionPanel(self.dialog, self.param.algorithm(), None, input_asc, True)
+        # MODELER GUI
         else:
-            #todo
-            return ValuesSelectionPanel(self.dialog, self.param.algorithm(), None)
+            widget = QLineEdit()
+            widget.setPlaceholderText('1;2;5')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
 
     def setValue(self, value):
         """Set value on the widget/component."""
         if value is None:
             return
-        if self.dialogType == DIALOG_STANDARD:
+        # STANDARD AND BATCH GUI
+        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
             self.widget.setValue(str(value))
+        # MODELER GUI
         else:
-            # todo
-            self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
-        if self.dialogType == DIALOG_STANDARD:
+        # STANDARD AND BATCH GUI
+        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
             return self.widget.getValue()
+        # MODELER GUI
         else:
-            return self.widget.getValue()
+            return self.widget.text()
 
 class ChloeClassificationTableWidgetWrapper(WidgetWrapper):
     def createLabel(self):
@@ -686,7 +716,7 @@ class ChloeClassificationTableWidgetWrapper(WidgetWrapper):
             return ClassificationTablePanel(self.dialog, self.param.algorithm(), None)
         elif self.dialogType == DIALOG_BATCH:
             #todo
-            return None
+            return ClassificationTablePanel(self.dialog, self.param.algorithm(), None)
         else:
             #todo
             return ClassificationTablePanel(self.dialog, self.param.algorithm(), None)
@@ -720,12 +750,13 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
         """Widget creation to put like panel in dialog"""
         if self.dialogType == DIALOG_STANDARD:
             return FactorTablePanel(self.dialog, self.param.algorithm(), None, input_matrix)
-        elif self.dialogType == DIALOG_BATCH:
-            #todo
-            return None
+        # BATCH AND MODELER GUI
         else:
-            #todo
-            return FactorTablePanel(self.dialog, self.param.algorithm(), None, input_matrix)
+            widget = QLineEdit()
+            widget.setPlaceholderText('Combination Formula')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -733,15 +764,17 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
             return
         if self.dialogType == DIALOG_STANDARD:
             self.widget.setValue(str(value))
+        # BATCH AND MODELER GUI
         else:
-            # todo
-            self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
         if self.dialogType == DIALOG_STANDARD:
             return self.widget.getValue()
-        #else:
+        # BATCH AND MODELER GUI
+        else:
+            return self.widget.text()
 
 class ChloeMappingTableWidgetWrapper(WidgetWrapper):
     def createLabel(self):
@@ -756,40 +789,49 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         self.parentWidgetConfig = parentWidgetConfig
         if self.dialogType == DIALOG_STANDARD:
             return TableReplaceInputPanel(self.dialog, self.param.algorithm(), None)
+        # BATCH GUI
         elif self.dialogType == DIALOG_BATCH:
-            #todo
-            return None
+            return TableReplaceInputPanel(self.dialog, self.param.algorithm(), None, True)
+        # MODELER GUI
         else:
-            #todo
-            return (self.dialog, self.param.algorithm(), None)
+            widget = QLineEdit()
+            widget.setPlaceholderText('(1,3);(2,9)')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
 
     def setValue(self, value):
         """Set value on the widget/component."""
         if value is None:
             return
-        if self.dialogType == DIALOG_STANDARD:
+        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
             self.widget.setValue(str(value))
+        # MODELER GUI
         else:
-            # todo
-            self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
-        if self.dialogType == DIALOG_STANDARD:
+        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
             return self.widget.getValue()
+        # MODELER GUI
         else:
-            return self.widget.getValue()
+            return self.widget.text()
 
     def getParentWidgetConfig(self):
         return self.parentWidgetConfig
 
     def refreshMappingCombobox(self):
+        print('updateMapAsc triggered')
         paramPanel = self.dialog.mainWidget()
         wrapper = paramPanel.wrappers[self.parentWidgetConfig['paramName']]
         widget = wrapper.widget
         mappingFilepath = widget.getValue()
-        #print(str(mappingFilepath))
         self.widget.updateMapCSV(mapFile=mappingFilepath)
+
+    def refreshMappingAsc(self):
+        print('updateMapAsc triggered')
+        self.widget.updateMapASC()
 
 class ChloeEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
     
@@ -815,7 +857,7 @@ class ChloeEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
                 dependantWidget.setEnabled(self.value()==c['enableValue'])
 
 class ChloeMultiEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
-    """ same as ChloeEnumUpdateStateWidgetWrapper class but we can use different value of the same parameter to unlock another parameter """
+    """ same as ChloeEnumUpdateStateWidgetWrapper class but we can use different values of the same parameter to unlock another parameter """
     def createWidget(self, dependantWidgetConfig=None):
         """  """
         self.dependantWidgetConfig = dependantWidgetConfig
@@ -848,14 +890,17 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
     def createWidget(self, dictValues, initialValue, rasterLayerParamName, parentWidgetConfig=None):
         """Widget creation to put like panel in dialog"""
         self.parentWidgetConfig = parentWidgetConfig
+        # STANDARD GUI
         if self.dialogType == DIALOG_STANDARD:
             return DoubleCmbBoxSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName)
+        # BATCH GUI
         elif self.dialogType == DIALOG_BATCH:
-            #todo
-            return None
+            return DoubleCmbBoxSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName, False)
+            # get raster values 
+        # MODELER GUI
         else:
-            #todo
-            return (self.dialog, self.param.algorithm(), None)
+            return DoubleCmbBoxSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName, False)
+            
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -889,10 +934,11 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
             return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName)
         elif self.dialogType == DIALOG_BATCH:
             #todo
-            return None
+            return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName,False)
         else:
             #todo
-            return (self.dialog, self.param.algorithm(), None)
+            #return (self.dialog, self.param.algorithm(), None)
+            return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName,False)
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -902,7 +948,8 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
             self.widget.setValue(str(value))
         else:
             # todo
-            self.widget.setValue(str(value))
+            pass
+            #self.widget.setValue(str(value))
 
     def value(self):
         """Get value on the widget/component."""
@@ -952,14 +999,15 @@ class ChloeAscRasterWidgetWrapper(RasterWidgetWrapper):
 
 class ChloeIntListWidgetWrapper(WidgetWrapper):
     
-    def createWidget(self, initialValue, minValue, maxValue, oddNum):
+    def createWidget(self, initialValue, minValue, maxValue, oddNum=None):
         """Widget creation to put like panel in dialog"""
         if self.dialogType == DIALOG_STANDARD:
             return IntListSelectionPanel(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
         elif self.dialogType == DIALOG_BATCH:
-            return None
+            return IntListSelectionPanel(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
         else:
-            return (self.dialog, self.param.algorithm(), None)
+            #return (self.dialog, self.param.algorithm(), None)
+            return IntListSelectionPanel(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -969,7 +1017,8 @@ class ChloeIntListWidgetWrapper(WidgetWrapper):
             self.widget.setValue(str(value))
         else:
             # todo
-            self.widget.setValue(str(value))
+            pass
+            #self.widget.setValue(str(value))
 
     def value(self):
         """Get value on the widget/component."""
@@ -985,9 +1034,10 @@ class ChloeIntSpinboxWrapper(WidgetWrapper):
         if self.dialogType == DIALOG_STANDARD:
             return IntSpinbox(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
         elif self.dialogType == DIALOG_BATCH:
-            return None
+            return IntSpinbox(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
         else:
-            return (self.dialog, self.param.algorithm(), None)
+            #return (self.dialog, self.param.algorithm(), None)
+            return IntSpinbox(self.dialog, self.param.algorithm(), initialValue, minValue, maxValue, oddNum)
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -1081,15 +1131,30 @@ class ChloeCSVParameterFileDestination(QgsProcessingParameterFileDestination):
         self.addToMapDefaultState = addToMapDefaultState
     
     def checkValueIsAcceptable(self, input, context = None):
-        return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        try:
+            #STANDARD GUI RETURN
+            return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        except:
+            #BATCH AND MODERLER GUI RETURN
+            return input and super().checkValueIsAcceptable(input, context)
 
 class ChloeASCParameterFileDestination(QgsProcessingParameterFileDestination):
     def __init__(self, name, description, fileFilter='ASC (*.asc)'):
         super().__init__(name=name, description=description, fileFilter=fileFilter)
     
     def checkValueIsAcceptable(self, input, context = None):
-        return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        try:
+            #STANDARD GUI RETURN
+            return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        except:
+            #BATCH AND MODERLER GUI RETURN
+            return input and super().checkValueIsAcceptable(input, context)
 
 class ChloeParameterFolderDestination(QgsProcessingParameterFolderDestination):
     def checkValueIsAcceptable(self, input, context = None):
-        return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        try:
+            #STANDARD GUI RETURN
+            return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+        except:
+            #BATCH AND MODERLER GUI RETURN
+            return input and super().checkValueIsAcceptable(input, context) 

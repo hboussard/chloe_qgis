@@ -91,7 +91,9 @@ class ClusterAlgorithm(ChloeAlgorithm):
         super().__init__()
 
     def initAlgorithm(self, config=None):
+
         # === INPUT PARAMETERS ===
+
         inputAscParam = QgsProcessingParameterRasterLayer(
             name=self.INPUT_ASC,
             description=self.tr('Input layer asc'))
@@ -103,6 +105,7 @@ class ClusterAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # CLUSTER
         fieldsParam = QgsProcessingParameterString(
             name= self.CLUSTER,
             description=self.tr('Clusters from value(s)'),
@@ -114,6 +117,7 @@ class ClusterAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(fieldsParam)
 
+        # CLUSTER TYPE
         clusterTypeParam = QgsProcessingParameterEnum(
             self.CLUSTER_TYPE,
             self.tr('Cluster type'),
@@ -127,26 +131,37 @@ class ClusterAlgorithm(ChloeAlgorithm):
                 'dependantWidgetConfig': [{ 
                     'paramName': self.CLUSTER_DISTANCE, 
                     'enableValue': '2,3'
+                }
+                ,
+                { 
+                    'paramName': self.CLUSTER_FRICTION, 
+                    'enableValue': '3'
                 }]
             }
         })
 
-        self.addParameter(QgsProcessingParameterNumber(
-            name = self.CLUSTER_MIN_AREA,
-            description = self.tr('Minimal area (Ha)'),
-            defaultValue = 0,
-            minValue = 0))
-
+        # CLUSTER DISTANCE
         self.addParameter(QgsProcessingParameterNumber(
             name=self.CLUSTER_DISTANCE,
             description=self.tr('Distance in meters (only for euclidean and functional distance)'),
+            type=QgsProcessingParameterNumber.Double,
             optional=True,
             minValue = 0))
 
+        # CLUSTER FRICTION
         self.addParameter(QgsProcessingParameterFile(
             name=self.CLUSTER_FRICTION,
             description=self.tr('Friction file'),
             optional=True))
+        
+        # CLUSTER MIN AREA
+        self.addParameter(QgsProcessingParameterNumber(
+            name = self.CLUSTER_MIN_AREA,
+            description = self.tr('Minimal area (Ha)'),
+            type=QgsProcessingParameterNumber.Double,
+            defaultValue = 0.0,
+            minValue = 0.0))
+
             
         # === OUTPUT PARAMETERS ===     
         
@@ -266,9 +281,11 @@ class ClusterAlgorithm(ChloeAlgorithm):
             fd.write( ChloeUtils.formatString('input_ascii='+self.input_asc +"\n",isWindows()))  
             fd.write( ChloeUtils.formatString('output_asc=' +self.output_asc+"\n",isWindows()))  
             fd.write( ChloeUtils.formatString('output_csv=' +self.output_csv+"\n",isWindows()))
+            fd.write( ChloeUtils.formatString('minimum_total_area=' +self.cluster_min_area+"\n",isWindows()))
             fd.write("cluster={" + self.cluster +"}\n")
             fd.write("cluster_type=" + self.cluster_type + "\n")
             if not (self.cluster_distance is None):
                 fd.write("cluster_distance=" + str(self.cluster_distance) + "\n")
             if not (self.cluster_friction is None):
-                fd.write( ChloeUtils.formatString("cluster_friction=" + str(self.cluster_friction) + "\n",isWindows()))
+                fd.write(ChloeUtils.formatString("cluster_friction=" + str(self.cluster_friction) + "\n",isWindows()))
+            fd.write("minimum_total_area=" + self.cluster_min_area + "\n")

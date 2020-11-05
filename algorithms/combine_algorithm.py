@@ -7,7 +7,7 @@
  description
                               -------------------
         begin                : 2017-10-17
-        author : Jean-Charles Naud, Olivier Bedel, Hugues Boussard
+        author : Jean-Charles Naud, Olivier Bedel, Hugues Boussard, Daan Guillerme
 
         email                : hugues.boussard at inra.fr
  ***************************************************************************/
