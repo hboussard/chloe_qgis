@@ -11,8 +11,8 @@
 
 """
 
-__author__ = 'Jean-Charles Naud'
-__date__ = 'January 2017'
+__author__ = 'Daan Guillerme'
+__date__ = 'May 2019'
 
 
 # This will get replaced with a git SHA1 when you do a git archive
@@ -67,7 +67,7 @@ class FactorInputDialog(BASE, WIDGET):
     def accept(self):
       if self.checkValues(self.tableWidget):
         # export formula expression
-        self.combinationValue = self.leText.text() #self.exportValues(self.leText) 
+        self.combinationValue = self.leText.toPlainText() #self.exportValues(self.leText) 
         # export raster list
         lstRaster = []  
         for i in range(self.tableWidget.rowCount()):

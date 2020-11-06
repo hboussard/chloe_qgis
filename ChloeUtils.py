@@ -587,6 +587,22 @@ class ChloeUtils:
         #res = os.path.join(dirPath, filename)
         return res
 
+    @staticmethod
+    def toOddNumber(input_integer):
+        """ return a odd number if input number is even """
+        if int(input_integer) % 2 == 0:
+            return int(input_integer) + 1
+        else:
+            return int(input_integer)
+    
+    @staticmethod
+    def toEvenNumber(input_integer):
+        """ return a even number if input number is odd """
+        if int(input_integer) % 2 > 0:
+            return int(input_integer) + 1
+        else:
+            return int(input_integer)
+
 class ASCOutputRaster(QgsProcessingOutputRasterLayer):
     def getFileFilter(self, alg):
         """ Force asc output raster extension"""

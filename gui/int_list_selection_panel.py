@@ -29,6 +29,8 @@ import os
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog, QAbstractItemView
 from processing.gui.ListMultiselectWidget import ListMultiSelectWidget
+from ..ChloeUtils import ChloeUtils
+
 import math
 
 
@@ -49,8 +51,8 @@ class IntListSelectionPanel(BASE, WIDGET):
         self.maxValue = maxValue
         self.oddNum = oddNum # specifies wether spinbox value should be odd (True) or even (False)
         self.window_sizes_selected = set()
-        if self.oddNum is not None:
-            self.sbInt.valueChanged.connect(lambda x: self.updateSb()) # update spinbox value if wrong one
+        #if self.oddNum is not None:
+        #    self.sbInt.valueChanged.connect(lambda x: self.updateSb()) # update spinbox value if wrong one
         self.initGui()
         
 
@@ -73,7 +75,13 @@ class IntListSelectionPanel(BASE, WIDGET):
     def addIntInListDst(self):
         """Add grid size integer in listSrc"""
         int_value = self.sbInt.value()
-        self.window_sizes_selected.add(str(self.sbInt.value()))
+        if self.oddNum is not None:
+            if self.oddNum:
+                self.window_sizes_selected.add(str(ChloeUtils.toOddNumber(self.sbInt.value())))
+            elif self.oddNum is False:
+                self.window_sizes_selected.add(str(ChloeUtils.toEvenNumber(self.sbInt.value())))
+        else:
+            self.window_sizes_selected.add(str(self.sbInt.value()))
         self.listDest.clear()
         self.listDest.addItems(list(self.window_sizes_selected))
         self.updateWindowsSizesLigneEdit()
@@ -95,11 +103,12 @@ class IntListSelectionPanel(BASE, WIDGET):
         self.listDest.addItems(list(self.window_sizes_selected))
         self.updateWindowsSizesLigneEdit()
 
-    def checkSbValue(self, value):
-        if (self.oddNum and value % 2 == 0) or (self.oddNum is False and value % 2 > 0):
-            return value + 1
-        else:
-            return value
+    #def checkSbValue(self, value):
+    #    if (self.oddNum and value % 2 == 0) or (self.oddNum is False and value % 2 > 0):
+    #        return value + 1
+    #    else:
+    #        return value
+
     def updateSb(self):
         self.sbInt.setValue(self.checkSbValue(self.sbInt.value()))
 

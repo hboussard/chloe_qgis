@@ -98,8 +98,6 @@ class ChloeOutputLayerPostProcessor(QgsProcessingLayerPostProcessorInterface):
         if isinstance(layer, QgsRasterLayer):
             ChloeUtils.setLayerSymbology(layer, 'continuous.qml')
 
-
-
 class ChloeAlgorithm(QgsProcessingAlgorithm):
     # All possible paramaters name
     INPUT_ASC = 'INPUT_ASC'
@@ -208,12 +206,14 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "SIDI",
             "SIEI"],
         "landspace grain": [
-            "LG3",
-            "LG4",
-            "LG5",
-            "MD3",
-            "MD4",
-            "MD5"],
+            "MD"
+            #"LG3",
+            #"LG4",
+            #"LG5",
+            #"MD3",
+            #"MD4",
+            #"MD5"],
+        ],
         "quantitative metrics": [
             "NAT",
             "average",
@@ -272,7 +272,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     def createCustomParametersWidget(self, parent):
         #return ChloeAlgorithmDialog(self, parent=parent)
         return ChloeAlgorithmDialog(self)
-
+        #return ChloeAlgorithmBatchDialog(self)
     def flags(self):
         return QgsProcessingAlgorithm.FlagSupportsBatch | QgsProcessingAlgorithm.FlagNoThreading # cannot cancel!
 
@@ -403,12 +403,12 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #    (it will be load after in the project)
         #
 
-        
-        #print('context : {}'.format(context))
+        #print('context : {}'.format(c:ontext))
         #print('parameterDefinitions : {}'.format(self.parameterDefinitions()))
         if ('OUTPUT_ASC' in parameters) and 'openLayer' in parameters['OUTPUT_ASC'] and parameters['OUTPUT_ASC']['openLayer']==True:
             # Load OUTPUT_ASC on temp layer on context
             #    (it will be load after in the project)
+            
             output_asc = parameters['OUTPUT_ASC']["data"]
             rlayer = QgsRasterLayer(output_asc, "hillshade")
             if not rlayer.isValid():
@@ -426,46 +426,55 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
             results[self.OUTPUT_ASC] = rlayer.id()
 
-        if ('OUTPUT_CSV' in parameters) and parameters['OUTPUT_CSV']['openLayer']==True:
+        if ('OUTPUT_CSV' in parameters) and 'openLayer' in parameters['OUTPUT_CSV'] and parameters['OUTPUT_CSV']['openLayer']==True:
             uri = "file:///"+ str(results['OUTPUT_CSV']) + "?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
             output_csv = parameters['OUTPUT_CSV']["data"]
             if 'OUTPUT_ASC' in parameters:
                 output_csv = ChloeUtils.adjustExtension(output_csv, parameters['OUTPUT_ASC']["data"])
-            
+                
             print("output_csv " + str(uri) + "  " + str(output_csv))
             tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
             tLayer = QgsVectorLayer(uri, tLayerName,'delimitedtext')
             if not tLayer.isValid():
-                raise QgsProcessingException(self.tr("""Cannot load the outpout in the application"""))
+                raise QgsProcessingException(self.tr("""Cannot load the output in the application"""))
 
             context.temporaryLayerStore().addMapLayer(tLayer)
             layerDetails = QgsProcessingContext.LayerDetails(tLayerName,
-                                                  context.project(),
-                                                  self.OUTPUT_CSV)
+                                                context.project(),
+                                                self.OUTPUT_CSV)
             context.addLayerToLoadOnCompletion(tLayer.id(), layerDetails)
             results[self.OUTPUT_CSV] = tLayer.id()
-        
-        if ('OUTPUT_DIR' in parameters) and self.outputFilenames and parameters['OUTPUT_DIR']['openLayer']==True:
+
+        if ('OUTPUT_DIR' in parameters) and ('openLayer' in parameters['OUTPUT_DIR']) and parameters['OUTPUT_DIR']['openLayer']==True: #and self.outputFilenames
             # === import all asc for multi algorithm
+            
             outputDir = self.parameterAsString(parameters, self.OUTPUT_DIR, context)
             if outputDir!=None:
-                self.prepareMultiProjectionFiles()
+                #self.prepareMultiProjectionFiles()
                 for file in self.outputFilenames:
                     print(file + " " + os.path.splitext(os.path.basename(file))[0])
                     rlayer = QgsRasterLayer(file, os.path.splitext(os.path.basename(file))[0])
                     #rlayer = QgsRasterLayer(load_it, "hillshade")
-                    if not rlayer.isValid():
-                        raise QgsProcessingException(self.tr("""Cannot load the outpout in the application"""))
+                    #if not rlayer.isValid():
+                    #    raise QgsProcessingException(self.tr("""Cannot load the outpout in the application"""))
+                    #rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+                    #ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+                    #context.temporaryLayerStore().addMapLayer(rlayer)
+                    #layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
+                    #                                        context.project(),
+                    #                                        self.OUTPUT_DIR)
+                    #    
+                    #context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
 
-                    rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
-                    ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
-                    context.temporaryLayerStore().addMapLayer(rlayer)
-                    layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
-                                                        context.project(),
-                                                        self.OUTPUT_DIR)
-                    
-                    context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
-
+                    if rlayer.isValid():
+                        rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+                        print('raster is valid : ' + str(rLayerName))
+                        ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+                        context.temporaryLayerStore().addMapLayer(rlayer)
+                        layerDetails = QgsProcessingContext.LayerDetails(rLayerName, context.project(), self.OUTPUT_DIR)  
+                        context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
+                    else:
+                        print('raster is not valid')
         return results
 
     def helpUrl(self):

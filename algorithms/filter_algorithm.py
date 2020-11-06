@@ -92,6 +92,7 @@ class FilterAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
         
+        # ASCII FILTER
         ascFilterParam = QgsProcessingParameterRasterLayer(
             name=self.ASCII_FILTER,
             description=self.tr('Ascii Grid Filter'))
@@ -102,13 +103,15 @@ class FilterAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(ascFilterParam)
         
+        # FILTER VALUES
         fieldsParam = QgsProcessingParameterString(
             name= self.FILTER_VALUES,
             description=self.tr('Filter value(s)'),
             defaultValue='')
         fieldsParam.setMetadata({
             'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper',
+                'input_asc' : self.ASCII_FILTER
             }
         })
         self.addParameter(fieldsParam)

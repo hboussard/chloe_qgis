@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>333</width>
-    <height>392</height>
+    <height>494</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -71,17 +71,7 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="leText">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="readOnly">
-      <bool>false</bool>
-     </property>
-    </widget>
+    <widget class="QPlainTextEdit" name="leText"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

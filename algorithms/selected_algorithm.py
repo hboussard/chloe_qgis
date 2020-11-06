@@ -26,6 +26,7 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
+    QgsProcessingParameterDefinition,
     QgsProcessingAlgorithm,
     QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
@@ -79,75 +80,37 @@ class SelectedAlgorithm(ChloeAlgorithm):
             }
         })
         self.addParameter(inputAscParam)
+    	
+        # METRICS
 
-        # ANALYZE TYPE
+        metricsParam = QgsProcessingParameterString(
+            name=self.METRICS,
+            description=self.tr('Select metrics'))
 
-        analyzeTypeParam = QgsProcessingParameterEnum(
-            name=self.ANALYZE_TYPE,
-            description=self.tr('Analyze type'),
-            options=self.types_of_analyze)
-
-        analyzeTypeParam.setMetadata({
+        metricsParam.setMetadata({
             'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.DISTANCE_FUNCTION, 
-                    'enableValue': 1
-                }]
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
+                'dictValues': self.types_of_metrics,
+                'initialValue': 'diversity metrics',
+                'rasterLayerParamName': self.INPUT_LAYER_ASC,
+                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'} #'refreshMappingCombobox'}
             }
         })
 
-        self.addParameter(analyzeTypeParam)
-
-        # DISTANCE FUNCTION
-
-        self.addParameter(QgsProcessingParameterString(
-            name=self.DISTANCE_FUNCTION,
-            description=self.tr('Distance function'),
-            optional=True))
-
-        # WINDOWS SHAPE
-
-        windowShapeParam = QgsProcessingParameterEnum(
-            name=self.WINDOW_SHAPE,
-            description=self.tr('Window shape'),
-            options=self.types_of_shape)
-
-        windowShapeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.FRICTION_FILE, 
-                    'enableValue': 2
-                }]
-            }
-        })
-        
-        self.addParameter(windowShapeParam)
-
-        # FRICTION FILE
-
-        self.addParameter(QgsProcessingParameterFile(
-            name=self.FRICTION_FILE,
-            description=self.tr('Friction file'),
-            optional=True))
+        self.addParameter(metricsParam)
 
         # WINDOWS SIZE
+        
         windowSizeParam = QgsProcessingParameterNumber(
             name=self.WINDOW_SIZES,
-            description=self.tr('Windows sizes (pixels)')            
+            description=self.tr('Windows sizes (pixels)'),
+            defaultValue=3,
+            minValue=3
+                       
         )
-        windowSizeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeIntSpinboxWrapper',
-                'initialValue' : 3,
-                'minValue' : 3,
-                'maxValue' : 100001,
-                'oddNum' : True
-            }
-        })
-
         self.addParameter(windowSizeParam)
+
+        # PIXELS POINTS SELECT
 
         pointPixelParam = QgsProcessingParameterEnum(
             name=self.PIXELS_POINTS_SELECT,
@@ -170,39 +133,91 @@ class SelectedAlgorithm(ChloeAlgorithm):
         
         self.addParameter(pointPixelParam)
 
+        # PIXEL FILE
         self.addParameter(QgsProcessingParameterFile(
             name=self.PIXELS_FILE,
             description=self.tr('Pixels file'),
             optional=True))
-
+        
+        # POINT FILE
         self.addParameter(QgsProcessingParameterFile(
             name=self.POINTS_FILE,
             description=self.tr('Points file'),
             optional=True))
+        
+        # === ADVANCED PARAMETERS ===
 
-        self.addParameter(QgsProcessingParameterNumber(
+        # WINDOWS SHAPE
+
+        windowShapeParam = QgsProcessingParameterEnum(
+            name=self.WINDOW_SHAPE,
+            description=self.tr('Window shape'),
+            options=self.types_of_shape)
+
+        windowShapeParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
+                'dependantWidgetConfig': [{ 
+                    'paramName': self.FRICTION_FILE, 
+                    'enableValue': 2
+                }]
+            }
+        })
+        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(windowShapeParam)
+
+        # FRICTION FILE
+        frictionFile = QgsProcessingParameterFile(
+            name=self.FRICTION_FILE,
+            description=self.tr('Friction file'),
+            optional=True)
+
+        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(frictionFile)
+        # ANALYZE TYPE
+
+        analyzeTypeParam = QgsProcessingParameterEnum(
+            name=self.ANALYZE_TYPE,
+            description=self.tr('Analyze type'),
+            options=self.types_of_analyze)
+
+        analyzeTypeParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
+                'dependantWidgetConfig': [{ 
+                    'paramName': self.DISTANCE_FUNCTION, 
+                    'enableValue': 1
+                }]
+            }
+        })
+
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        self.addParameter(analyzeTypeParam)
+
+        # DISTANCE FUNCTION
+
+        distanceFunction = QgsProcessingParameterString(
+            name=self.DISTANCE_FUNCTION,
+            description=self.tr('Distance function'),
+            optional=True)
+
+        distanceFunction.setFlags(distanceFunction.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        self.addParameter(distanceFunction)
+
+        # MAXIMUM RATE MISSING VALUES
+
+        maxRateMissingValues = QgsProcessingParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES,
             description=self.tr('Maximum rate of missing values'),
             minValue=0,
             maxValue=100,
-            defaultValue=100))
+            defaultValue=100)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
 
-        metricsParam = QgsProcessingParameterString(
-            name=self.METRICS,
-            description=self.tr('Select metrics'))
-
-        metricsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
-                'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
-                'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
-            }
-        })
+        self.addParameter(maxRateMissingValues)
         
-        self.addParameter(metricsParam)
-
         # === OUTPUT PARAMETERS ===
         
 
@@ -321,13 +336,13 @@ class SelectedAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'output_asc=' + self.output_asc + "\n", isWindows()))
 
-            fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
+            fd.write("window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
             fd.write("metrics={" + self.metrics + "}\n")
 
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula))
+                fd.write("distance_function=" + str(self.distance_formula) + "\n")
             fd.write("shape=" + str(self.window_shape) + "\n")
             if self.window_shape == "FUNCTIONAL":
                 fd.write("friction=" + self.friction_file + "\n")

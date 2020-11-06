@@ -94,7 +94,7 @@ class DistanceAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
-        # Value ranges
+        # VALUE RANGES
         fieldsParam = QgsProcessingParameterString(
             name= self.VALUES_RANGES,
             description=self.tr('Values'),
@@ -106,7 +106,7 @@ class DistanceAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(fieldsParam)
 
-        # Distance type
+        # DISTANCE TYPE
         distanceTypeParam = QgsProcessingParameterEnum(
             name=self.DISTANCE_TYPE,
             description=self.tr('Distance type'),
@@ -124,12 +124,14 @@ class DistanceAlgorithm(ChloeAlgorithm):
 
         self.addParameter(distanceTypeParam)
 
-        # Friction file
-        self.addParameter(QgsProcessingParameterFile(
+        # FRICTION FILE
+
+        distanceFrictionParam = QgsProcessingParameterFile(
             name=self.DISTANCE_FRICTION,
             description=self.tr('Friction file'),
-            optional=True))
-        
+            optional=True)
+        #self.addParameter()
+        self.addParameter(distanceFrictionParam)
         # Max distance  
         self.addParameter(QgsProcessingParameterNumber(
             name=self.DISTANCE_MAX,

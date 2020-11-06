@@ -67,7 +67,7 @@ class GridMultiAlgorithm(ChloeAlgorithm):
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
-        # === INPUT PARAMETERS ===
+
         inputAscParam = QgsProcessingParameterRasterLayer(
             name=self.INPUT_LAYER_ASC,
             description=self.tr('Input layer asc'))
@@ -79,6 +79,24 @@ class GridMultiAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
+        # METRICS
+        metricsParam = QgsProcessingParameterString(
+            name=self.METRICS,
+            description=self.tr('Select metrics'))
+
+        metricsParam.setMetadata({
+            'widget_wrapper': {
+                'class': 'Chloe.chloe_algorithm_dialog.ChloeMultipleMetricsSelectorWidgetWrapper',
+                'dictValues': self.types_of_metrics,
+                'initialValue': 'diversity metrics',
+                'rasterLayerParamName': self.INPUT_LAYER_ASC,
+                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
+            }
+        })
+        
+        self.addParameter(metricsParam)
+
+        # GRID SIZES 
         gridSizeParam = QgsProcessingParameterString(
             name=self.GRID_SIZES,
             description=self.tr('Grid sizes (pixels)')) # [constraint V2.0: "select only one"]
@@ -88,31 +106,15 @@ class GridMultiAlgorithm(ChloeAlgorithm):
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeIntListWidgetWrapper',
                 'initialValue': 2,
                 'maxValue' : 100001,
-                'minValue' : 1,
-                'oddNum' : None
+                'minValue' : 2
             }
         })
         self.addParameter(gridSizeParam)
 
-        metricsParam = QgsProcessingParameterString(
-            name=self.METRICS,
-            description=self.tr('Select metrics'))
-
-        metricsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeMultipleMetricsSelectorWidgetWrapper',
-                'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
-                'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
-            }
-        })
-        
-        self.addParameter(metricsParam)
-
+        # MAXIMUM RATE MISSING VALUES
         self.addParameter(QgsProcessingParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES,
-            description=self.tr('Maximum rate of mising values'),
+            description=self.tr('Maximum rate of missing values'),
             minValue=0,
             maxValue=100,
             defaultValue=100))
@@ -206,7 +208,8 @@ class GridMultiAlgorithm(ChloeAlgorithm):
         self.outputFilenames = []
         baseOutAsc = os.path.basename(self.input_layer_asc)
         radical = os.path.splitext(baseOutAsc)[0]
-        for ws in self.grid_sizes:
+        lst_files =  str(self.grid_sizes).split(';')
+        for ws in lst_files:
             for m  in self.metrics.split(';'):
                 fName = radical + "_g" + str(ws) + "_" + str(m) + ".asc"
                 fFullName = self.output_dir + os.sep + fName

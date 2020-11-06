@@ -78,12 +78,7 @@ class GridAlgorithm(ChloeAlgorithm):
         })
         self.addParameter(inputAscParam)
 
-        self.addParameter(QgsProcessingParameterNumber(
-            name=self.GRID_SIZES,
-            description=self.tr('Grid size (pixels)'),
-            defaultValue=2,
-            minValue=1))
-
+        # METRICS
         metricsParam = QgsProcessingParameterString(
             name=self.METRICS,
             description=self.tr('Select metrics'))
@@ -92,7 +87,7 @@ class GridAlgorithm(ChloeAlgorithm):
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
                 'dictValues': self.types_of_metrics,
-                'initialValue': 'value metrics',
+                'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
                 'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
             }
@@ -100,6 +95,14 @@ class GridAlgorithm(ChloeAlgorithm):
         
         self.addParameter(metricsParam)
 
+        # GRID SIZE
+        self.addParameter(QgsProcessingParameterNumber(
+            name=self.GRID_SIZES,
+            description=self.tr('Grid size (pixels)'),
+            defaultValue=2,
+            minValue=2))
+
+        # MAXIMUM RATE MISSING VALUES
         self.addParameter(QgsProcessingParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES,
             description=self.tr('Maximum rate of mising values'),
