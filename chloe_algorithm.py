@@ -302,7 +302,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         else:
             arguments = ['java']
         arguments.append('-jar')
-        arguments.append('-Xmx2g')
         arguments.append('bin' + os.sep + 'chloe-4.0.jar')
 
         # Get temp file path if not existe
