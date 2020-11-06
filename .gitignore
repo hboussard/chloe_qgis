@@ -4,4 +4,6 @@
 
 */__pycache__/
 
-*/*/__pycache__/
+gui/components/__pycache__/
+
+*.pyc
