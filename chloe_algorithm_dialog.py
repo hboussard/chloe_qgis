@@ -900,8 +900,11 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
             # get raster values 
         # MODELER GUI
         else:
-            return DoubleCmbBoxSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName, False)
-            
+            widget = QLineEdit()
+            widget.setPlaceholderText('')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -910,15 +913,14 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
         if self.dialogType == DIALOG_STANDARD:
             self.widget.setValue(str(value))
         else:
-            # todo
-            self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
         if self.dialogType == DIALOG_STANDARD:
             return self.widget.getValue()
         else:
-            return self.widget.getValue()
+            return self.widget.text()
     
     def getParentWidgetConfig(self):
         return self.parentWidgetConfig
@@ -934,12 +936,15 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
         if self.dialogType == DIALOG_STANDARD:
             return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName)
         elif self.dialogType == DIALOG_BATCH:
-            #todo
             return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName,False)
         else:
-            #todo
-            #return (self.dialog, self.param.algorithm(), None)
-            return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName,False)
+            widget = QLineEdit()
+            widget.setPlaceholderText('')
+            if self.parameterDefinition().defaultValue():
+                widget.setText(self.parameterDefinition().defaultValue())
+            return widget
+
+            #return ListSelectionPanel(self.dialog, self.param.algorithm(), dictValues, initialValue, rasterLayerParamName,False)
 
     def setValue(self, value):
         """Set value on the widget/component."""
@@ -948,16 +953,14 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
         if self.dialogType == DIALOG_STANDARD:
             self.widget.setValue(str(value))
         else:
-            # todo
-            pass
-            #self.widget.setValue(str(value))
+            self.widget.setText(str(value))
 
     def value(self):
         """Get value on the widget/component."""
         if self.dialogType == DIALOG_STANDARD:
             return self.widget.getValue()
         else:
-            return self.widget.getValue()
+            return self.widget.text()
     
     def getParentWidgetConfig(self):
         return self.parentWidgetConfig

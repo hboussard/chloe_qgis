@@ -249,8 +249,8 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
         self.pixels_point_selection = self.parameterAsInt(
             parameters, self.PIXELS_POINTS_SELECT, context)
 
-        self.pixels_point_selection = self.parameterAsInt(
-            parameters, self.PIXELS_POINTS_SELECT, context)
+        self.pixels_point_file = self.parameterAsString(
+            parameters, self.PIXELS_POINTS_FILE, context)
 
         self.maximum_rate_missing_values = self.parameterAsString(
             parameters, self.MAXIMUM_RATE_MISSING_VALUES, context)
@@ -308,9 +308,9 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
             if self.window_shape == "FUNCTIONAL":
                 fd.write("friction_matrix=" + self.friction_file + "\n")
             if self.pixels_point_selection == 0:   # pixel(s) file
-                fd.write("pixels=" + str(self.pixels_point_selection) + "\n")
+                fd.write("pixels=" + str(self.pixels_point_file) + "\n")
             elif self.pixels_point_selection == 1:  # point(s) file
-                fd.write("points=" + str(self.pixels_point_selection) + "\n")
+                fd.write("points=" + str(self.pixels_point_file) + "\n")
 
             fd.write("visualize_ascii=false\n")
 
