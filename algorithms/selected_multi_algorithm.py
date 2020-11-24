@@ -96,6 +96,8 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
             }
         })
 
+        self.addParameter(metricsParam)
+        
         windowSizeParam = QgsProcessingParameterString(
             name=self.WINDOW_SIZES,
             description=self.tr('Windows sizes (pixels)')) # [constraint V2.0: "select only one"]
@@ -116,34 +118,14 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
             name=self.PIXELS_POINTS_SELECT,
             description=self.tr('Pixels/points selection'),
             options=self.types_of_pixel_point_select)
-
-        pointPixelParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.PIXELS_FILE, 
-                    'enableValue': 0 
-                },
-                { 
-                    'paramName': self.POINTS_FILE, 
-                    'enableValue': 1 
-                }]
-            }
-        })
         
         self.addParameter(pointPixelParam)
 
-        # PIXEL FILE
+        # PIXEL OR POINT  FILE
         self.addParameter(QgsProcessingParameterFile(
-            name=self.PIXELS_FILE,
-            description=self.tr('Pixels file'),
-            optional=True))
-
-        # POINT FILE
-        self.addParameter(QgsProcessingParameterFile(
-            name=self.POINTS_FILE,
-            description=self.tr('Points file'),
-            optional=True))
+            name=self.PIXELS_POINTS_FILE,
+            description=self.tr('Pixels/points file'),
+            optional=False))
 
         ##### ADVANCED PARAMETERS  
 
@@ -267,11 +249,8 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
         self.pixels_point_selection = self.parameterAsInt(
             parameters, self.PIXELS_POINTS_SELECT, context)
 
-        self.pixels_file = self.parameterAsString(
-            parameters, self.PIXELS_FILE, context)
-
-        self.points_file = self.parameterAsString(
-            parameters, self.POINTS_FILE, context)
+        self.pixels_point_selection = self.parameterAsInt(
+            parameters, self.PIXELS_POINTS_SELECT, context)
 
         self.maximum_rate_missing_values = self.parameterAsString(
             parameters, self.MAXIMUM_RATE_MISSING_VALUES, context)
@@ -329,9 +308,9 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
             if self.window_shape == "FUNCTIONAL":
                 fd.write("friction_matrix=" + self.friction_file + "\n")
             if self.pixels_point_selection == 0:   # pixel(s) file
-                fd.write("pixels=" + str(self.pixels_file) + "\n")
+                fd.write("pixels=" + str(self.pixels_point_selection) + "\n")
             elif self.pixels_point_selection == 1:  # point(s) file
-                fd.write("points=" + str(self.points_file) + "\n")
+                fd.write("points=" + str(self.pixels_point_selection) + "\n")
 
             fd.write("visualize_ascii=false\n")
 

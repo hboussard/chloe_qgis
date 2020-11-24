@@ -82,8 +82,10 @@ class CSVFieldSelectionPanel(BASE, WIDGET):
         values = ""
         #p = self.alg.getParameterValue("INPUT_FILE_CSV")
         parameters = {}
-        parameters[self.alg.INPUT_FILE_CSV] = self.dialog.mainWidget().wrappers[ self.alg.INPUT_FILE_CSV].value()
-        p = self.dialog.mainWidget().wrappers[ self.alg.INPUT_FILE_CSV].value()
+        
+        #parameters[self.alg.INPUT_FILE_CSV] = self.dialog.mainWidget().wrappers[self.alg.INPUT_FILE_CSV].value() OLD
+        parameters[self.alg.INPUT_FILE_CSV] = self.dialog.mainWidget().wrappers[self.alg.INPUT_FILE_CSV].parameterValue() 
+        p = self.dialog.mainWidget().wrappers[ self.alg.INPUT_FILE_CSV].parameterValue()
         # p is a QgsProcessingFeatureSourceDefinition
         #print(str(self.dialog.mainWidget().wrappers[ self.alg.INPUT_FILE_CSV]))
         #context = createContext()

@@ -28,6 +28,7 @@ import os
 import io
 import subprocess
 import time
+import re
 from qgis.PyQt.QtCore import QSettings
 from qgis.core import QgsVectorFileWriter
 
@@ -99,13 +100,14 @@ class FromCSVAlgorithm(ChloeAlgorithm):
         return FromCSVAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
+        
         # === INPUT PARAMETERS ===
-        self.addParameter(QgsProcessingParameterFeatureSource(
+        self.addParameter(QgsProcessingParameterFile(
             name=self.INPUT_FILE_CSV,
             description=self.tr('Input file csv'),
+            extension ='csv',
             defaultValue=None,
-            optional=False,
-            types=[QgsProcessing.TypeVectorPoint]))
+            optional=False))
 
         # FIELDS
         fieldsParam = QgsProcessingParameterString(
@@ -154,8 +156,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             defaultValue=-1))
 
         # === OUTPUT PARAMETERS ===
-        
-        
+
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))
@@ -255,8 +256,15 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             fd.write("visualize_ascii=false\n")
             fd.write(ChloeUtils.formatString(
                 'input_csv='+self.input_csv+"\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
+
+            #if multiple fields are selected set output_folder instead of output_asc
+            if len(self.variables.split(';')) > 1:
+                fd.write(ChloeUtils.formatString(
+                'output_folder='+ re.sub('[^\/]+(?=\.).asc','',self.output_asc) + "\n", isWindows()))
+            else:
+                fd.write(ChloeUtils.formatString(
                 'output_asc='+self.output_asc+"\n", isWindows()))
+           
             fd.write("variables={" + self.variables + "}\n")
             fd.write("ncols=" + str(self.ncols) + "\n")
             fd.write("nrows=" + str(self.nrows) + "\n")

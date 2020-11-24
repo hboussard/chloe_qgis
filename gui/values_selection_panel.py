@@ -89,10 +89,12 @@ class ValuesSelectionPanel(BASE, WIDGET):
 
         try:
             parameters = {}
+            
             if self.batchGui:
                 p = self.dialog.mainWidget().wrappers[0][0].value()
             else:
                 p = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+                print(p)
 
             if p is None:
                 return
@@ -102,8 +104,10 @@ class ValuesSelectionPanel(BASE, WIDGET):
                 f_input = p
             else:
                 f_input = str(p)   
-            #print(f_input)
-            
+
+            print(f_input)
+
+            # TODO : 3.10 ne prend plus en compte le raster si deja chargé dans le canvas
             # === Test algorithm
             ds = gdal.Open(f_input)                 # DataSet
             band =  ds.GetRasterBand(1)             # -> band

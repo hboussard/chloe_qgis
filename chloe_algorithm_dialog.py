@@ -133,7 +133,7 @@ from processing.tools.dataobjects import createContext
 from processing.gui.wrappers import WidgetWrapper, DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
 
 from .gui.csv_field_selection_panel import CSVFieldSelectionPanel
-from .gui.values_selection_panel import ValuesSelectionPanel 
+from .gui.values_selection_panel import ValuesSelectionPanel
 from .gui.classification_table_panel import ClassificationTablePanel
 from .gui.components.DialListCheckBox import DialListCheckBox
 from .gui.table_replace_input_panel import TableReplaceInputPanel

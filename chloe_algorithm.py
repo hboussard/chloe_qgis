@@ -153,8 +153,9 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     UNFILTER = 'UNFILTER'
 
     PIXELS_POINTS_SELECT = 'PIXELS_POINTS_SELECT'
-    PIXELS_FILE = 'PIXELS_FILE'
-    POINTS_FILE = 'POINTS_FILE'
+    PIXELS_POINTS_FILE = 'PIXELS_POINTS_FILE'
+    #PIXELS_FILE = 'PIXELS_FILE'
+    #POINTS_FILE = 'POINTS_FILE'
 
     MAXIMUM_RATE_MISSING_VALUES = 'MAXIMUM_RATE_MISSING_VALUES'
     METRICS = 'METRICS'
@@ -206,13 +207,13 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "SIDI",
             "SIEI"],
         "landspace grain": [
-            "MD"
-            #"LG3",
-            #"LG4",
-            #"LG5",
-            #"MD3",
-            #"MD4",
-            #"MD5"],
+            "MD",
+            "LG3",
+            "LG4",
+            "LG5",
+            "MD3",
+            "MD4",
+            "MD5"
         ],
         "quantitative metrics": [
             "NAT",
@@ -374,12 +375,12 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         self.output_values[name] = value
     
     def parameterAsString(self, parameters, paramName, context):
-        #print("test3 " + str(parameters[paramName]))
+        print("test " + str(parameters[paramName]))
+        print("test2 " + str(parameters))
         if type(parameters[paramName])==dict and "data" in parameters[paramName]:
             return parameters[paramName]["data"]
         else:
             return super().parameterAsString(parameters, paramName, context)
-
 
     def processAlgorithm(self, parameters, context, feedback):
         self.PreRun(parameters, context, feedback)
@@ -529,7 +530,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
-
     def createProjectionFile(self,f_prj, crs=None, layer_crs=None, param=None):
         """Create Projection File"""
 
@@ -571,6 +571,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     
     def parameterRasterAsFilePath(self, parameters, paramName, context):
         res = self.parameterAsString(parameters, paramName, context)
+        print('test raster path')
+        print(res)
         if res==None or res=='':
             layer = self.parameterAsRasterLayer(
                 parameters, paramName, context)
