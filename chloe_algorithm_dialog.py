@@ -822,7 +822,6 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMappingCombobox(self):
-        print('updateMapAsc triggered')
         paramPanel = self.dialog.mainWidget()
         wrapper = paramPanel.wrappers[self.parentWidgetConfig['paramName']]
         widget = wrapper.widget
@@ -830,8 +829,10 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         self.widget.updateMapCSV(mapFile=mappingFilepath)
 
     def refreshMappingAsc(self):
-        print('updateMapAsc triggered')
         self.widget.updateMapASC()
+    
+    def emptyMappingAsc(self):
+        self.widget.emptyMappingAsc()
 
 class ChloeEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
     

@@ -57,12 +57,13 @@ class TableReplaceInputPanel(BASE, WIDGET):
         #parametersPanel = self.dialog.mainWidget()
         #wrapper = parametersPanel.wrappers[linked_param]
         #print(str(wrapper))
-            
+
+        self.pbFromAsc.clicked.connect(self.updateMapASC)
         self.pbApply.clicked.connect(self.applyCSVMap)
         self.twAssociation.itemChanged.connect(self.updateLeText)
     
     def updateTable(self):
-
+        
         if self.batchGui:
             rasterLayerParam = self.dialog.mainWidget().wrappers[0][0].value()
             print('batch Gui updateMapAsc')
@@ -77,7 +78,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
             rasterLayerParam = str(rasterLayerParam)   
 
     def updateMapASC(self):
-        
+        print('up')
         if self.batchGui:
             p = self.dialog.mainWidget().wrappers[0][0].value()
             print('batch Gui updateMapAsc')
@@ -109,6 +110,16 @@ class TableReplaceInputPanel(BASE, WIDGET):
           self.twAssociation.setItem(row, 0, item)
           row += 1
 
+    def emptyMappingAsc(self):
+
+        rows = range(self.twAssociation.rowCount())
+        cols = range(self.twAssociation.columnCount())
+        for r in rows:
+            for c in cols: 
+                if self.twAssociation.item(r,c) is not None:
+                    print('c : {}, r : {}'.format(r, c))
+                    self.twAssociation.setItem(r, c, None)
+         
     def updateMapCSV(self, mapFile):
         self.mapFile = mapFile
         self.cmbBox.clear()

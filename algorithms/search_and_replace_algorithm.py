@@ -117,7 +117,7 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         fieldsParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeMappingTableWidgetWrapper',
-                'parentWidgetConfig': { 'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox', 'paramName2': self.INPUT_ASC, 'refreshMethod2':'refreshMappingAsc'}
+                'parentWidgetConfig': { 'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox', 'paramName2': self.INPUT_ASC, 'refreshMethod2':'emptyMappingAsc'}
             }
         })
         self.addParameter(fieldsParam)

@@ -251,10 +251,6 @@ class SlidingAlgorithm(ChloeAlgorithm):
         
         self.addParameter(windowSizeParam)
 
-        
-
-       
-
         # === OUTPUT PARAMETERS ===
         
 
