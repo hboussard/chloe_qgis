@@ -29,7 +29,7 @@ import re
 
 from qgis.PyQt import uic
 from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QMessageBox, QTableWidgetItem
-from qgis.core import QgsRasterLayer
+from qgis.core import QgsRasterLayer, QgsProject
 
 from qgis.utils import iface
 from processing.tools import dataobjects
@@ -66,7 +66,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
         
         if self.batchGui:
             rasterLayerParam = self.dialog.mainWidget().wrappers[0][0].value()
-            print('batch Gui updateMapAsc')
         else:
             rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
         
@@ -74,23 +73,27 @@ class TableReplaceInputPanel(BASE, WIDGET):
             return
         elif isinstance(rasterLayerParam, QgsRasterLayer):
             rasterLayerParam = rasterLayerParam.dataProvider().dataSourceUri()
-        elif not isinstance(rasterLayerParam,str):
+        elif not isinstance(rasterLayerParam, str):
             rasterLayerParam = str(rasterLayerParam)   
 
     def updateMapASC(self):
-        print('up')
+
         if self.batchGui:
             p = self.dialog.mainWidget().wrappers[0][0].value()
-            print('batch Gui updateMapAsc')
         else:
             p = self.dialog.mainWidget().wrappers['INPUT_ASC'].value()
 
         if p is None:
             return
         elif isinstance(p, QgsRasterLayer): 
-            f_input = p.dataProvider().dataSourceUri()
+            f_input = p.dataProvider().dataSourceUri().value()
         elif isinstance(p,str):
-            f_input = p
+            # if p is not a correct path then it is already loaded in QgsProject instance, get the QgsRasterLayer object and the file's full path
+            if re.match(r"^[a-zA-Z0-9_]+$", p):
+                selectedLayer = QgsProject.instance().mapLayer(p)
+                f_input = selectedLayer.dataProvider().dataSourceUri()
+            else:
+                f_input = p            
         else:
             f_input = str(p)   
 

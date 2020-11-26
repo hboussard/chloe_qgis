@@ -27,7 +27,7 @@ from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QList
 from qgis.PyQt.QtGui import QCursor
 
 from qgis.gui import QgsMessageBar, QgsExpressionBuilderDialog, QgsFileWidget
-from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication, QgsProject
 from qgis.utils import iface
 
 from processing.gui.RectangleMapTool import RectangleMapTool
@@ -47,7 +47,7 @@ from .components.DialListCheckBox import DialListCheckBox
 from osgeo import gdal
 import numpy as np
 import math
-
+import re
 #from PyQt4.QtGui import
 
 pluginPath = str(QgsApplication.pkgDataPath())
@@ -94,20 +94,21 @@ class ValuesSelectionPanel(BASE, WIDGET):
                 p = self.dialog.mainWidget().wrappers[0][0].value()
             else:
                 p = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
-                print(p)
 
             if p is None:
                 return
             elif isinstance(p, QgsRasterLayer): 
                 f_input = p.dataProvider().dataSourceUri()
             elif isinstance(p,str):
-                f_input = p
+                #if p is not a correct path then it is already loaded in QgsProject instance, get the QgsRasterLayer object and the file's full path
+                if re.match(r"^[a-zA-Z0-9_]+$", p):
+                    selectedLayer = QgsProject.instance().mapLayer(p)
+                    f_input = selectedLayer.dataProvider().dataSourceUri()
+                else:
+                    f_input = p
             else:
                 f_input = str(p)   
 
-            print(f_input)
-
-            # TODO : 3.10 ne prend plus en compte le raster si deja chargé dans le canvas
             # === Test algorithm
             ds = gdal.Open(f_input)                 # DataSet
             band =  ds.GetRasterBand(1)             # -> band
