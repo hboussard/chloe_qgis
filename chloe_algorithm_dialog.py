@@ -458,8 +458,8 @@ class ChloeParametersPanel(ParametersPanel):
                                    QgsProcessingParameterFeatureSink, 
                                    QgsProcessingParameterVectorDestination
                                    # alk: checkboxes for Chloe handling  
-                                   ,ChloeCSVParameterFileDestination,
-                                   ChloeASCParameterFileDestination,
+                                   #,ChloeCSVParameterFileDestination,
+                                   ,ChloeASCParameterFileDestination,
                                    ChloeParameterFolderDestination)
                                    ):
                 check = QCheckBox()
@@ -469,6 +469,7 @@ class ChloeParametersPanel(ParametersPanel):
                     checkbox.setEnabled(not skipped)
                     if skipped:
                         checkbox.setChecked(False)
+
                 check.setChecked(not widget.outputIsSkipped())
                 check.setEnabled(not widget.outputIsSkipped())
                 widget.skipOutputChanged.connect(partial(skipOutputChanged, check))
