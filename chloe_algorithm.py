@@ -292,6 +292,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
         if f_save_properties:
             self.f_path = f_save_properties
+
         else:
             if not self.f_path:
                 self.f_path = getTempFilename(ext="properties")

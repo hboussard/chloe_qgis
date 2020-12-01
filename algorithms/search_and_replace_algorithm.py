@@ -134,8 +134,6 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))
 
-        self.outputDef = fieldsParam.toOutputDefinition()
-        print('output def ' + str(self.outputDef))
         self.addParameter(fieldsParam, createOutput=True)
         
         self.addParameter(QgsProcessingParameterFileDestination(
@@ -200,9 +198,7 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
     
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
-        print("dir_out " + dir_out)
-        print("base_out " + base_out)
-        print("name_out " + name_out)
+
         self.createProjectionFile(f_prj)
 
     def createPropertiesTempFile(self):

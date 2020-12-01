@@ -283,6 +283,7 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
     def getParameterValues(self):
 
         parameters = super().getParameterValues()
+        print('-'.join(parameters))
         for param in self.algorithm().parameterDefinitions():
             if isinstance(param, 
                 (ChloeCSVParameterFileDestination, 
@@ -305,6 +306,14 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
                     newValue = { "data": dataValue, "openLayer" : toBeOpened }
                     #print("newValue " + str(newValue))
                     parameters[paramName] = newValue
+                    
+            #3.10 Fix
+            if param.name() == 'SAVE_PROPERTIES':
+                if self.mainWidget() is not None:
+                    if self.mainWidget().outputWidgets[paramName].getValue() == 'TEMPORARY_OUTPUT':
+                        newValue = param.generateTemporaryDestination()
+                        parameters['SAVE_PROPERTIES'] = newValue        
+
         return self.algorithm().preprocessParameters(parameters)
 
 class ChloeParametersPanel(ParametersPanel):
