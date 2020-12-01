@@ -375,10 +375,12 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         self.output_values[name] = value
     
     def parameterAsString(self, parameters, paramName, context):
-        print("test " + str(parameters[paramName]))
-        print("test2 " + str(parameters))
+        print("paramName " + str(parameters[paramName]))
+        print("parameters " + str(parameters))
         if type(parameters[paramName])==dict and "data" in parameters[paramName]:
+            print(parameters[paramName])
             return parameters[paramName]["data"]
+            #return super().parameterAsString(parameters, parameters[paramName]["data"], context)
         else:
             return super().parameterAsString(parameters, paramName, context)
 
@@ -571,10 +573,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     
     def parameterRasterAsFilePath(self, parameters, paramName, context):
         res = self.parameterAsString(parameters, paramName, context)
-        print('test raster path')
-        print(res)
-        if res==None or res=='':
+        
+        if res==None or res=='' or re.match(r"^[a-zA-Z0-9_]+$", res):
             layer = self.parameterAsRasterLayer(
                 parameters, paramName, context)
             res = layer.dataProvider().dataSourceUri().split('|')[0]
+
         return res

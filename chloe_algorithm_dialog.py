@@ -281,6 +281,7 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
     #
 
     def getParameterValues(self):
+
         parameters = super().getParameterValues()
         for param in self.algorithm().parameterDefinitions():
             if isinstance(param, 
@@ -291,11 +292,17 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
                 paramName = param.name()
                 if paramName in parameters:
                     p = parameters[paramName]
-                    #print("param " + str(p))
+
                     toBeOpened = self.mainWidget().checkBoxes[paramName].isChecked()
                     value = self.mainWidget().outputWidgets[paramName].getValue()
-                    #print("value " + str(value))
-                    newValue = { "data": value, "openLayer" : toBeOpened }
+
+                    #3.10 Fix
+                    if value == 'TEMPORARY_OUTPUT':
+                        dataValue = param.generateTemporaryDestination()
+                    else:
+                        dataValue = value
+
+                    newValue = { "data": dataValue, "openLayer" : toBeOpened }
                     #print("newValue " + str(newValue))
                     parameters[paramName] = newValue
         return self.algorithm().preprocessParameters(parameters)
@@ -458,8 +465,8 @@ class ChloeParametersPanel(ParametersPanel):
                                    QgsProcessingParameterFeatureSink, 
                                    QgsProcessingParameterVectorDestination
                                    # alk: checkboxes for Chloe handling  
-                                   #,ChloeCSVParameterFileDestination,
-                                   ,ChloeASCParameterFileDestination,
+                                   ,ChloeCSVParameterFileDestination,
+                                   ChloeASCParameterFileDestination,
                                    ChloeParameterFolderDestination)
                                    ):
                 check = QCheckBox()
@@ -469,7 +476,6 @@ class ChloeParametersPanel(ParametersPanel):
                     checkbox.setEnabled(not skipped)
                     if skipped:
                         checkbox.setChecked(False)
-
                 check.setChecked(not widget.outputIsSkipped())
                 check.setEnabled(not widget.outputIsSkipped())
                 widget.skipOutputChanged.connect(partial(skipOutputChanged, check))
@@ -1146,11 +1152,12 @@ class ChloeCSVParameterFileDestination(QgsProcessingParameterFileDestination):
 class ChloeASCParameterFileDestination(QgsProcessingParameterFileDestination):
     def __init__(self, name, description, fileFilter='ASC (*.asc)'):
         super().__init__(name=name, description=description, fileFilter=fileFilter)
-    
+
     def checkValueIsAcceptable(self, input, context = None):
         try:
             #STANDARD GUI RETURN
             return 'data' in input and super().checkValueIsAcceptable(input['data'], context)
+            #return input and super().checkValueIsAcceptable(input, context)
         except:
             #BATCH AND MODERLER GUI RETURN
             return input and super().checkValueIsAcceptable(input, context)

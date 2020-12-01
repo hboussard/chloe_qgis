@@ -117,8 +117,9 @@ class ChloeUtils:
             try:
                 #print('runChloe')
                 #feedback.pushConsoleInfo('runChloe')
+                print(fused_command)
                 with subprocess.Popen(
-                    fused_command,
+                   fused_command,
                     shell=True,
                     stdout=subprocess.PIPE,
                     stdin=subprocess.DEVNULL,
