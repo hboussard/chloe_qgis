@@ -68,7 +68,7 @@ class FactorTablePanel(BASE, WIDGET):
             return item (duck typing)
         """
         # Get initial value
-        text = self.leText.text()
+        FormulaText = self.leText.text()
         parameters = {}
         listElement = []
         # create an array to fill the factor table widget
@@ -97,9 +97,9 @@ class FactorTablePanel(BASE, WIDGET):
                     listElement.append(('m'+str(i), lyrName, path))
                     i+=1
         # Dialog list check box
-        dial = FactorInputDialog(self.tr("Combine"),listElement)
+        dial = FactorInputDialog(self.tr("Combine"), listElement)
         #Returns two strings
-        self.resultMatrix, self.resultCombination = dial.run(text)
+        self.resultMatrix, self.resultCombination = dial.run(FormulaText)
         # # result
         if self.resultMatrix and self.resultCombination:
             self.leText.setText(self.resultCombination)
@@ -109,6 +109,7 @@ class FactorTablePanel(BASE, WIDGET):
         # Return one string combining the raster matrix used and the combination formula (separated by .__.). Split the returned value on .__. to get two values : matrix used and combination formula
         return unicode(self.resultMatrix) + '.__.' + unicode(self.resultCombination)
 
+
     def text(self):
         return self.leText
 
@@ -117,3 +118,6 @@ class FactorTablePanel(BASE, WIDGET):
 
     def setText(self, value):
         pass
+
+    def resetFormula(self):
+        self.leText.setText('')

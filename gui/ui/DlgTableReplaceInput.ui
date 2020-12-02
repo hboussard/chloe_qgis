@@ -143,7 +143,7 @@
          <item>
           <widget class="QPushButton" name="pbFromAsc">
            <property name="text">
-            <string>&lt;- Values from asc</string>
+            <string>&lt;- Read values from input asc</string>
            </property>
           </widget>
          </item>
@@ -156,7 +156,7 @@
             </font>
            </property>
            <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;From CSV :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;From correspondance CSV :&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
            <property name="margin">
             <number>3</number>

@@ -91,6 +91,8 @@ class CombineAlgorithm(ChloeAlgorithm):
             self.INPUTS_MATRIX,
             self.tr('Input rasters'),
             QgsProcessing.TypeRaster))
+        
+        
 
         # COMBINE EXPRESSION
         combineParam = QgsProcessingParameterString(
@@ -100,9 +102,11 @@ class CombineAlgorithm(ChloeAlgorithm):
         combineParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper',
-                'input_matrix' : self.INPUTS_MATRIX
+                'input_matrix' : self.INPUTS_MATRIX,
+                'parentWidgetConfig': { 'paramName': self.INPUTS_MATRIX, 'refreshMethod': 'resetFormula'}
             }
         })
+
         self.addParameter(combineParam)
             
         # === OUTPUT PARAMETERS ===    

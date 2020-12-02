@@ -57,7 +57,7 @@ from processing.gui.NumberInputPanel import NumberInputPanel
 from processing.gui.DestinationSelectionPanel import DestinationSelectionPanel
 from processing.gui.FileSelectionPanel import FileSelectionPanel
 from processing.gui.wrappers import (WidgetWrapper, 
-                                     EnumWidgetWrapper)
+                                     EnumWidgetWrapper, MultipleLayerWidgetWrapper)
 from processing.tools.dataobjects import createContext
 
 from pprint import pformat
@@ -127,7 +127,7 @@ from qgis.PyQt.QtWidgets import (QWidget, QHBoxLayout, QToolButton, QComboBox,
 from qgis.PyQt.QtGui import QIcon
 
 from processing.gui.DestinationSelectionPanel import DestinationSelectionPanel
-from processing.gui.wrappers import WidgetWrapperFactory, WidgetWrapper, RasterWidgetWrapper, FileWidgetWrapper
+from processing.gui.wrappers import WidgetWrapperFactory, WidgetWrapper, RasterWidgetWrapper, FileWidgetWrapper, MultipleLayerWidgetWrapper
 from processing.tools.dataobjects import createContext
 
 from processing.gui.wrappers import WidgetWrapper, DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
@@ -555,6 +555,12 @@ class ChloeParametersPanel(ParametersPanel):
                                 p.combo.valueChanged.connect(m) # QGIS 3.8 version
                             except:
                                 p.combo.currentIndexChanged.connect(m) # QGIS LTR 3.4
+                        elif isinstance(p.widget,MultipleInputPanel):
+                            try:
+                                p.widget.selectionChanged.connect(m)
+                            except:
+                                pass
+                                #p.combo.currentIndexChanged.connect(m)
 
                     # LINKED PARAMETER TWO
                         try:
@@ -762,8 +768,9 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
         else:
             return super().createLabel()
 
-    def createWidget(self, input_matrix=None):
+    def createWidget(self, input_matrix=None, parentWidgetConfig=None):
         """Widget creation to put like panel in dialog"""
+        self.parentWidgetConfig = parentWidgetConfig
         if self.dialogType == DIALOG_STANDARD:
             return FactorTablePanel(self.dialog, self.param.algorithm(), None, input_matrix)
         # BATCH AND MODELER GUI
@@ -791,6 +798,12 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
         # BATCH AND MODELER GUI
         else:
             return self.widget.text()
+    
+    def getParentWidgetConfig(self):
+        return self.parentWidgetConfig
+    
+    def resetFormula(self):
+        self.widget.resetFormula()
 
 class ChloeMappingTableWidgetWrapper(WidgetWrapper):
     def createLabel(self):

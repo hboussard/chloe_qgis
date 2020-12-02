@@ -63,7 +63,6 @@ class FactorInputDialog(BASE, WIDGET):
                 col+=1
             row += 1
 
-
     def accept(self):
       if self.checkValues(self.tableWidget):
         # export formula expression
@@ -118,7 +117,7 @@ class FactorInputDialog(BASE, WIDGET):
       return result
 
     def importValues(self, table, strValue):
-      rowValues = strValue.split(";")
+      """rowValues = strValue.split(";")
       for r in range(len(rowValues)):
         row = rowValues[r]
         if len(row)>2:
@@ -127,8 +126,8 @@ class FactorInputDialog(BASE, WIDGET):
             col = colValues[c]
             item = QTableWidgetItem()
             item.setText(col)
-            self.tableWidget.setItem(r, c, item)
-
+            self.tableWidget.setItem(r, c, item)"""
+      self.leText.setPlainText(strValue)
     def checkFormatClass(self, str):
       res = True
       try:
