@@ -838,6 +838,7 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMappingCombobox(self):
+
         paramPanel = self.dialog.mainWidget()
         wrapper = paramPanel.wrappers[self.parentWidgetConfig['paramName']]
         widget = wrapper.widget
