@@ -604,6 +604,16 @@ class ChloeUtils:
         else:
             return int(input_integer)
 
+    @staticmethod
+    def displayFloatToInt(input_float):
+        """ return an int formated string if input number is an integer """
+        if input_float is None:
+            return None
+        elif input_float.is_integer():
+            return str(int(input_float))
+        else:
+            return str(input_float)
+
 class ASCOutputRaster(QgsProcessingOutputRasterLayer):
     def getFileFilter(self, alg):
         """ Force asc output raster extension"""

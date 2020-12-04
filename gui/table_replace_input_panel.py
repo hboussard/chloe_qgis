@@ -38,6 +38,7 @@ from osgeo import gdal
 import numpy as np
 import math
 
+from ..ChloeUtils import ChloeUtils
 
 pluginPath = os.path.dirname(__file__)
 WIDGET, BASE = uic.loadUiType(
@@ -61,7 +62,8 @@ class TableReplaceInputPanel(BASE, WIDGET):
         self.pbFromAsc.clicked.connect(self.updateMapASC)
         self.pbApply.clicked.connect(self.applyCSVMap)
         self.twAssociation.itemChanged.connect(self.updateLeText)
-    
+        self.twAssociation.itemChanged.connect(self.checkCellValue)
+
     def updateTable(self):
         
         if self.batchGui:
@@ -69,6 +71,11 @@ class TableReplaceInputPanel(BASE, WIDGET):
         else:
             rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
         
+         #3.10 fix
+        if re.match(r"^[a-zA-Z0-9_]+$", rasterLayerParam):
+            selectedLayer = QgsProject.instance().mapLayer(rasterLayerParam)
+            rasterLayerParam = selectedLayer.dataProvider().dataSourceUri()
+
         if rasterLayerParam is None:
             return
         elif isinstance(rasterLayerParam, QgsRasterLayer):
@@ -120,7 +127,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
         for r in rows:
             for c in cols: 
                 if self.twAssociation.item(r,c) is not None:
-                    print('c : {}, r : {}'.format(r, c))
                     self.twAssociation.setItem(r, c, None)
          
     def updateMapCSV(self, mapFile):
@@ -159,16 +165,19 @@ class TableReplaceInputPanel(BASE, WIDGET):
             if os.path.exists(self.mapFile):
                 with open(self.mapFile, 'r') as f:
                     b_header = 1
-                    print('before iterating lines')
+                    #print('before iterating lines')
                     for line in f:
-                        print(str(line))
+                        #print(str(line))
                         if b_header == 1:
                             b_header = 0
                             continue   # Jump the header
-                        print(str(line))
+                        #print(str(line))
                         data = list(filter(None, re.split('\n|;| |,', line)))
                         t_ass.append([data[0],data[idex_col]]) # Table two dimention
 
+        # Match with existing values in twAssociation
+
+        """
         if t_ass:   # Update with associtation table
             wt = self.twAssociation
             for t_as in t_ass:
@@ -183,7 +192,59 @@ class TableReplaceInputPanel(BASE, WIDGET):
                             if isinstance(r1, QTableWidgetItem):        
                                 r1.setText(str(val_new))
                             else:
-                                wt.setItem(row,1,QTableWidgetItem(str(val_new)))
+                                wt.setItem(row,1,QTableWidgetItem(str(val_new)))"""
+        if t_ass:
+            lstCsv = []
+            lstTw = []
+            wt = self.twAssociation
+
+            # create list of existing values in twAssociation table
+            for t_as in t_ass:
+                try:
+                    lstCsv.append((float(t_as[0]), float(t_as[1])))
+                except:
+                    pass
+
+            # create list of csv values   
+            for row in range(0,wt.rowCount()):
+                r0 = wt.item(row,0)
+                r1 = wt.item(row,1)
+                if r0!=None and r0!='':
+                    try:
+                        r1 = float(wt.item(row,1).text())
+                    except:
+                        r1 = None
+                    try:
+                        lstTw.append((float(r0.text()), r1))
+                    except:
+                        pass
+            
+            # if a number to replace in association table exists in csv file, then replace it with csv's row
+            # if csv row does not exists in association table then add it
+            for csvItem in lstCsv:
+                for twItem in lstTw:
+                    if csvItem[0] == twItem[0]:
+                        lstTw.remove(twItem)
+                        lstTw.append(csvItem)                        
+                if csvItem not in lstTw:
+                    lstTw.append(csvItem)  
+
+            # sorted export list
+            lstExport = sorted(lstTw, key=lambda x: x[0])
+
+            # clear association table 
+            self.emptyMappingAsc()
+            
+            # fill association table
+            rowLst = 0
+            for new_value in lstExport:   
+                itemCol1 = QTableWidgetItem()
+                itemCol2 = QTableWidgetItem()
+                itemCol1.setText(ChloeUtils.displayFloatToInt(new_value[0]))
+                itemCol2.setText(ChloeUtils.displayFloatToInt(new_value[1]))
+                self.twAssociation.setItem(rowLst, 0, itemCol1)
+                self.twAssociation.setItem(rowLst, 1, itemCol2)
+                rowLst += 1
 
     def updateLeText(self):
         """Update le text"""
@@ -195,7 +256,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
                 r1 = wt.item(row,1)
                 if r0 is not None and r1 is not None:
                     try:
-                        res.append((int(r0.text()),int(r1.text())))
+                        res.append((r0.text(),r1.text()))
                     except:
                         pass
             s_res = []             
@@ -206,6 +267,35 @@ class TableReplaceInputPanel(BASE, WIDGET):
         except:
             self.leText.setText("")
             raise
+    
+    def checkCellValue(self, item):
+        
+        if self.twAssociation.currentItem() is None:
+            return
+
+        currentItemRow = self.twAssociation.currentItem().row()
+        currentValue = self.twAssociation.currentItem().text()
+
+        if currentValue is None or currentValue == '':
+            return
+
+        # check if cellValue allready exists in tablewidget
+        if self.twAssociation.currentItem().column() == 0:
+
+            for row in range(0,self.twAssociation.rowCount()):
+
+                if self.twAssociation.item(row,0) is not None and currentValue == self.twAssociation.item(row,0).text() and row != currentItemRow:
+                    QMessageBox.critical(self, self.tr('Cell value error'),self.tr('"{}" is already used'.format(currentValue)))
+                    self.twAssociation.currentItem().setText(None)
+                    return
+
+        # check if cellValue is numeric
+    
+        try:
+            float(currentValue)
+        except:
+            QMessageBox.critical(self, self.tr('Cell value error'),self.tr('"{}" is not a numeric value'.format(currentValue)))
+            self.twAssociation.currentItem().setText(None)
 
     def text(self):
         return self.leText.text()

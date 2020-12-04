@@ -249,7 +249,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "NC_",
             "pNC_"],
         "diversity metrics": [
-            "HETC_"]
+            #"HETC_"
+            ]
     }
 
     def __init__(self):
@@ -376,8 +377,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         self.output_values[name] = value
     
     def parameterAsString(self, parameters, paramName, context):
-        print("paramName " + str(parameters[paramName]))
-        print("parameters " + str(parameters))
+        #print("paramName " + str(parameters[paramName]))
+        #print("parameters " + str(parameters))
         if type(parameters[paramName])==dict and "data" in parameters[paramName]:
             print(parameters[paramName])
             return parameters[paramName]["data"]

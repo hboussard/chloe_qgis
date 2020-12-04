@@ -92,7 +92,7 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
         rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
 
-        #☻3.10 fix
+        #3.10 fix
         if re.match(r"^[a-zA-Z0-9_]+$", rasterLayerParam):
             selectedLayer = QgsProject.instance().mapLayer(rasterLayerParam)
             rasterLayerParam = selectedLayer.dataProvider().dataSourceUri()
