@@ -80,7 +80,7 @@ class ChloeUtils:
     def runChloe(commands, feedback=None):
         
         cwd = os.path.dirname(__file__) + os.sep + 'Chloe2012'
-        print('cwd : ' + cwd)
+        #print('cwd : ' + cwd)
         if feedback is None:
             feedback = QgsProcessingFeedback()
         envval = os.getenv('PATH')
@@ -113,11 +113,11 @@ class ChloeUtils:
         while not success:
             loglines = []
             loglines.append('CHLOE execution console output')
-            print('step while')
+            #print('step while')
             try:
                 #print('runChloe')
                 #feedback.pushConsoleInfo('runChloe')
-                print(fused_command)
+                #print(fused_command)
                 with subprocess.Popen(
                    fused_command,
                     shell=True,
@@ -134,7 +134,7 @@ class ChloeUtils:
                     success = True
             except IOError as e:
                 if retry_count < 5:
-                    print('retry ' + str(retry_count))
+                    #print('retry ' + str(retry_count))
                     retry_count += 1
                 else:
                     raise IOError(
@@ -575,7 +575,7 @@ class ChloeUtils:
     @staticmethod
     def adjustTempDirectory(tempDirectory):
         """ """
-        if "Local/Temp" in  tempDirectory:
+        if "Local/Temp" in  tempDirectory or "Local\Temp" in  tempDirectory:
             if not os.path.exists(tempDirectory):
                 os.makedirs(tempDirectory)
 

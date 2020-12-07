@@ -74,7 +74,7 @@ from ..chloe_algorithm import ChloeAlgorithm
 
 # Main dialog
 from .from_csv_algorithm_dialog import FromCSVAlgorithmDialog
-from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
+from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination,ChloeParameterFolderDestination
 
 class FromCSVAlgorithm(ChloeAlgorithm):
     """
@@ -157,11 +157,15 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
         # === OUTPUT PARAMETERS ===
 
-        fieldsParam = ChloeASCParameterFileDestination(
-            name=self.OUTPUT_ASC,
-            description=self.tr('Output Raster ascii'))
+        #fieldsParam = ChloeASCParameterFileDestination(
+            #name=self.OUTPUT_ASC,
+            #description=self.tr('Output Raster ascii'))
         
-        self.addParameter(fieldsParam, createOutput=True)
+        #self.addParameter(fieldsParam, createOutput=True)
+
+        self.addParameter(ChloeParameterFolderDestination(
+            name=self.OUTPUT_DIR,
+            description=self.tr('Output directory')))
 
         self.addParameter(QgsProcessingParameterFileDestination(
             name=self.SAVE_PROPERTIES,
@@ -205,21 +209,23 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             parameters, self.NODATA_VALUE, context)
 
         # === OUTPUT
-        self.output_asc = self.parameterAsString(
-            parameters, self.OUTPUT_ASC, context)
-        #self.output_asc = self.getOutputValue(self.OUTPUT_ASC)
-        self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
+        #self.output_asc = self.parameterAsString(
+        #    parameters, self.OUTPUT_ASC, context)
+
+        #self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
+
+        self.output_dir = self.parameterAsString(
+            parameters, self.OUTPUT_DIR, context)
+        ChloeUtils.adjustTempDirectory(self.output_dir)
 
         # Constrution des chemins de sortie des fichiers
         base_in = os.path.basename(self.input_csv)
         name_in = os.path.splitext(base_in)[0]
         #ext_in  = os.path.splitext(base_in)[1]
 
-        dir_out = os.path.dirname(self.output_asc)
+        """dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
-        name_out = os.path.splitext(base_out)[0]
-        #ext_out = os.path.splitext(base_out)[1]
-        #feedback.pushInfo('self.f_path')
+        name_out = os.path.splitext(base_out)[0]"""
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
@@ -235,16 +241,12 @@ class FromCSVAlgorithm(ChloeAlgorithm):
         self.createPropertiesTempFile()
          # Create Properties file (temp or chosed)
 
-        # === CORE
-        #commands = self.getConsoleCommandsJava(f_save_properties)
-
-        #commands = self.getConsoleCommands(parameters, context, feedback, executing=True)
-        #print('------- before')
-        #ChloeUtils.runChole(commands, feedback)
-        #print('------- after')
         # === Projection file
-        f_prj = dir_out+os.sep+name_out+".prj"
-        self.createProjectionFile(f_prj)
+        #f_prj = dir_out+os.sep+name_out+".prj"
+        #self.createProjectionFile(f_prj)
+
+        # === output filenames
+        self.deduceOutputFilenames()
 
     def createPropertiesTempFile(self):
         """Create Properties File."""
@@ -258,13 +260,16 @@ class FromCSVAlgorithm(ChloeAlgorithm):
                 'input_csv='+self.input_csv+"\n", isWindows()))
 
             #if multiple fields are selected set output_folder instead of output_asc
-            if len(self.variables.split(';')) > 1:
+            """if len(self.variables.split(';')) > 1:
                 fd.write(ChloeUtils.formatString(
                 'output_folder='+ re.sub('[^\/]+(?=\.).asc','',self.output_asc) + "\n", isWindows()))
             else:
                 fd.write(ChloeUtils.formatString(
-                'output_asc='+self.output_asc+"\n", isWindows()))
-           
+                'output_asc='+self.output_asc+"\n", isWindows()))"""
+
+            fd.write(ChloeUtils.formatString(
+                'output_folder=' + self.output_dir + "\n", isWindows()))
+
             fd.write("variables={" + self.variables + "}\n")
             fd.write("ncols=" + str(self.ncols) + "\n")
             fd.write("nrows=" + str(self.nrows) + "\n")
@@ -272,3 +277,13 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             fd.write("yllcorner=" + str(self.yllcorner) + "\n")
             fd.write("cellsize=" + str(self.cellsize) + "\n")
             fd.write("nodata_value=" + str(self.nodata_value) + "\n")
+
+    def deduceOutputFilenames(self):
+        self.outputFilenames = []
+        baseOutAsc = os.path.basename(self.input_csv)
+        radical = os.path.splitext(baseOutAsc)[0]
+        lst_files =  str(self.variables).split(';')
+        for ws in lst_files:
+            fName = radical + "_" + str(ws) + ".asc"
+            fFullName = self.output_dir + os.sep + fName
+            self.outputFilenames.append(fFullName)

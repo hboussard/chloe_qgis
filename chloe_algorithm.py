@@ -94,7 +94,7 @@ import glob
 class ChloeOutputLayerPostProcessor(QgsProcessingLayerPostProcessorInterface):
     
     def postProcessLayer(self, layer, context, feedback):
-        print("postProcessing " + layer.name())
+        #print("postProcessing " + layer.name())
         if isinstance(layer, QgsRasterLayer):
             ChloeUtils.setLayerSymbology(layer, 'continuous.qml')
 
@@ -380,7 +380,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #print("paramName " + str(parameters[paramName]))
         #print("parameters " + str(parameters))
         if type(parameters[paramName])==dict and "data" in parameters[paramName]:
-            print(parameters[paramName])
             return parameters[paramName]["data"]
             #return super().parameterAsString(parameters, parameters[paramName]["data"], context)
         else:
@@ -391,11 +390,11 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         commands = self.getConsoleCommands(parameters, context, feedback)
         ChloeUtils.runChloe(commands, feedback)
 
-        print('parameters : {}'.format(str(parameters)))
+        #print('parameters : {}'.format(str(parameters)))
 
         # Auto generate outputs: dict {'name parameter' : 'value', ...}
-        for output in self.destinationParameterDefinitions():
-            print(str(output) + " " + str(output.metadata()))
+        #for output in self.destinationParameterDefinitions():
+            #print(str(output) + " " + str(output.metadata()))
         results = {}
         for o in self.outputDefinitions():
             
@@ -437,7 +436,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             if 'OUTPUT_ASC' in parameters:
                 output_csv = ChloeUtils.adjustExtension(output_csv, parameters['OUTPUT_ASC']["data"])
                 
-            print("output_csv " + str(uri) + "  " + str(output_csv))
+            #print("output_csv " + str(uri) + "  " + str(output_csv))
             tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
             tLayer = QgsVectorLayer(uri, tLayerName,'delimitedtext')
             if not tLayer.isValid():
@@ -457,7 +456,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             if outputDir!=None:
                 #self.prepareMultiProjectionFiles()
                 for file in self.outputFilenames:
-                    print(file + " " + os.path.splitext(os.path.basename(file))[0])
+                    #print(file + " " + os.path.splitext(os.path.basename(file))[0])
                     rlayer = QgsRasterLayer(file, os.path.splitext(os.path.basename(file))[0])
                     #rlayer = QgsRasterLayer(load_it, "hillshade")
                     #if not rlayer.isValid():
@@ -473,13 +472,14 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
                     if rlayer.isValid():
                         rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
-                        print('raster is valid : ' + str(rLayerName))
+                        #print('raster is valid : ' + str(rLayerName))
                         ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
                         context.temporaryLayerStore().addMapLayer(rlayer)
                         layerDetails = QgsProcessingContext.LayerDetails(rLayerName, context.project(), self.OUTPUT_DIR)  
                         context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
                     else:
-                        print('raster is not valid')
+                        pass
+                        #print('raster is not valid')
         return results
 
     def helpUrl(self):
@@ -510,7 +510,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         else:
             context={ 'plugin_path' : plugin_path+os.sep,
                       'image_path'  : plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep}
-        print(helpfile)
+        #print(helpfile)
         content = ChloeUtils.file_get_contents(helpfile,encoding='utf-8',context=context)
 
         if not (content==None):
