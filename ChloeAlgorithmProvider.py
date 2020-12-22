@@ -50,6 +50,7 @@ from .algorithms.overlay_algorithm import OverlayAlgorithm
 from .algorithms.filter_algorithm import FilterAlgorithm
 from .algorithms.search_and_replace_algorithm import SearchAndReplaceAlgorithm
 from .algorithms.combine_algorithm import CombineAlgorithm
+from .algorithms.map_builder_algorithm import MapBuilderAlgorithm
 
 class ChloeAlgorithmProvider(QgsProcessingProvider):
 
@@ -118,7 +119,8 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
             OverlayAlgorithm(),
             FilterAlgorithm(),
             SearchAndReplaceAlgorithm(),
-            CombineAlgorithm()
+            CombineAlgorithm(),
+            MapBuilderAlgorithm()
         ]
         for a in self.algs:
             self.addAlgorithm(a)

@@ -142,6 +142,7 @@ from .gui.list_selection_panel import ListSelectionPanel
 from .gui.int_list_selection_panel import IntListSelectionPanel
 from .gui.factor_table_panel import FactorTablePanel
 from .gui.odd_even_number_spinbox import IntSpinbox
+from .gui.vector_sources_selector_panel import VectorSourcesSelectorPanel
 
 pluginPath = os.path.join(
     QgsApplication.pkgDataPath(),
@@ -1193,3 +1194,44 @@ class ChloeParameterFolderDestination(QgsProcessingParameterFolderDestination):
         except:
             #BATCH AND MODERLER GUI RETURN
             return input and super().checkValueIsAcceptable(input, context) 
+        
+        
+class ChloeVectorSourcesWidgetWrapper(WidgetWrapper):
+    def createLabel(self):
+        """Label create"""
+        if self.dialogType == DIALOG_STANDARD:
+            return super().createLabel()
+        else:
+            return super().createLabel()
+
+    def createWidget(self,parentWidgetConfig = None):
+        self.parentWidgetConfig = parentWidgetConfig
+        """Widget creation to put like panel in dialog"""
+        if self.dialogType == DIALOG_STANDARD:
+            return VectorSourcesSelectorPanel(self.dialog, self.param.algorithm(), None)
+        elif self.dialogType == DIALOG_BATCH:
+            return VectorSourcesSelectorPanel(self.dialog, self.param.algorithm(), None, True)
+        else:
+            return None
+
+
+    def setValue(self, value):
+        """Set value on the widget/component."""
+        if value is None:
+            return
+        if self.dialogType == DIALOG_STANDARD:
+            self.widget.setValue(str(value))
+        else:
+            self.widget.setText(str(value))
+
+    def value(self):
+        """Get value on the widget/component."""
+        if self.dialogType == DIALOG_STANDARD:
+            print("getValue")
+            return self.widget.getValue()
+        else:
+            print(self.dialogType)
+            print("text")
+            return self.widget.text()
+
+    
