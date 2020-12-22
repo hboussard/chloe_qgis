@@ -30,7 +30,7 @@ import subprocess
 import time
 import re
 from qgis.PyQt.QtCore import QSettings,QCoreApplication
-from qgis.core import QgsVectorFileWriter
+from qgis.core import QgsVectorFileWriter,QgsRasterLayer,QgsProcessingException,QgsProcessingContext
 from osgeo import ogr, osr
 from osgeo import gdal, gdalconst
 import math
@@ -184,7 +184,23 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
                                                   datas=parameters[self.INPUT_VECTORS],
                                                   downscale = 1, upscale = 1,
                                                   extentBuffer = 0,reclass=None,noDataValue=0)
-    
+        rlayer = QgsRasterLayer(output, "Custom Map")
+        if not rlayer.isValid():
+            raise QgsProcessingException(self.tr("""Cannot load the output in the application"""))
+
+        rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+        ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+        context.temporaryLayerStore().addMapLayer(rlayer)
+        layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
+                                              context.project(),
+                                              self.OUTPUT)
+        
+        #postProcess = ChloeOutputLayerPostProcessor()t
+        #layerDetails.setPostProcessor(postProcess)
+        context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
+        results = {}
+        results[self.OUTPUT] = rlayer.id()
+        return results
 
     # Open the dataset from the file
     
