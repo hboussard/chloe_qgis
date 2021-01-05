@@ -159,16 +159,30 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
         """ Called to refresh the ui according to a layer datasource change """
         pass
 
+
     #@pyqtSlot(str)
     def upSelected(self):
-        #TODO
-        pass
+        row = self.tableWidget.currentRow()
+        column = self.tableWidget.currentColumn();
+        if row > 0:
+            self.tableWidget.insertRow(row-1)
+            for i in range(self.tableWidget.columnCount()):
+               self.tableWidget.setItem(row-1,i,self.tableWidget.takeItem(row+1,i))
+               self.tableWidget.setCurrentCell(row-1,column)
+            self.tableWidget.removeRow(row+1) 
         
 
     #@pyqtSlot(str)
     def downSelected(self):
-        #TODO
-        pass
+        row = self.tableWidget.currentRow()
+        column = self.tableWidget.currentColumn();
+        if row < self.tableWidget.rowCount()-1:
+            self.tableWidget.insertRow(row+2)
+            for i in range(self.tableWidget.columnCount()):
+               self.tableWidget.setItem(row+2,i,self.tableWidget.takeItem(row,i))
+               self.tableWidget.setCurrentCell(row+2,column)
+            self.tableWidget.removeRow(row)
+        
     
     def updateFilter(self):
         first = self.fileListWidget.item(0)
