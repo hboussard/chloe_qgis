@@ -37,9 +37,10 @@ from qgis.PyQt import uic
 
 
 from processing.gui.wrappers import (WidgetWrapper, DIALOG_BATCH, DIALOG_STANDARD) # DIALOG_MODELER
-from qgis.core import QgsProcessingParameterDefinition,QgsVectorLayer
-from qgis.PyQt.QtWidgets import QAbstractItemView,QTableWidgetItem,QListWidgetItem,QTableWidgetSelectionRange,QFileDialog
-import math
+from qgis.core import QgsProcessingParameterDefinition,QgsVectorLayer,QgsExpressionContextUtils
+from qgis.gui import QgsExpressionLineEdit
+from qgis.PyQt.QtWidgets import QAbstractItemView,QTableWidgetItem,QListWidgetItem,QTableWidgetSelectionRange,QFileDialog,QLabel
+import math,json
 from re import fullmatch
 
 pluginPath = os.path.dirname(__file__)
@@ -75,14 +76,20 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
         self.leBurnValue.textChanged.connect(self.updateTable)
         self.radioQueen.clicked.connect(self.updateTable)
         self.radioRook.clicked.connect(self.updateTable)
-        self.filterExpression.fieldChanged.connect(self.updateTable)
         self.vectorFile = ""
+        self.filterExpression = QgsExpressionLineEdit()
+        self.formLayout.addRow(QLabel(self.tr("Feature filter")),self.filterExpression)
+        self.filterExpression.expressionChanged.connect(self.updateTable)
+        self.rescaleFactorSpinBox.setValue(1)
+        self.radioUpscale.setChecked(True)
+        self.propertiesFile_pushButton.clicked.connect(self.loadPropertiesFile)
         
         self.tableWidget.clear()
         self.tableWidget.setColumnCount(4)
         self.tableWidget.setRowCount(1)
-        self.tableWidget.setHorizontalHeaderLabels(["Files","Value","Filter","Neighbors"])
+        self.tableWidget.setHorizontalHeaderLabels(["Value","Filter","Neighbors","Files"])
         self.tableWidget.itemSelectionChanged.connect(self.tableSelectionChanged)
+        self.tableSelectionChanged()
 
 
     #@pyqtSlot(str)
@@ -90,13 +97,13 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
         if len(self.tableWidget.selectedRanges())==0:
             self.tableWidget.setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 3),True)
         row = self.tableWidget.selectedRanges()[0].topRow()
-        filesList=""
+        filesList=''
         for i in range(self.fileListWidget.count()):
-            filesList=filesList+','+self.fileListWidget.item(i).text()
-        self.tableWidget.setItem(row,0,QTableWidgetItem(filesList))
-        self.tableWidget.setItem(row,1,QTableWidgetItem(self.leBurnValue.text()))
-        self.tableWidget.setItem(row,2,QTableWidgetItem(self.filterExpression.currentText()))
-        self.tableWidget.setItem(row,3,QTableWidgetItem("4" if self.radioRook.isChecked() else "8"))
+            filesList=('' if i==0 else (filesList+','))+self.fileListWidget.item(i).text()
+        self.tableWidget.setItem(row,3,QTableWidgetItem(filesList))
+        self.tableWidget.setItem(row,0,QTableWidgetItem(self.leBurnValue.text()))
+        self.tableWidget.setItem(row,1,QTableWidgetItem(self.filterExpression.expression()))
+        self.tableWidget.setItem(row,2,QTableWidgetItem("4" if self.radioRook.isChecked() else "8"))
     
     #@pyqtSlot(str)
     def tableSelectionChanged(self):
@@ -104,19 +111,19 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
             self.tableWidget.setRangeSelected(QTableWidgetSelectionRange(0, 0, 0, 3),True)
         rows = self.tableWidget.selectedRanges()[0]
         self.fileListWidget.clear()
-        files = self.tableWidget.item(rows.topRow(),0)
+        files = self.tableWidget.item(rows.topRow(),3)
         if files is not None:
             filesList = files.text().split(',')
             for file in filesList:
                 QListWidgetItem(file,self.fileListWidget)
-        bv = self.tableWidget.item(rows.topRow(),1)
+        bv = self.tableWidget.item(rows.topRow(),0)
         if bv is not None:
             self.leBurnValue.setText(bv.text())
-        expr = self.tableWidget.item(rows.topRow(),2)
+        expr = self.tableWidget.item(rows.topRow(),1)
         if expr is not None:
             self.filterExpression.setExpression(expr.text())
         self.updateFilter()
-        nghbrhd = self.tableWidget.item(rows.topRow(),3)
+        nghbrhd = self.tableWidget.item(rows.topRow(),2)
         if nghbrhd is not None:
             self.radioRook.setChecked(nghbrhd.text()=="4")
         else:
@@ -130,28 +137,39 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
     def getValue(self):
         datas=[]
         for i in range(self.tableWidget.rowCount()):
-            if self.tableWidget.item(i,0) is None:
+            if self.tableWidget.item(i,3) is None:
                 continue
-            bv_item = self.tableWidget.item(i,1)
+            bv_item = self.tableWidget.item(i,0)
             if bv_item is None:
                 bv = ""
             else:
                 bv=bv_item.text()
-            if fullmatch("[-+]?\d+",bv) is not None:
+            if fullmatch("[-+]?[0-9]+",bv) is not None:
                 bv=int(bv)
-            filter_item = self.tableWidget.item(i,2)
+            filter_item = self.tableWidget.item(i,1)
             if filter_item is None:
                 f=''
             else:
                 f=filter_item.text()
             datas.append({'type':'vector',
-                          'filenames':self.tableWidget.item(i,0).text().split(','),
+                          'filenames':self.tableWidget.item(i,3).text().split(','),
                           'burnvalue':bv,
                           'filter':f,
-                          '8c':self.tableWidget.item(i,3).text()=="8"
+                          '8c':self.tableWidget.item(i,2).text()=="8"
                 })
         print(datas)
-        return datas
+        if self.radioUpscale.isChecked():
+            upscale = self.rescaleFactorSpinBox.value()
+            downscale = 1
+        else:
+            upscale = 1
+            downscale = self.rescaleFactorSpinBox.value()
+            
+        return {"datas":datas,
+                "extentBuffer":self.extentBufferSpinBox.value(),
+                "upscale":upscale,
+                "downscale":downscale
+                }
 
 
 
@@ -185,11 +203,21 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
         
     
     def updateFilter(self):
+        return
         first = self.fileListWidget.item(0)
         if first is not None:
             if self.vectorFile != first.text():
                 self.vectorFile = first.text()
-                self.filterExpression.setLayer(QgsVectorLayer(path=self.vectorFile))
+                layer = QgsVectorLayer(path=self.vectorFile,baseName="filterLayer",providerLib="ogr")
+                print("filter layer : "+self.vectorFile)
+                print(layer)
+                if layer is not None:
+                    self.filterExpression.setLayer(layer)
+    
+                    # scope = QgsExpressionContextUtils.layerScope(layer)# QgsExpressionContextScope()
+                    # scope.setFields(layer.fields())
+                    # self.filterExpression.appendScope(scope)
+                    # self.filterExpression.registerExpressionContextGenerator(layer)
 
     #@pyqtSlot(str)
     def insertLayer(self):
@@ -213,7 +241,29 @@ class VectorSourcesSelectorPanel(BASE, WIDGET):
 
     def addFileToList(self):
         listFiles,ext = QFileDialog.getOpenFileNames(parent = self, caption = self.dialog.tr("Select vector files"),directory = "", filter = "ShapeFiles (*.shp);; All files (*)", initialFilter = "ShapeFiles (*.shp)")
+        print(listFiles)
+        print(self.fileListWidget)
         for file in listFiles:
-            QListWidgetItem(file,self.fileListWidget)
+            self.fileListWidget.addItem(file)
         self.updateFilter()
         self.updateTable()
+
+    def loadPropertiesFile(self):
+        propertiesFile,ext = QFileDialog.getOpenFileName(parent = self, caption = self.dialog.tr("Select properties file"),directory = "", filter = "Properties File (*.properties);; All files (*)", initialFilter = "Properties File (*.properties)")
+        f = open(propertiesFile, "r")
+        tab = json.load(f)
+        self.extentBufferSpinBox.setValue(tab["extentBuffer"])
+        self.rescaleFactorSpinBox.setValue(max(tab["downscale"],tab["upscale"]))
+        self.rescaleFactorSpinBox.setValue(max(tab["downscale"],tab["upscale"]))
+        self.radioUpscale.setChecked(tab["downscale"]<=tab["upscale"])
+  
+        rowCount = len(tab["datas"])
+        self.tableWidget.setRowCount(rowCount)
+        for i in range(rowCount):
+            self.tableWidget.setItem(i,0,QTableWidgetItem(str(tab["datas"][i]["burnvalue"])))
+            self.tableWidget.setItem(i,1,QTableWidgetItem(tab["datas"][i]["filter"]))
+            self.tableWidget.setItem(i,2,QTableWidgetItem("8" if tab["datas"][i]["8c"] else "4"))
+            filesList=''
+            for file in tab["datas"][i]["filenames"]:
+                filesList=(file if filesList=='' else (filesList+','+file))
+            self.tableWidget.setItem(i,3,QTableWidgetItem(filesList))

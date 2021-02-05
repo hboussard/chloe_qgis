@@ -30,11 +30,13 @@ import subprocess
 import time
 import re
 from qgis.PyQt.QtCore import QSettings,QCoreApplication
-from qgis.core import QgsVectorFileWriter,QgsRasterLayer,QgsProcessingException,QgsProcessingContext
+from qgis.core import QgsVectorFileWriter,QgsRasterLayer,QgsProcessingException,QgsProcessingContext,QgsCoordinateReferenceSystem
 from osgeo import ogr, osr
 from osgeo import gdal, gdalconst
 import math
+import json
 import numpy as np
+from pyproj import Transformer
 
 from qgis.core import (
     QgsProcessing,
@@ -59,6 +61,8 @@ from qgis.core import (
     QgsProcessingOutputFolder,
     QgsProcessingFeedback
 )
+from qgis.utils import iface
+
 
 from processing.tools import dataobjects, vector
 
@@ -80,6 +84,7 @@ import tempfile
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeAlgorithmDialog, ChloeVectorSourcesWidgetWrapper
 
+
 class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
     """
     Algorithm map builder
@@ -88,6 +93,7 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
     EXTENT = "EXTENT"
     INPUT_VECTORS = "INPUT_VECTORS"
     OUTPUT = "OUTPUT"
+    SAVE_PROPERTIES = "SAVE_PROPERTIES"
 
     def __init__(self):
         super().__init__()
@@ -122,7 +128,7 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
 
         vectorsParam = QgsProcessingParameterString(
             name= self.INPUT_VECTORS,
-            description=self.tr('Vector sources'),
+            description=self.tr(''),
             defaultValue='')
         vectorsParam.setIsDynamic(False)
 
@@ -148,6 +154,12 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
             )
         )        
         
+        self.addParameter(QgsProcessingParameterFileDestination(
+            name=self.SAVE_PROPERTIES,
+            description=self.tr('Properties file'),
+            fileFilter='Properties (*.properties)'))
+        
+        
         
     def tr(self, string, context=''):
         if context == '':
@@ -163,10 +175,10 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
         return self.tr('Build map')
 
     def group(self):
-        return self.tr('util')
+        return self.tr('generate ascii grid')
 
     def groupId(self):
-        return 'util'
+        return 'generateasciigrid'
 
     def commandName(self):
         return 'map_builder'
@@ -176,14 +188,27 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
         print('processAlgorithm')
         input_raster = self.parameterRasterAsFilePath(parameters, self.INPUT_RASTER, context)
         extent = self.parameterAsString(parameters, self.EXTENT, context)
+        vectors_datas=parameters[self.INPUT_VECTORS]["datas"]
+        upscale = parameters[self.INPUT_VECTORS]["upscale"]
+        downscale = parameters[self.INPUT_VECTORS]["downscale"]
+        extentBuffer=parameters[self.INPUT_VECTORS]["extentBuffer"]
         output = self.parameterAsOutputLayer(parameters, self.OUTPUT, context)
+        param_save = self.parameterAsOutputLayer(parameters, self.SAVE_PROPERTIES, context)
         
-        MapBuilderAlgorithm.generateMapFromRaster(output,
+        f = open(param_save, "w", encoding="utf-8")
+        json.dump({'output':output,
+                   'input_raster':input_raster,
+                   'extent':extent,
+                   'datas':vectors_datas,
+                   'downscale' : downscale, 'upscale' : upscale,
+                   'extentBuffer': extentBuffer,'reclass':None,'noDataValue':0},f)
+        
+        self.generateMapFromRaster(output,
                                                   input_raster,
                                                   extent=extent,
-                                                  datas=parameters[self.INPUT_VECTORS],
-                                                  downscale = 1, upscale = 1,
-                                                  extentBuffer = 0,reclass=None,noDataValue=0)
+                                                  datas=vectors_datas,
+                                                  downscale = downscale, upscale = upscale,
+                                                  extentBuffer = extentBuffer,reclass=None,noDataValue=0)
         rlayer = QgsRasterLayer(output, "Custom Map")
         if not rlayer.isValid():
             raise QgsProcessingException(self.tr("""Cannot load the output in the application"""))
@@ -212,30 +237,54 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
     
     # ou liste de (filename,type,champ/bande,liste de valeurs retenues)
     
+    def getEPSG(ds):
+        try :
+            proj = osr.SpatialReference(wkt=ds.GetProjection())
+            epsg = proj.GetAttrValue('AUTHORITY',1)
+            if type(epsg)=='str':
+                epsg = int(epsg)
+        except :
+            epsg = 0
+        print("EPSG:",epsg)
+        return epsg
+            
     
-    
-    def validateExtent(extent,projection):
+    def validateExtent(self,extent,toEPSG):
+
         if(type(extent) == str):
-            strExtent = extent.split("[")[0]
-            extent = []
-            for num in strExtent.split(","):
-                extent.append(float(num)) 
-            # dataset = ogr.Open(extent)
-            # # éventuellement convertir en fonction de la projection
+            extent = extent.split("[")
+            xmin,xmax,ymin,ymax = extent[0].split(",")
+            xmin=float(xmin)
+            xmax=float(xmax)
+            ymin=float(ymin)
+            ymax=float(ymax)
+            print(xmin,xmax,ymin,ymax)
+            if len(extent)>1:
+                transformer = Transformer.from_crs(int(extent[1][5:-1]), int(toEPSG), always_xy=True)
+                x1,y1 = transformer.transform(xmin, ymin)
+                x2,y2 = transformer.transform(xmin, ymax)
+                x3,y3 = transformer.transform(xmax, ymin)
+                x4,y4 = transformer.transform(xmax, ymax)
+                minx=min(x1,x2,x3,x4)
+                maxx=max(x1,x2,x3,x4)
+                miny=min(y1,y2,y3,y4)
+                maxy=max(y1,y2,y3,y4)
+                extentNum=[minx,maxx,miny,maxy]
+                print(minx,maxx,miny,maxy)
+        return extentNum
             
-            # layer = dataset.GetLayer()
-            # extent = layer.GetExtent()
-            
-        return extent
-            
-    def transformDataset(dataSource,sourceprj,targetprj):    
+    def transformDataset(dataSource,sourceEPSG,targetEPSG):    
         layer = dataSource.GetLayer()
     
-        transform = osr.CoordinateTransformation(sourceprj, targetprj)
+        transformer = Transformer.from_crs(sourceEPSG,targetEPSG)
+        #transform = osr.CoordinateTransformation(sourceprj, targetprj)
         
-        to_fill = ogr.GetDriverByName("MEMORY")
+        to_fill = ogr.GetDriverByName("Memory")
+        print(to_fill)
         ds = to_fill.CreateDataSource("memData",1)
-        outlayer = ds.CreateLayer('', targetprj, ogr.wkbPolygon)
+        targetSpatialReference = osr.SpatialReference()
+        targetSpatialReference.ImportFromEPSG(targetEPSG)
+        outlayer = ds.CreateLayer('', targetSpatialReference, ogr.wkbPolygon)
         outlayer.CreateField(ogr.FieldDefn('id', ogr.OFTInteger))
         
         #apply transformation
@@ -257,15 +306,12 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
         ds = None
     
     
-    def addDatas(resRaster,datas):
+    def addDatas(resRaster,datas,refEPSG):
         print("addDatas")
         for data in datas:
             print(data)
     
-        #geotransform = resRaster.GetGeoTransform()
-        projection = resRaster.GetProjection()
-        print(resRaster)
-        print(projection)
+        print("raster : ",resRaster)
         
         # pour chaque entree :
         print("loop")
@@ -289,21 +335,19 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
                     
                 for filename in data['filenames']:
                     dataset = ogr.Open(filename)
+                    sourceEPSG=MapBuilderAlgorithm.getEPSG(dataset)
                     layer = dataset.GetLayer()
                     if('filter' in data.keys() and data['filter'] is not None):
                         layer.SetAttributeFilter(data['filter'])
         
         
                     #set spatial reference and transformation
-                    sourceprj = layer.GetSpatialRef()
-                    targetprj = osr.SpatialReference(wkt = projection)
-                    if(not sourceprj.IsSame(targetprj)):
+                    if(refEPSG!=sourceEPSG and refEPSG!=0 and sourceEPSG!=0):
                         print("Transform...")
-                        print(sourceprj)
+                        print(sourceEPSG)
                         print("to")
-                        print(targetprj)
-                        #TODO 3.16 : test si gdal corrigé
-                        # dataset = MapBuilderAlgorithm.transformDataset(dataset,sourceprj,targetprj)
+                        print(refEPSG)
+                        dataset = MapBuilderAlgorithm.transformDataset(dataset,sourceEPSG,refEPSG)
         
                     #transform = osr.CoordinateTransformation(sourceprj, targetprj)
                     #print(transform)
@@ -328,7 +372,7 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
             #     tmp.GetRasterBand(1).WriteArray(ETPj)
             #     img = gdal.Open(refRaster, gdalconst.GA_ReadOnly)
                 
-    def generateMapFromRaster(resRasterFile,refRasterFile,extent=None,datas=None,downscale = 1, upscale = 1,extentBuffer = 0,reclass=None,noDataValue=0):
+    def generateMapFromRaster(self,resRasterFile,refRasterFile,extent=None,datas=None,downscale = 1, upscale = 1,extentBuffer = 0,reclass=None,noDataValue=0):
         
         print("resRasterFile : ")
         print(resRasterFile)
@@ -338,20 +382,23 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
         # générer le raster final
         # ouvrir l'image de référence
         refRaster = gdal.Open(refRasterFile, gdalconst.GA_ReadOnly)
-        geotransform = refRaster.GetGeoTransform()
+        refGeotransform = refRaster.GetGeoTransform()
+        refEPSG = MapBuilderAlgorithm.getEPSG(refRaster)
+        if refEPSG==0:
+            refEPSG=int(iface.mapCanvas().mapSettings().destinationCrs().authid())
         
         if(extent == None):
-            minx = geotransform[0]
-            maxy = geotransform[3]
-            maxx = minx + geotransform[1] * refRaster.RasterXSize
-            miny = maxy + geotransform[5] * refRaster.RasterYSize
+            minx = refGeotransform[0]
+            maxy = refGeotransform[3]
+            maxx = minx + refGeotransform[1] * refRaster.RasterXSize
+            miny = maxy + refGeotransform[5] * refRaster.RasterYSize
             extent = [minx, miny, maxx, maxy]
         else:
-            extent = MapBuilderAlgorithm.validateExtent(extent,refRaster.GetProjection())
+            extent = self.validateExtent(extent,refEPSG)
         
         # calcul des positions en pixel des angles de l'extent dans le raster de référence
-        pixelWidth = geotransform[1]
-        pixelHeight = geotransform[5] # dimension signée
+        pixelWidth = refGeotransform[1]
+        pixelHeight = refGeotransform[5] # dimension signée
         
         if(downscale!=1):
             pixelWidth = pixelWidth*downscale
@@ -360,13 +407,13 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
             pixelWidth = pixelWidth/upscale
             pixelHeight = pixelHeight/upscale
             
-        iL = math.floor((extent[0]-extentBuffer - geotransform[0])/pixelWidth)
-        iR = math.floor((extent[1]+extentBuffer - geotransform[0])/pixelWidth)
-        jU = math.floor((extent[3]+extentBuffer - geotransform[3])/pixelHeight)
-        jB = math.floor((extent[2]-extentBuffer - geotransform[3])/pixelHeight)
+        iL = math.floor((extent[0]-extentBuffer - refGeotransform[0])/pixelWidth)
+        iR = math.floor((extent[1]+extentBuffer - refGeotransform[0])/pixelWidth)
+        jU = math.floor((extent[3]+extentBuffer - refGeotransform[3])/pixelHeight)
+        jB = math.floor((extent[2]-extentBuffer - refGeotransform[3])/pixelHeight)
         
-        xL=geotransform[0]+iL*pixelWidth
-        yU=geotransform[3]+jU*pixelHeight
+        xL=refGeotransform[0]+iL*pixelWidth
+        yU=refGeotransform[3]+jU*pixelHeight
         width = iR-iL+1
         height = jB-jU+1
         
@@ -393,7 +440,7 @@ class MapBuilderAlgorithm(QgsProcessingAlgorithm):#QgsProcessingAlgorithm
             resRaster.GetRasterBand(1).WriteArray(rasterNew)
         
         # incorporer les datas
-        MapBuilderAlgorithm.addDatas(resRaster,datas)
+        MapBuilderAlgorithm.addDatas(resRaster,datas,refEPSG)
         
         #resRaster.FlushCache()
         resRaster = None
