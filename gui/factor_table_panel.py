@@ -4,7 +4,7 @@
 *********************************************************************************************
     factor_table_panel.py
     ---------------------
-        
+
         Widget used in the Combine Algorithm. Sets the input rasters names and setup the combination formula.
         Date                 : May 2019
 
@@ -28,7 +28,7 @@ from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QList
 from qgis.PyQt.QtGui import QCursor
 
 from qgis.gui import QgsMessageBar, QgsExpressionBuilderDialog, QgsFileWidget
-from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication
+from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication, QgsProject
 from qgis.utils import iface
 
 from processing.gui.RectangleMapTool import RectangleMapTool
@@ -39,6 +39,7 @@ from processing.gui.ListMultiselectWidget import ListMultiSelectWidget
 
 from .components.FactorInputDialog import FactorInputDialog
 import math
+import re
 
 from ..ChloeUtils import *
 # from PyQt4.QtGui import
@@ -75,11 +76,9 @@ class FactorTablePanel(BASE, WIDGET):
         # create an array to fill the factor table widget
 
         if (self.inputMatrix != None):
-            try:
-                listLayers = self.dialog.mainWidget(
-                ).wrappers[self.alg.INPUTS_MATRIX].value()
-            except:
-                pass
+
+            listLayers = self.dialog.mainWidget(
+            ).wrappers[self.alg.INPUTS_MATRIX].widgetValue()
 
             if listLayers == None:
                 return
@@ -91,12 +90,22 @@ class FactorTablePanel(BASE, WIDGET):
             else:
                 i = 1
                 for l in listLayers:
-                    lyrName = ChloeUtils.deduceLayerName(l)
-                    # check if listLayers items are strings or layer objects
+                    # check if listLayers items are strings
                     if type(l) is str:
-                        path = str(l)
-                    else:
-                        path = str(l.dataProvider().dataSourceUri())
+                        # if raster loaded in QgsProject.instance()
+                        if re.match(r"^[a-zA-Z0-9_]+$", l):
+                            # get raster layer object
+                            selectedLayer = QgsProject.instance().mapLayer(l)
+
+                            path = selectedLayer.dataProvider().dataSourceUri()
+                            lyrName = ChloeUtils.deduceLayerName(selectedLayer)
+
+                        else:
+                            path = str(l)
+                            lyrName = ChloeUtils.deduceLayerName(l)
+                    # else:
+                        # path = str(l.dataProvider().dataSourceUri())
+                    print(f'lyrname : {lyrName}, path : {path}')
                     listElement.append(('m'+str(i), lyrName, path))
                     i += 1
         # Dialog list check box

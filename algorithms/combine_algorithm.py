@@ -75,6 +75,7 @@ import tempfile
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
 
+
 class CombineAlgorithm(ChloeAlgorithm):
     """
     Algorithm combine
@@ -91,27 +92,25 @@ class CombineAlgorithm(ChloeAlgorithm):
             self.INPUTS_MATRIX,
             self.tr('Input rasters'),
             QgsProcessing.TypeRaster))
-        
-        
 
         # COMBINE EXPRESSION
         combineParam = QgsProcessingParameterString(
-            name= self.DOMAINS,
+            name=self.DOMAINS,
             description=self.tr('Combination'),
             defaultValue='')
         combineParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper',
-                'input_matrix' : self.INPUTS_MATRIX,
-                'parentWidgetConfig': { 'paramName': self.INPUTS_MATRIX, 'refreshMethod': 'resetFormula'}
+                'input_matrix': self.INPUTS_MATRIX,
+                'parentWidgetConfig': {'paramName': self.INPUTS_MATRIX, 'refreshMethod': 'resetFormula'}
             }
         })
 
         self.addParameter(combineParam)
-            
-        # === OUTPUT PARAMETERS ===    
-        
-        #self.addParameter(ChloeParameterFolderDestination(
+
+        # === OUTPUT PARAMETERS ===
+
+        # self.addParameter(ChloeParameterFolderDestination(
         #    name=self.OUTPUT_DIR,
         #    description=self.tr('Output directory')))
 
@@ -147,26 +146,28 @@ class CombineAlgorithm(ChloeAlgorithm):
         """Here is where the processing itself takes place."""
         print('processAlgorithm')
         # === INPUT
-        inputFactors = self.parameterAsString(parameters, self.DOMAINS, context).split('.__.')
+        inputFactors = self.parameterAsString(
+            parameters, self.DOMAINS, context).split('.__.')
+        print(f'inputFactor : {inputFactors}')
         self.combination = inputFactors[1]
         self.input_asc = inputFactors[0]
         # === OUTPUT
 
         """ case when output directory --> deprecated """
-        #self.output_dir = self.parameterAsString(
+        # self.output_dir = self.parameterAsString(
         #    parameters, self.OUTPUT_DIR, context)
-        #ChloeUtils.adjustTempDirectory(self.output_dir)
+        # ChloeUtils.adjustTempDirectory(self.output_dir)
 
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)
-        
+
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
-        
+
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
             parameters, self.SAVE_PROPERTIES, context)
@@ -179,7 +180,7 @@ class CombineAlgorithm(ChloeAlgorithm):
 
         # === Properties files
         self.createPropertiesTempFile()
-        
+
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
         self.createProjectionFile(f_prj)
@@ -191,7 +192,9 @@ class CombineAlgorithm(ChloeAlgorithm):
             fd.write("#"+s_time+"\n")
             fd.write("visualize_ascii=false\n")
             fd.write('treatment=combine'+"\n")
-            fd.write( ChloeUtils.formatString('combination='+self.combination+"\n",isWindows()))    
-            fd.write( ChloeUtils.formatString('output_asc=' +self.output_asc+"\n",isWindows()))
-            fd.write( ChloeUtils.formatString('factors={'+self.input_asc+"}\n",isWindows()))  
-            
+            fd.write(
+                'combination='+self.combination+"\n")
+            fd.write(ChloeUtils.formatString(
+                'output_asc=' + self.output_asc+"\n", isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'factors={'+self.input_asc+"}\n", isWindows()))
