@@ -110,6 +110,7 @@ from processing.gui.BatchAlgorithmDialog import BatchAlgorithmDialog
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
 # , execute_in_place
 from processing.gui.AlgorithmExecutor import executeIterating, execute
+from processing.gui.Postprocessing import handleAlgorithmResults
 from .ChloePostProcessing import ChloehandleAlgorithmResults
 
 from processing.tools import dataobjects
@@ -142,57 +143,6 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
 
     def getParametersPanel(self, alg, parent):
         return ChloeParametersPanel(parent, alg)
-    """
-    def finish(self, successful, result, context, feedback):
-        # print("finish...")
-        super().finish(successful, result, context, feedback)
-        keepOpen = not successful or ProcessingConfig.getSetting(
-            ProcessingConfig.KEEP_DIALOG_OPEN)
-        # print("keepOpen " + str(keepOpen) + "successFull " +str(successful) + str(ProcessingConfig.getSetting(ProcessingConfig.KEEP_DIALOG_OPEN)))
-        if not keepOpen:
-            self.close()
-        else:
-            self.resetGui()
-    """
-    """
-    def getParameterValues(self):
-
-        parameters = super().getParameterValues()
-        # print('-'.join(parameters))
-        for param in self.algorithm().parameterDefinitions():
-            if isinstance(param,
-                          (ChloeCSVParameterFileDestination,
-                           ChloeASCParameterFileDestination,
-                           ChloeParameterFolderDestination
-                           )):
-                paramName = param.name()
-                if paramName in parameters:
-                    p = parameters[paramName]
-
-                    toBeOpened = self.mainWidget(
-                    ).checkBoxes[paramName].isChecked()
-                    value = self.mainWidget(
-                    ).outputWidgets[paramName].getValue()
-
-                    # 3.10 Fix
-                    if value == 'TEMPORARY_OUTPUT':
-                        dataValue = param.generateTemporaryDestination()
-                    else:
-                        dataValue = value
-
-                    newValue = {"data": dataValue, "openLayer": toBeOpened}
-                    # print("newValue " + str(newValue))
-                    parameters[paramName] = newValue
-
-            # 3.10 Fix
-            if param.name() == 'SAVE_PROPERTIES':
-                if self.mainWidget() is not None:
-                    if self.mainWidget().outputWidgets[param.name()].getValue() == 'TEMPORARY_OUTPUT':
-                        newValue = param.generateTemporaryDestination()
-                        parameters['SAVE_PROPERTIES'] = newValue
-
-        return self.algorithm().preprocessParameters(parameters)
-        """
 
 
 class ChloeParametersPanel(ParametersPanel):
@@ -221,109 +171,6 @@ class ChloeParametersPanel(ParametersPanel):
     def initWidgets(self):  # overload
 
         super().initWidgets()
-        """
-        widget_context = QgsProcessingParameterWidgetContext()
-        widget_context.setProject(QgsProject.instance())
-        if iface is not None:
-            widget_context.setMapCanvas(iface.mapCanvas())
-            widget_context.setBrowserModel(iface.browserModel())
-            widget_context.setActiveLayer(iface.activeLayer())
-
-        widget_context.setMessageBar(self.parent().messageBar())
-        if isinstance(self.algorithm(), QgsProcessingModelAlgorithm):
-            widget_context.setModel(self.algorithm())
-
-        in_place_input_parameter_name = 'INPUT'
-        if hasattr(self.algorithm(), 'inputParameterName'):
-            in_place_input_parameter_name = self.algorithm().inputParameterName()
-
-        # Create widgets and put them in layouts
-        for param in self.algorithm().parameterDefinitions():
-            if param.flags() & QgsProcessingParameterDefinition.FlagHidden:
-                continue
-
-            if param.isDestination():
-                continue
-            else:
-                if self.in_place and param.name() in (in_place_input_parameter_name, 'OUTPUT'):
-                    # don't show the input/output parameter widgets in in-place mode
-                    # we still need to CREATE them, because other wrappers may need to interact
-                    # with them (e.g. those parameters which need the input layer for field
-                    # selections/crs properties/etc)
-                    self.wrappers[param.name()] = QgsProcessingHiddenWidgetWrapper(
-                        param, QgsProcessingGui.Standard, self)
-                    self.wrappers[param.name()].setLinkedVectorLayer(
-                        self.active_layer)
-                    continue
-
-                wrapper = WidgetWrapperFactory.create_wrapper(
-                    param, self.parent())
-                wrapper.setWidgetContext(widget_context)
-                wrapper.registerProcessingContextGenerator(
-                    self.context_generator)
-                wrapper.registerProcessingParametersGenerator(self)
-                self.wrappers[param.name()] = wrapper
-
-                # For compatibility with 3.x API, we need to check whether the wrapper is
-                # the deprecated WidgetWrapper class. If not, it's the newer
-                # QgsAbstractProcessingParameterWidgetWrapper class
-                # TODO QGIS 4.0 - remove
-                is_python_wrapper = issubclass(
-                    wrapper.__class__, WidgetWrapper)
-                stretch = 0
-                if not is_python_wrapper:
-                    widget = wrapper.createWrappedWidget(
-                        self.processing_context)
-                    stretch = wrapper.stretch()
-                else:
-                    widget = wrapper.widget
-
-                if widget is not None:
-                    if is_python_wrapper:
-                        widget.setToolTip(param.toolTip())
-
-                    label = None
-                    if not is_python_wrapper:
-                        label = wrapper.createWrappedLabel()
-                    else:
-                        label = wrapper.label
-
-                    if label is not None:
-                        self.addParameterLabel(param, label)
-                    elif is_python_wrapper:
-                        desc = param.description()
-                        if isinstance(param, QgsProcessingParameterExtent):
-                            desc += self.tr(' (xmin, xmax, ymin, ymax)')
-                        if param.flags() & QgsProcessingParameterDefinition.FlagOptional:
-                            desc += self.tr(' [optional]')
-                        widget.setText(desc)
-
-                    self.addParameterWidget(param, widget, stretch)
-
-        for output in self.algorithm().destinationParameterDefinitions():
-            if output.flags() & QgsProcessingParameterDefinition.FlagHidden:
-                continue
-
-            if self.in_place and output.name() in (in_place_input_parameter_name, 'OUTPUT'):
-                continue
-
-            wrapper = QgsGui.processingGuiRegistry().createParameterWidgetWrapper(
-                output, QgsProcessingGui.Standard)
-            wrapper.setWidgetContext(widget_context)
-            wrapper.registerProcessingContextGenerator(self.context_generator)
-            wrapper.registerProcessingParametersGenerator(self)
-            self.wrappers[output.name()] = wrapper
-
-            label = wrapper.createWrappedLabel()
-            if label is not None:
-                self.addOutputLabel(label)
-
-            widget = wrapper.createWrappedWidget(self.processing_context)
-            self.addOutputWidget(widget, wrapper.stretch())
-
-        for wrapper in list(self.wrappers.values()):
-            wrapper.postInitialize(list(self.wrappers.values()))
-        """
 
         for k in self.wrappers:
             w = self.wrappers[k]
@@ -338,10 +185,11 @@ class ChloeParametersPanel(ParametersPanel):
 
                     if m != None:
 
+                        widget = p.wrappedWidget()
                         # todo generalize valueChanged handling
                         # to any type of widget componant
-                        if isinstance(p.widget, FileSelectionPanel):
-                            p.widget.leText.textChanged.connect(m)
+                        if isinstance(widget, FileSelectionPanel):
+                            widget.leText.textChanged.connect(m)
                         elif isinstance(p, RasterWidgetWrapper):
                             try:
                                 p.combo.valueChanged.connect(
@@ -349,9 +197,9 @@ class ChloeParametersPanel(ParametersPanel):
                             except:
                                 p.combo.currentIndexChanged.connect(
                                     m)  # QGIS LTR 3.4
-                        elif isinstance(p.widget, MultipleInputPanel):
+                        elif isinstance(widget, MultipleInputPanel):
                             try:
-                                p.widget.selectionChanged.connect(m)
+                                widget.selectionChanged.connect(m)
                             except:
                                 pass
                                 # p.combo.currentIndexChanged.connect(m)
@@ -361,8 +209,9 @@ class ChloeParametersPanel(ParametersPanel):
                             p2 = self.wrappers[config['paramName2']]
                             m2 = getattr(w, config['refreshMethod2'])
 
-                            if isinstance(p2.widget, FileSelectionPanel):
-                                p2.widget.leText.textChanged.connect(m2)
+                            widget2 = p2.wrappedWidget()
+                            if isinstance(widget2, FileSelectionPanel):
+                                widget2.leText.textChanged.connect(m2)
 
                             elif isinstance(p2, RasterWidgetWrapper):
                                 try:
@@ -422,17 +271,16 @@ class ChloeParametersPanel(ParametersPanel):
                 value = wrapper.parameterValue()
 
                 dest_project = None
-                print(f'wrapper custom prop :{wrapper.customProperties()}')
+
                 if wrapper.customProperties().get('OPEN_AFTER_RUNNING'):
-                    #print("open afeter runinh")
-                    #print(f'wrapper : {wrapper}')
+
                     dest_project = QgsProject.instance()
 
                 if value and isinstance(value, QgsProcessingOutputLayerDefinition):
                     value.destinationProject = dest_project
                 if value:
                     parameters[param.name()] = value
-                    #print(f'value {value}')
+
                     context = createContext()
                     ok, error = param.isSupportedOutputValue(value, context)
                     if not ok:
@@ -444,7 +292,7 @@ class ChloeParametersPanel(ParametersPanel):
                                ChloeASCParameterFileDestination,
                                ChloeParameterFolderDestination
                                )):
-                    # print('instance')
+
                     paramName = param.name()
                     if paramName in parameters:
                         p = parameters[paramName]
@@ -457,18 +305,16 @@ class ChloeParametersPanel(ParametersPanel):
                         if type(value) == QgsProcessingOutputLayerDefinition:
                             temporary_value_test = value.sink.value(
                                 QgsExpressionContext())[0]
-                        print(
-                            f"debug value : {temporary_value_test}")
-                        # 3.10 Fix
+
                         if temporary_value_test == 'TEMPORARY_OUTPUT':
-                            print('3.10 fix')
+
                             dataValue = param.generateTemporaryDestination()
-                            print(f'data value = {dataValue}')
+
                         else:
                             dataValue = value
 
                         newValue = {"data": dataValue, "openLayer": toBeOpened}
-                        print("newValue " + str(newValue))
+
                         parameters[paramName] = newValue
 
                 if param.name() == 'SAVE_PROPERTIES':
@@ -538,11 +384,11 @@ class ChloeParametersPanel(ParametersPanel):
 
             commands = self.algorithm().getConsoleCommands(
                 parameters, context, feedback, executing=False)
-            print(f'commands {commands}')
+            #print(f'commands {commands}')
             commands = [c for c in commands if c not in ['cmd.exe', '/C ']]
             self.text.setPlainText(" ".join(commands))
         except AlgorithmDialogBase.InvalidParameterValue as e:
-            print(f'except {e}')
+            #print(f'except {e}')
             self.text.setPlainText(
                 self.tr("Invalid value for parameter '{0}'").format(e.parameter.description()))
             if e.parameter.name() == 'MAP_CSV':
