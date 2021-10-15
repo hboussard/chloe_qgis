@@ -39,7 +39,7 @@ import sys
 import inspect
 import locale
 
-#from .chloe_provider import ChloeProvider
+# from .chloe_provider import ChloeProvider
 from .ChloeAlgorithmProvider import ChloeAlgorithmProvider
 
 cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
@@ -51,8 +51,9 @@ if cmd_folder not in sys.path:
 class ChloePlugin(object):
 
     def __init__(self):
-        #i18n
-        pluginPath = QFileInfo(os.path.realpath(__file__)).path()  # patch by Régis Haubourg
+        # i18n
+        pluginPath = QFileInfo(os.path.realpath(
+            __file__)).path()  # patch by Régis Haubourg
 
         loc = QSettings().value('locale/userLocale')
         if len(loc) == 5:
@@ -70,10 +71,15 @@ class ChloePlugin(object):
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
+        self.provider = None
+
+    def initProcessing(self):
+        """Init Processing provider for QGIS >= 3.8."""
         self.provider = ChloeAlgorithmProvider()
+        QgsApplication.processingRegistry().addProvider(self.provider)
 
     def initGui(self):
-        QgsApplication.processingRegistry().addProvider(self.provider)
+        self.initProcessing()
 
     def unload(self):
         QgsApplication.processingRegistry().removeProvider(self.provider)

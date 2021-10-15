@@ -1,5 +1,24 @@
 # -*- coding: utf-8 -*-
 
+from jinja2 import Template
+from processing.tools.system import isWindows, isMac
+from processing.core.ProcessingConfig import ProcessingConfig
+from qgis.core import (Qgis,
+                       QgsApplication,
+                       QgsVectorFileWriter,
+                       QgsProcessingFeedback,
+                       QgsProcessingUtils,
+                       QgsMessageLog,
+                       QgsSettings,
+                       QgsCredentials,
+                       QgsDataSourceUri,
+                       QgsProcessingOutputRasterLayer,
+                       QgsProcessingParameterFile,
+                       QgsRasterLayer,
+                       QgsColorRampShader,
+                       QgsSingleBandPseudoColorRenderer,
+                       QgsRasterShader,
+                       QgsRasterBandStats)
 """
 ***************************************************************************
     ChloeUtils.py
@@ -40,25 +59,6 @@ with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     from osgeo import ogr
 
-from qgis.core import (Qgis,
-                       QgsApplication,
-                       QgsVectorFileWriter,
-                       QgsProcessingFeedback,
-                       QgsProcessingUtils,
-                       QgsMessageLog,
-                       QgsSettings,
-                       QgsCredentials,
-                       QgsDataSourceUri,
-                       QgsProcessingOutputRasterLayer,
-                       QgsProcessingParameterFile,
-                       QgsRasterLayer,
-                       QgsColorRampShader, 
-                       QgsSingleBandPseudoColorRenderer, 
-                       QgsRasterShader, 
-                       QgsRasterBandStats)
-from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools.system import isWindows, isMac
-from jinja2 import Template
 
 try:
     with warnings.catch_warnings():
@@ -78,7 +78,7 @@ class ChloeUtils:
 
     @staticmethod
     def runChloe(commands, feedback=None):
-        
+
         cwd = os.path.dirname(__file__) + os.sep + 'Chloe2012'
         #print('cwd : ' + cwd)
         if feedback is None:
@@ -92,8 +92,10 @@ class ChloeUtils:
             pass
         if isDarwin and os.path.isfile(os.path.join(QgsApplication.prefixPath(), "bin", "chloeinfo")):
             # Looks like there's a bundled chloe. Let's use it.
-            os.environ['PATH'] = "{}{}{}".format(os.path.join(QgsApplication.prefixPath(), "bin"), os.pathsep, envval)
-            os.environ['DYLD_LIBRARY_PATH'] = os.path.join(QgsApplication.prefixPath(), "lib")
+            os.environ['PATH'] = "{}{}{}".format(os.path.join(
+                QgsApplication.prefixPath(), "bin"), os.pathsep, envval)
+            os.environ['DYLD_LIBRARY_PATH'] = os.path.join(
+                QgsApplication.prefixPath(), "lib")
         else:
             # Other platforms should use default chloe finder codepath
             settings = QgsSettings()
@@ -107,7 +109,7 @@ class ChloeUtils:
         feedback.pushInfo('CHLOE command:')
         feedback.pushCommandInfo(fused_command)
         feedback.pushInfo('CHLOE command output:')
-        
+
         success = False
         retry_count = 0
         while not success:
@@ -115,20 +117,21 @@ class ChloeUtils:
             loglines.append('CHLOE execution console output')
             #print('step while')
             try:
-                #print('runChloe')
-                #feedback.pushConsoleInfo('runChloe')
-                #print(fused_command)
+                # print('runChloe')
+                # feedback.pushConsoleInfo('runChloe')
+                # print(fused_command)
                 with subprocess.Popen(
-                   fused_command,
+                    fused_command,
                     shell=True,
                     stdout=subprocess.PIPE,
                     stdin=subprocess.DEVNULL,
                     stderr=subprocess.STDOUT,
-                    #universal_newlines=True,
+                    # universal_newlines=True,
                     cwd=cwd
                 ) as proc:
                     for byte_line in proc.stdout:
-                        line = byte_line.decode('utf8', errors='backslashreplace').replace('\r', '')
+                        line = byte_line.decode(
+                            'utf8', errors='backslashreplace').replace('\r', '')
                         feedback.pushConsoleInfo(line)
                         loglines.append(line)
                     success = True
@@ -141,7 +144,8 @@ class ChloeUtils:
                         str(e) + u'\nTried 5 times without success. Last iteration stopped after reading {} line(s).\nLast line(s):\n{}'.format(
                             len(loglines), u'\n'.join(loglines[-10:])))
 
-            QgsMessageLog.logMessage('\n'.join(loglines), 'Processing', Qgis.Info)
+            QgsMessageLog.logMessage(
+                '\n'.join(loglines), 'Processing', Qgis.Info)
             ChloeUtils.consoleOutput = loglines
 
     @staticmethod
@@ -310,7 +314,8 @@ class ChloeUtils:
                 try:
                     conn = psycopg2.connect(dsUri.connectionInfo())
                 except psycopg2.OperationalError:
-                    (ok, user, passwd) = QgsCredentials.instance().get(conninfo, dsUri.username(), dsUri.password())
+                    (ok, user, passwd) = QgsCredentials.instance().get(
+                        conninfo, dsUri.username(), dsUri.password())
                     if not ok:
                         break
 
@@ -318,7 +323,8 @@ class ChloeUtils:
                     dsUri.setPassword(passwd)
 
             if not conn:
-                raise RuntimeError('Could not connect to PostgreSQL database - check connection info')
+                raise RuntimeError(
+                    'Could not connect to PostgreSQL database - check connection info')
 
             if ok:
                 QgsCredentials.instance().put(conninfo, user, passwd)
@@ -326,7 +332,7 @@ class ChloeUtils:
             ogrstr = "PG:%s" % dsUri.connectionInfo()
             format = 'PostgreSQL'
         elif provider == 'mssql':
-            #'dbname=\'db_name\' host=myHost estimatedmetadata=true
+            # 'dbname=\'db_name\' host=myHost estimatedmetadata=true
             # srid=27700 type=MultiPolygon table="dbo"."my_table"
             # #(Shape) sql='
             dsUri = layer.dataProvider().uri()
@@ -363,7 +369,8 @@ class ChloeUtils:
                 ogrstr += delim + dsUri.database()
 
             if ogrstr == "OCI:":
-                raise RuntimeError('Invalid oracle data source - check connection info')
+                raise RuntimeError(
+                    'Invalid oracle data source - check connection info')
 
             ogrstr += ":"
             if dsUri.schema() != "":
@@ -381,7 +388,7 @@ class ChloeUtils:
     @staticmethod
     def ogrLayerName(uri):
         uri = uri.strip('"')
-        #if os.path.isfile(uri):
+        # if os.path.isfile(uri):
         #    return os.path.basename(os.path.splitext(uri)[0])
 
         if ' table=' in uri:
@@ -459,15 +466,15 @@ class ChloeUtils:
         return crs.toProj4().replace('\n', ' ').replace('\r', ' ')
 
 
+# --------------------------------------------------ADD----------------------
 
-#--------------------------------------------------ADD----------------------
     @staticmethod
     def formatString(path_file, isWindowPath=False, encoding='utf8'):
-        res = path_file # .encode(encoding)
+        res = path_file  # .encode(encoding)
         if (isWindowPath):
-            res = res.replace('/', '\\').replace('\\', '\\\\').replace(':', '\:')
+            res = res.replace('/', '\\').replace('\\',
+                                                 '\\\\').replace(':', '\:')
         return res
-
 
     @staticmethod
     def wrapperSetValue(wrapper, value):
@@ -477,11 +484,11 @@ class ChloeUtils:
         if callable(wrappedWidget):
             w = wrappedWidget()
         w.setValue(value)
- 
+
     @staticmethod
-    def file_get_contents(filename,encoding='utf-8',context=False):
+    def file_get_contents(filename, encoding='utf-8', context=False):
         if os.path.exists(filename):
-            with open(filename, 'rb') as file:  
+            with open(filename, 'rb') as file:
                 data = file.read()
                 data = data.decode("utf-8")
             if context:
@@ -490,17 +497,17 @@ class ChloeUtils:
             else:
                 return data
         else:
-            return None 
-    
+            return None
+
     @staticmethod
     def deduceLayerName(layer, defaultName='output'):
         res = defaultName
         if not (layer is None):
-            if isinstance(layer, QgsRasterLayer): 
+            if isinstance(layer, QgsRasterLayer):
                 layerSource = layer.dataProvider().dataSourceUri()
                 basename = os.path.basename(layerSource)
                 res = os.path.splitext(basename)[0]
-            elif isinstance(layer,str):
+            elif isinstance(layer, str):
                 basename = os.path.basename(layer)
                 res = os.path.splitext(basename)[0]
             else:
@@ -509,73 +516,80 @@ class ChloeUtils:
 
     @staticmethod
     def setLayerSymbology(layer, qmlFilename):
-        styleFilepath = os.path.dirname(__file__) + os.sep + 'styles' + os.sep + qmlFilename
+        styleFilepath = os.path.dirname(
+            __file__) + os.sep + 'styles' + os.sep + qmlFilename
         layer.loadNamedStyle(styleFilepath)
-        
+
         # getting statistics from the layer
-        stats = layer.dataProvider().bandStatistics(1, QgsRasterBandStats.All, layer.extent())
+        stats = layer.dataProvider().bandStatistics(
+            1, QgsRasterBandStats.All, layer.extent())
         min = stats.minimumValue
         max = stats.maximumValue
 
         #print("symbology " + str(min) + " " + str(max))
-        # adjusting the symbology to equal intervals from the 
-        renderer = layer.renderer() 
+        # adjusting the symbology to equal intervals from the
+        renderer = layer.renderer()
         shader = renderer.shader()
         colorRampShader = shader.rasterShaderFunction()
-        if type(colorRampShader) is QgsColorRampShader: 
+        if type(colorRampShader) is QgsColorRampShader:
             colorRampItemList = colorRampShader.colorRampItemList()
             nbClasses = len(colorRampItemList)
             newColorRampList = []
-            for i in range(0,nbClasses):
+            for i in range(0, nbClasses):
                 val = min + (i*(max-min)/(nbClasses-1))
-                item = QgsColorRampShader.ColorRampItem(val, (colorRampItemList[i]).color, str(val))
-                newColorRampList.append(item)  
+                item = QgsColorRampShader.ColorRampItem(
+                    val, (colorRampItemList[i]).color, str(val))
+                newColorRampList.append(item)
             colorRampShader.setColorRampItemList(newColorRampList)
-        #layer.triggerRepaint()
-    
+        # layer.triggerRepaint()
+
     @staticmethod
     def extractValueNotNull(f_input):
         # === Test algorithm
         ds = gdal.Open(f_input)                 # DataSet
-        band =  ds.GetRasterBand(1)             # -> band
+        band = ds.GetRasterBand(1)             # -> band
         array = np.array(band.ReadAsArray())    # -> matrice values
-        values = np.unique(array)   
+        values = np.unique(array)
         nodata = band.GetNoDataValue()
-        
-        int_values_and_nodata = [int(math.floor(x)) for x in values[(values!=0) & (values!=nodata)] ]
+
+        int_values_and_nodata = [int(math.floor(x))
+                                 for x in values[(values != 0) & (values != nodata)]]
 
         return int_values_and_nodata
 
     @staticmethod
-    def calculateMetric(metric,metric_simple,metric_cross,value_list):
+    def calculateMetric(metric, metric_simple, metric_cross, value_list):
         """Renerate and update simple and cross metric"""
         result = copy.deepcopy(metric)
         value_list.sort()
 
-        clean_list = list(dict.fromkeys(value_list)) # Remove duplicates to get a clean array
-        no_zero_list = list(filter(lambda x: x != 0, clean_list)) # Remove value 0
-        
-        if len(no_zero_list)<1000:
+        # Remove duplicates to get a clean array
+        clean_list = list(dict.fromkeys(value_list))
+        no_zero_list = list(
+            filter(lambda x: x != 0, clean_list))  # Remove value 0
+
+        if len(no_zero_list) < 1000:
 
             for msk in metric_simple.keys():
                 for ms in metric_simple[msk]:
                     for val in no_zero_list:
                         result[msk].append(ms+str(val))
 
-            if len(no_zero_list)<100:
+            if len(no_zero_list) < 100:
 
                 for mck in metric_cross.keys():
                     for mc in metric_cross[mck]:
-                        for val1 in no_zero_list: # value_list
-                            for val2 in no_zero_list: # value_list
+                        for val1 in no_zero_list:  # value_list
+                            for val2 in no_zero_list:  # value_list
                                 if val1 <= val2:
-                                    result[mck].append(mc+str(val1)+"-"+str(val2))
+                                    result[mck].append(
+                                        mc+str(val1)+"-"+str(val2))
         return result
 
     @staticmethod
     def adjustTempDirectory(tempDirectory):
         """ """
-        if "Local/Temp" in  tempDirectory or "Local\Temp" in  tempDirectory:
+        if "Local/Temp" in tempDirectory or "Local\Temp" in tempDirectory:
             if not os.path.exists(tempDirectory):
                 os.makedirs(tempDirectory)
 
@@ -589,15 +603,15 @@ class ChloeUtils:
         return res
 
     @staticmethod
-    def toOddNumber(input_integer):
+    def toOddNumber(input_integer: int) -> int:
         """ return a odd number if input number is even """
         if int(input_integer) % 2 == 0:
             return int(input_integer) + 1
         else:
             return int(input_integer)
-    
+
     @staticmethod
-    def toEvenNumber(input_integer):
+    def toEvenNumber(input_integer: int) -> int:
         """ return a even number if input number is odd """
         if int(input_integer) % 2 > 0:
             return int(input_integer) + 1
@@ -605,7 +619,7 @@ class ChloeUtils:
             return int(input_integer)
 
     @staticmethod
-    def displayFloatToInt(input_float):
+    def displayFloatToInt(input_float) -> str:
         """ return an int formated string if input number is an integer """
         if input_float is None:
             return None
@@ -614,6 +628,7 @@ class ChloeUtils:
         else:
             return str(input_float)
 
+
 class ASCOutputRaster(QgsProcessingOutputRasterLayer):
     def getFileFilter(self, alg):
         """ Force asc output raster extension"""
@@ -621,9 +636,10 @@ class ASCOutputRaster(QgsProcessingOutputRasterLayer):
         exts = "ASC files (*.asc);; files (*)"
         return exts
 
+
 class ParameterFileCSVTXT(QgsProcessingParameterFile):
-  def getFileFilter(self, alg):
-    """ Force csv/txt file extension"""
-    
-    exts = "CSV files (*.csv);; TXT files (*.txt);;files (*)"
-    return exts
+    def getFileFilter(self, alg):
+        """ Force csv/txt file extension"""
+
+        exts = "CSV files (*.csv);; TXT files (*.txt);;files (*)"
+        return exts

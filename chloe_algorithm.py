@@ -68,7 +68,7 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingAlgorithm,
-                       #QgsProxyProgressTask,
+                       # QgsProxyProgressTask,
                        QgsTaskManager,
                        QgsProcessingException,
                        QgsProcessingLayerPostProcessorInterface)
@@ -83,7 +83,8 @@ from processing.core.ProcessingResults import resultsList
 from processing.gui.ParametersPanel import ParametersPanel
 from processing.gui.BatchAlgorithmDialog import BatchAlgorithmDialog
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
-from processing.gui.AlgorithmExecutor import executeIterating, execute#, execute_in_place
+# , execute_in_place
+from processing.gui.AlgorithmExecutor import executeIterating, execute
 
 from processing.gui.wrappers import WidgetWrapper
 
@@ -91,12 +92,14 @@ from processing.tools import dataobjects
 import glob
 # END : Heavy overload
 
+
 class ChloeOutputLayerPostProcessor(QgsProcessingLayerPostProcessorInterface):
-    
+
     def postProcessLayer(self, layer, context, feedback):
         #print("postProcessing " + layer.name())
         if isinstance(layer, QgsRasterLayer):
             ChloeUtils.setLayerSymbology(layer, 'continuous.qml')
+
 
 class ChloeAlgorithm(QgsProcessingAlgorithm):
     # All possible paramaters name
@@ -108,16 +111,16 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     GRID_SIZES = 'GRID_SIZES'
     DOMAINS = 'DOMAINS'
     VALUES_RANGES = 'VALUES_RANGES'
-    ASCII_FILTER  = 'ASCII_FILTER'
+    ASCII_FILTER = 'ASCII_FILTER'
     FILTER_VALUES = 'FILTER_VALUES'
-    MAP_CSV          = 'MAP_CSV'
-    CHANGES          = 'CHANGES'
-    NODATA_VALUE     = 'NODATA_VALUE'
+    MAP_CSV = 'MAP_CSV'
+    CHANGES = 'CHANGES'
+    NODATA_VALUE = 'NODATA_VALUE'
 
     types_of_analyze = ['threshold', 'weighted distance']
     DISTANCE_FUNCTION = 'DISTANCE_FUNCTION'
     ANALYZE_TYPE = 'ANALYZE_TYPE'
-    
+
     INPUTS_MATRIX = 'INPUTS_MATRIX'
     INPUT_FILE_CSV = 'INPUT_FILE_CSV'
     INPUT_SHAPEFILE = 'INPUT_SHAPEFILE'
@@ -134,13 +137,14 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     YLL_CORNER = 'YLL_CORNER'
     CELL_SIZE = 'CELL_SIZE'
 
-    CLUSTER          = 'CLUSTER'
+    CLUSTER = 'CLUSTER'
     CLUSTER_DISTANCE = 'CLUSTER_DISTANCE'
-    CLUSTER_TYPE     = 'CLUSTER_TYPE'
+    CLUSTER_TYPE = 'CLUSTER_TYPE'
     CLUSTER_FRICTION = 'CLUSTER_FRICTION'
     CLUSTER_MIN_AREA = 'CLUSTER_MIN_AREA'
-    types_of_cluster = ['rook neighbourhood', 'queen neighbourhood', 'euclidian distance', 'functional distance']
-    
+    types_of_cluster = ['rook neighbourhood', 'queen neighbourhood',
+                        'euclidian distance', 'functional distance']
+
     DISTANCE_MAX = 'DISTANCE_MAX'
     DISTANCE_TYPE = 'DISTANCE_TYPE'
     DISTANCE_FRICTION = 'DISTANCE_FRICTION'
@@ -162,7 +166,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     OPEN_ALL_ASC = 'OPEN_ALL_ASC'
 
     SAVE_PROPERTIES = 'SAVE_PROPERTIES'
-    
+
     OUTPUT_DIR = 'OUTPUT_DIR'
     OUTPUT_ASC = 'OUTPUT_ASC'
     OUTPUT_CSV = 'OUTPUT_CSV'
@@ -173,7 +177,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     types_of_pixel_point_select = ['pixel(s) file', 'point(s) file']
     types_of_shape = ['CIRCLE', 'SQUARE', 'FUNCTIONAL']
 
-    types_of_shape_abrev = { 'CIRCLE' : 'cr', 'SQUARE' : 'sq', 'FUNCTIONAL' : 'fn' }
+    types_of_shape_abrev = {'CIRCLE': 'cr', 'SQUARE': 'sq', 'FUNCTIONAL': 'fn'}
 
     types_of_metrics = {
         "value metrics": [
@@ -226,7 +230,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "standard_error",
             "sum",
             "variance"]
-        }
+    }
 
     types_of_metrics_simple = {
         "value metrics": [
@@ -249,39 +253,41 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "NC_",
             "pNC_"],
         "diversity metrics": [
-            #"HETC_"
-            ]
+            # "HETC_"
+        ]
     }
 
     def __init__(self):
         super().__init__()
         self.output_values = {}
         self.f_path = ''  # Path of properties files
-        
+
     def icon(self):
-        iconPath = os.path.normpath(os.path.join(os.path.dirname(__file__), 'images', 'chloe_icon.png'))
+        iconPath = os.path.normpath(os.path.join(
+            os.path.dirname(__file__), 'images', 'chloe_icon.png'))
         return QIcon(iconPath)
 
     def tags(self):
         return ['chloe', self.commandName()]
 
-    #def svgIconPath(self):
+    # def svgIconPath(self):
     #    return QgsApplication.iconPath("providerChloe.svg")
 
     def createInstance(self, config={}):
         return self.__class__()
 
     def createCustomParametersWidget(self, parent):
-        #return ChloeAlgorithmDialog(self, parent=parent)
-        return ChloeAlgorithmDialog(self)
-        #return ChloeAlgorithmBatchDialog(self)
-    def flags(self):
-        return QgsProcessingAlgorithm.FlagSupportsBatch | QgsProcessingAlgorithm.FlagNoThreading # cannot cancel!
+        return ChloeAlgorithmDialog(self, parent=parent)
+        # return ChloeAlgorithmDialog(self)
+        # return ChloeAlgorithmBatchDialog(self)
 
-    #def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
-    
+    def flags(self):
+        return QgsProcessingAlgorithm.FlagSupportsBatch | QgsProcessingAlgorithm.FlagNoThreading  # cannot cancel!
+
+    # def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
+
     def getConsoleCommands(self, parameters, context, feedback, executing=True):
-        #def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
+        # def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
         """Get full console command to call Chole
         return arguments : The full command
         Example of return : java -jar bin/chloe-4.0.jar /tmp/distance_paramsrrVtm9.properties
@@ -308,7 +314,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         arguments.append('bin' + os.sep + 'chloe-4.0.jar')
 
         # Get temp file path if not existe
-        force_properties = False # TODO implementation of this
+        force_properties = False  # TODO implementation of this
         if force_properties:    # Force properties path
             arguments.append('"'+force_properties+'"')
         else:
@@ -319,73 +325,24 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
         return arguments
 
-    #
-    # def getOgrCompatibleSource(self, parameter_name, parameters, context, feedback, executing):
-    #     """
-    #     Interprets a parameter as an OGR compatible source and layer name
-    #     :param executing:
-    #     """
-    #     if not executing and parameter_name in parameters and isinstance(parameters[parameter_name], QgsProcessingFeatureSourceDefinition):
-    #         # if not executing, then we throw away all 'selected features only' settings
-    #         # since these have no meaning for command line chloe use, and we don't want to force
-    #         # an export of selected features only to a temporary file just to show the command!
-    #         parameters = {parameter_name: parameters[parameter_name].source}
-    #
-    #     input_layer = self.parameterAsVectorLayer(parameters, parameter_name, context)
-    #     ogr_data_path = None
-    #     ogr_layer_name = None
-    #     if input_layer is None or input_layer.dataProvider().name() == 'memory':
-    #         if executing:
-    #             # parameter is not a vector layer - try to convert to a source compatible with OGR
-    #             # and extract selection if required
-    #             ogr_data_path = self.parameterAsCompatibleSourceLayerPath(parameters, parameter_name, context,
-    #                                                                       QgsVectorFileWriter.supportedFormatExtensions(),
-    #                                                                       feedback=feedback)
-    #             ogr_layer_name = ChloeUtils.ogrLayerName(ogr_data_path)
-    #         else:
-    #             #not executing - don't waste time converting incompatible sources, just return dummy strings
-    #             #for the command preview (since the source isn't compatible with OGR, it has no meaning anyway and can't
-    #             #be run directly in the command line)
-    #             ogr_data_path = 'path_to_data_file'
-    #             ogr_layer_name = 'layer_name'
-    #     elif input_layer.dataProvider().name() == 'ogr':
-    #         if executing:
-    #             # parameter is a vector layer, with OGR data provider
-    #             # so extract selection if required
-    #             ogr_data_path = self.parameterAsCompatibleSourceLayerPath(parameters, parameter_name, context,
-    #                                                                       QgsVectorFileWriter.supportedFormatExtensions(),
-    #                                                                       feedback=feedback)
-    #             parts = QgsProviderRegistry.instance().decodeUri('ogr', ogr_data_path)
-    #             ogr_data_path = parts['path']
-    #             if 'layerName' in parts and parts['layerName']:
-    #                 ogr_layer_name = parts['layerName']
-    #             else:
-    #                 ogr_layer_name = ChloeUtils.ogrLayerName(ogr_data_path)
-    #         else:
-    #             #not executing - don't worry about 'selected features only' handling. It has no meaning
-    #             #for the command line preview since it has no meaning outside of a QGIS session!
-    #             ogr_data_path = ChloeUtils.ogrConnectionStringAndFormatFromLayer(input_layer)[0]
-    #             ogr_layer_name = ChloeUtils.ogrLayerName(input_layer.dataProvider().dataSourceUri())
-    #     else:
-    #         # vector layer, but not OGR - get OGR compatible path
-    #         # TODO - handle "selected features only" mode!!
-    #         ogr_data_path = ChloeUtils.ogrConnectionStringFromLayer(input_layer)
-    #         ogr_layer_name = ChloeUtils.ogrLayerName(input_layer.dataProvider().dataSourceUri())
-    #     return ogr_data_path, ogr_layer_name
-
     def setOutputValue(self, name, value):
         self.output_values[name] = value
-    
+
     def parameterAsString(self, parameters, paramName, context):
         #print("paramName " + str(parameters[paramName]))
         #print("parameters " + str(parameters))
-        if type(parameters[paramName])==dict and "data" in parameters[paramName]:
+        if type(parameters[paramName]) == dict and "data" in parameters[paramName]:
+            print(
+                f'parameter as string type(parameters[{paramName}]) == dict and "data" in parameters[paramName] : {parameters[paramName]["data"]}')
             return parameters[paramName]["data"]
-            #return super().parameterAsString(parameters, parameters[paramName]["data"], context)
+            # return super().parameterAsString(parameters, parameters[paramName]["data"], context)
         else:
+            print(
+                f'parameter {paramName} as string else : {super().parameterAsString(parameters, paramName, context)}')
             return super().parameterAsString(parameters, paramName, context)
 
     def processAlgorithm(self, parameters, context, feedback):
+
         self.PreRun(parameters, context, feedback)
         commands = self.getConsoleCommands(parameters, context, feedback)
         ChloeUtils.runChloe(commands, feedback)
@@ -393,11 +350,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #print('parameters : {}'.format(str(parameters)))
 
         # Auto generate outputs: dict {'name parameter' : 'value', ...}
-        #for output in self.destinationParameterDefinitions():
-            #print(str(output) + " " + str(output.metadata()))
+        # for output in self.destinationParameterDefinitions():
+        #print(str(output) + " " + str(output.metadata()))
         results = {}
         for o in self.outputDefinitions():
-            
             if o.name() in parameters:
                 results[o.name()] = parameters[o.name()]
         for k, v in self.output_values.items():
@@ -407,76 +363,87 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #    (it will be load after in the project)
         #
 
-        #print('context : {}'.format(c:ontext))
+        # print('context : {}'.format(c:ontext))
         #print('parameterDefinitions : {}'.format(self.parameterDefinitions()))
-        if ('OUTPUT_ASC' in parameters) and 'openLayer' in parameters['OUTPUT_ASC'] and parameters['OUTPUT_ASC']['openLayer']==True:
+        if ('OUTPUT_ASC' in parameters) and 'openLayer' in parameters['OUTPUT_ASC'] and parameters['OUTPUT_ASC']['openLayer'] == True:
             # Load OUTPUT_ASC on temp layer on context
             #    (it will be load after in the project)
-            
+
             output_asc = parameters['OUTPUT_ASC']["data"]
             rlayer = QgsRasterLayer(output_asc, "hillshade")
             if not rlayer.isValid():
-                raise QgsProcessingException(self.tr("""Cannot load the output in the application"""))
+                raise QgsProcessingException(
+                    self.tr("""Cannot load the output in the application"""))
 
             rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
             ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
             context.temporaryLayerStore().addMapLayer(rlayer)
             layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
-                                                  context.project(),
-                                                  self.OUTPUT_ASC)
-            
-            #postProcess = ChloeOutputLayerPostProcessor()t
-            #layerDetails.setPostProcessor(postProcess)
+                                                             context.project(),
+                                                             self.OUTPUT_ASC)
+
+            # postProcess = ChloeOutputLayerPostProcessor()t
+            # layerDetails.setPostProcessor(postProcess)
             context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
             results[self.OUTPUT_ASC] = rlayer.id()
 
-        if ('OUTPUT_CSV' in parameters) and 'openLayer' in parameters['OUTPUT_CSV'] and parameters['OUTPUT_CSV']['openLayer']==True:
-            uri = "file:///"+ str(results['OUTPUT_CSV']) + "?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
+        if ('OUTPUT_CSV' in parameters) and 'openLayer' in parameters['OUTPUT_CSV'] and parameters['OUTPUT_CSV']['openLayer'] == True:
+            uri = "file:///" + \
+                str(results['OUTPUT_CSV']) + \
+                "?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
             output_csv = parameters['OUTPUT_CSV']["data"]
             if 'OUTPUT_ASC' in parameters:
-                output_csv = ChloeUtils.adjustExtension(output_csv, parameters['OUTPUT_ASC']["data"])
-                
+                output_csv = ChloeUtils.adjustExtension(
+                    output_csv, parameters['OUTPUT_ASC']["data"])
+
             #print("output_csv " + str(uri) + "  " + str(output_csv))
             tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
-            tLayer = QgsVectorLayer(uri, tLayerName,'delimitedtext')
+            tLayer = QgsVectorLayer(uri, tLayerName, 'delimitedtext')
             if not tLayer.isValid():
-                raise QgsProcessingException(self.tr("""Cannot load the output in the application"""))
+                raise QgsProcessingException(
+                    self.tr("""Cannot load the output in the application"""))
 
             context.temporaryLayerStore().addMapLayer(tLayer)
             layerDetails = QgsProcessingContext.LayerDetails(tLayerName,
-                                                context.project(),
-                                                self.OUTPUT_CSV)
+                                                             context.project(),
+                                                             self.OUTPUT_CSV)
             context.addLayerToLoadOnCompletion(tLayer.id(), layerDetails)
             results[self.OUTPUT_CSV] = tLayer.id()
 
-        if ('OUTPUT_DIR' in parameters) and ('openLayer' in parameters['OUTPUT_DIR']) and parameters['OUTPUT_DIR']['openLayer']==True: #and self.outputFilenames
+        # and self.outputFilenames
+        if ('OUTPUT_DIR' in parameters) and ('openLayer' in parameters['OUTPUT_DIR']) and parameters['OUTPUT_DIR']['openLayer'] == True:
             # === import all asc for multi algorithm
-            
-            outputDir = self.parameterAsString(parameters, self.OUTPUT_DIR, context)
-            if outputDir!=None:
-                #self.prepareMultiProjectionFiles()
+
+            outputDir = self.parameterAsString(
+                parameters, self.OUTPUT_DIR, context)
+            if outputDir != None:
+                # self.prepareMultiProjectionFiles()
                 for file in self.outputFilenames:
                     #print(file + " " + os.path.splitext(os.path.basename(file))[0])
-                    rlayer = QgsRasterLayer(file, os.path.splitext(os.path.basename(file))[0])
+                    rlayer = QgsRasterLayer(
+                        file, os.path.splitext(os.path.basename(file))[0])
                     #rlayer = QgsRasterLayer(load_it, "hillshade")
-                    #if not rlayer.isValid():
+                    # if not rlayer.isValid():
                     #    raise QgsProcessingException(self.tr("""Cannot load the outpout in the application"""))
                     #rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
                     #ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
-                    #context.temporaryLayerStore().addMapLayer(rlayer)
-                    #layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
+                    # context.temporaryLayerStore().addMapLayer(rlayer)
+                    # layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
                     #                                        context.project(),
                     #                                        self.OUTPUT_DIR)
-                    #    
+                    #
                     #context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
 
                     if rlayer.isValid():
-                        rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+                        rLayerName = ChloeUtils.deduceLayerName(
+                            rlayer, self.name())
                         #print('raster is valid : ' + str(rLayerName))
                         ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
                         context.temporaryLayerStore().addMapLayer(rlayer)
-                        layerDetails = QgsProcessingContext.LayerDetails(rLayerName, context.project(), self.OUTPUT_DIR)  
-                        context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
+                        layerDetails = QgsProcessingContext.LayerDetails(
+                            rLayerName, context.project(), self.OUTPUT_DIR)
+                        context.addLayerToLoadOnCompletion(
+                            rlayer.id(), layerDetails)
                     else:
                         pass
                         #print('raster is not valid')
@@ -493,9 +460,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #     return helpPath + '{}.html'.format(self.commandName())
         localeName = QLocale.system().name()
         helpFilename = self.name() + "_" + localeName + ".html"
-        helpfile = os.path.dirname(__file__) + os.sep+"."+os.sep+"help_algorithm"+os.sep + helpFilename
+        helpfile = os.path.dirname(
+            __file__) + os.sep+"."+os.sep+"help_algorithm"+os.sep + helpFilename
         return helpfile
-    
+
     def shortHelpString(self):
         return self.helpString()
 
@@ -503,20 +471,21 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         """Generation de l'onglet help"""
         helpfile = self.helpUrl()
         plugin_path = os.path.dirname(__file__)
-        
-        if (isWindows()):
-            context={ 'plugin_path' : 'file:///'+(plugin_path+os.sep).replace('/','\\'),
-                      'image_path'  : 'file:///'+(plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep).replace('/','\\')}
-        else:
-            context={ 'plugin_path' : plugin_path+os.sep,
-                      'image_path'  : plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep}
-        #print(helpfile)
-        content = ChloeUtils.file_get_contents(helpfile,encoding='utf-8',context=context)
 
-        if not (content==None):
+        if (isWindows()):
+            context = {'plugin_path': 'file:///'+(plugin_path+os.sep).replace('/', '\\'),
+                       'image_path': 'file:///'+(plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep).replace('/', '\\')}
+        else:
+            context = {'plugin_path': plugin_path+os.sep,
+                       'image_path': plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep}
+        # print(helpfile)
+        content = ChloeUtils.file_get_contents(
+            helpfile, encoding='utf-8', context=context)
+
+        if not (content == None):
             return content
         else:
-            return self.tr("No help available for this algorithm") 
+            return self.tr("No help available for this algorithm")
 
     def commandName(self):
         parameters = {}
@@ -524,7 +493,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             parameters[param.name()] = "1"
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
-        name = self.getConsoleCommands(parameters, context, feedback, executing=False)[0]
+        name = self.getConsoleCommands(
+            parameters, context, feedback, executing=False)[0]
         if name.endswith(".py"):
             name = name[:-3]
         return name
@@ -534,7 +504,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
-    def createProjectionFile(self,f_prj, crs=None, layer_crs=None, param=None):
+    def createProjectionFile(self, f_prj, crs=None, layer_crs=None, param=None):
         """Create Projection File"""
 
         if crs:               # crs given
@@ -542,12 +512,12 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         elif layer_crs:          # crs from layer
 
             # Constrution des chemins de sortie des fichiers
-            dir_in   = os.path.dirname(layer_crs)
-            base_in  = os.path.basename(layer_crs)
-            name_in  = os.path.splitext(base_in)[0]
+            dir_in = os.path.dirname(layer_crs)
+            base_in = os.path.basename(layer_crs)
+            name_in = os.path.splitext(base_in)[0]
             path_prj_in = dir_in+os.sep+name_in+'.prj'
 
-            if os.path.isfile(path_prj_in) :
+            if os.path.isfile(path_prj_in):
                 crs_output = dataobjects.getObjectFromUri(layer_crs).crs()
 
             else:                 # crs project
@@ -561,10 +531,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #     b_string = str.encode(crs_output.toWkt())
         #     os.write(fd, b_string)
 
-        with open(f_prj,"w") as fd:
+        with open(f_prj, "w") as fd:
             #b_string = str.encode(crs_output.toWkt())
             fd.write(crs_output.toWkt())
-            
+
     def prepareMultiProjectionFiles(self):
         # === Projection file
         for file in self.outputFilenames:
@@ -572,11 +542,11 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             radical = os.path.splitext(baseOut)[0]
             f_prj = self.output_dir + os.sep + radical + ".prj"
             self.createProjectionFile(f_prj)
-    
+
     def parameterRasterAsFilePath(self, parameters, paramName, context):
         res = self.parameterAsString(parameters, paramName, context)
-        
-        if res==None or res=='' or re.match(r"^[a-zA-Z0-9_]+$", res):
+
+        if res == None or res == '' or re.match(r"^[a-zA-Z0-9_]+$", res):
             layer = self.parameterAsRasterLayer(
                 parameters, paramName, context)
             res = layer.dataProvider().dataSourceUri().split('|')[0]

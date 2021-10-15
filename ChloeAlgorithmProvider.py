@@ -30,7 +30,8 @@ import os
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import (QgsApplication,
-                       QgsProcessingProvider)
+                       QgsProcessingProvider,
+                       QgsRuntimeProfiler)
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from .ChloeUtils import ChloeUtils
 
@@ -51,6 +52,7 @@ from .algorithms.filter_algorithm import FilterAlgorithm
 from .algorithms.search_and_replace_algorithm import SearchAndReplaceAlgorithm
 from .algorithms.combine_algorithm import CombineAlgorithm
 
+
 class ChloeAlgorithmProvider(QgsProcessingProvider):
 
     def __init__(self):
@@ -58,16 +60,17 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
         self.algs = []
 
     def load(self):
-        ProcessingConfig.settingIcons[self.name()] = self.icon()
-        ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_CHLOE',
-                                            self.tr('Activate'), True))
-        ProcessingConfig.addSetting(Setting(
-            self.name(),
-            ChloeUtils.JAVA,
-            self.tr('Path java exe'),
-            ''))
-        ProcessingConfig.readSettings()
-        self.refreshAlgorithms()
+        with QgsRuntimeProfiler.profile('Chloe Provider'):
+            ProcessingConfig.settingIcons[self.name()] = self.icon()
+            ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_CHLOE',
+                                                self.tr('Activate'), True))
+            ProcessingConfig.addSetting(Setting(
+                self.name(),
+                ChloeUtils.JAVA,
+                self.tr('Path java exe'),
+                ''))
+            ProcessingConfig.readSettings()
+            self.refreshAlgorithms()
         return True
 
     def unload(self):
@@ -85,7 +88,7 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
 
     def longName(self):
         #version = ChloeUtils.readableVersion()
-        #return 'CHLOE ({})'.format(version)
+        # return 'CHLOE ({})'.format(version)
         return 'Chloe - Landscape metrics'
 
     def id(self):
@@ -95,10 +98,11 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
         return 'chloe'
 
     def icon(self):
-        iconPath = os.path.normpath(os.path.join(os.path.dirname(__file__), 'images', 'chloe_icon.png'))
+        iconPath = os.path.normpath(os.path.join(
+            os.path.dirname(__file__), 'images', 'chloe_icon.png'))
         return QIcon(iconPath)
 
-    #def svgIconPath(self):
+    # def svgIconPath(self):
     #    return QgsApplication.iconPath("providerChloe.svg")
 
     def loadAlgorithms(self):
