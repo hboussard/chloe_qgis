@@ -74,7 +74,8 @@ from ..chloe_algorithm import ChloeAlgorithm
 
 # Main dialog
 from .from_csv_algorithm_dialog import FromCSVAlgorithmDialog
-from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination,ChloeParameterFolderDestination
+from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination, ChloeParameterFolderDestination
+
 
 class FromCSVAlgorithm(ChloeAlgorithm):
     """
@@ -100,12 +101,12 @@ class FromCSVAlgorithm(ChloeAlgorithm):
         return FromCSVAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
-        
+
         # === INPUT PARAMETERS ===
         self.addParameter(QgsProcessingParameterFile(
             name=self.INPUT_FILE_CSV,
             description=self.tr('Input file csv'),
-            extension ='csv',
+            extension='csv',
             defaultValue=None,
             optional=False))
 
@@ -119,7 +120,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeFieldsFromCSVWidgetWrapper'
             },
             'output_asc_checked': True
-            }
+        }
         )
         self.addParameter(fieldsParam)
 
@@ -149,7 +150,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             type=QgsProcessingParameterNumber.Double,
             description=self.tr('Cell size'),
             defaultValue=1.0,
-            minValue = 0.0))
+            minValue=0.0))
         self.addParameter(QgsProcessingParameterNumber(
             name=self.NODATA_VALUE,
             description=self.tr('Value if no-data'),
@@ -157,11 +158,11 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
         # === OUTPUT PARAMETERS ===
 
-        #fieldsParam = ChloeASCParameterFileDestination(
-            #name=self.OUTPUT_ASC,
-            #description=self.tr('Output Raster ascii'))
-        
-        #self.addParameter(fieldsParam, createOutput=True)
+        fieldsParam = ChloeASCParameterFileDestination(
+            name=self.OUTPUT_ASC,
+            description=self.tr('Output Raster ascii'))
+
+        self.addParameter(fieldsParam, createOutput=True)
 
         self.addParameter(ChloeParameterFolderDestination(
             name=self.OUTPUT_DIR,
@@ -171,7 +172,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             name=self.SAVE_PROPERTIES,
             description=self.tr('Properties file'),
             fileFilter='Properties (*.properties)'))
-            
+
     def name(self):
         return 'from csv'
 
@@ -209,7 +210,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             parameters, self.NODATA_VALUE, context)
 
         # === OUTPUT
-        #self.output_asc = self.parameterAsString(
+        # self.output_asc = self.parameterAsString(
         #    parameters, self.OUTPUT_ASC, context)
 
         #self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
@@ -239,11 +240,11 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
         # === Properties file
         self.createPropertiesTempFile()
-         # Create Properties file (temp or chosed)
+        # Create Properties file (temp or chosed)
 
         # === Projection file
         #f_prj = dir_out+os.sep+name_out+".prj"
-        #self.createProjectionFile(f_prj)
+        # self.createProjectionFile(f_prj)
 
         # === output filenames
         self.deduceOutputFilenames()
@@ -259,7 +260,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'input_csv='+self.input_csv+"\n", isWindows()))
 
-            #if multiple fields are selected set output_folder instead of output_asc
+            # if multiple fields are selected set output_folder instead of output_asc
             """if len(self.variables.split(';')) > 1:
                 fd.write(ChloeUtils.formatString(
                 'output_folder='+ re.sub('[^\/]+(?=\.).asc','',self.output_asc) + "\n", isWindows()))
@@ -282,7 +283,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
         self.outputFilenames = []
         baseOutAsc = os.path.basename(self.input_csv)
         radical = os.path.splitext(baseOutAsc)[0]
-        lst_files =  str(self.variables).split(';')
+        lst_files = str(self.variables).split(';')
         for ws in lst_files:
             fName = radical + "_" + str(ws) + ".asc"
             fFullName = self.output_dir + os.sep + fName

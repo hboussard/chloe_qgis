@@ -42,39 +42,39 @@ class FactorInputDialog(BASE, WIDGET):
         if not title:
             title = self.tr("Enter values")
         self.title = title
-        self.combinationValue = None # Combine formula
-        self.rasterMatrixValue = None # Rasters involved
-        self.data = data # data to populate the selected raster table
+        self.combinationValue = None  # Combine formula
+        self.rasterMatrixValue = None  # Rasters involved
+        self.data = data  # data to populate the selected raster table
         # table widget Setup
         rNum = len(data)
         self.tableWidget.setRowCount(rNum)
 
         # Populate the widget table with the selected rasters
-        row=0
- 
+        row = 0
+
         for tup in self.data:
-            col=0
+            col = 0
             for item in tup:
-                cellinfo=QTableWidgetItem(item)
-                if col == 1 or col ==2:
-                  cellinfo.setFlags(QtCore.Qt.ItemIsEnabled)
-                #cellinfo.setFlags(QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)  # make cell not editable
+                cellinfo = QTableWidgetItem(item)
+                if col == 1 or col == 2:
+                    cellinfo.setFlags(QtCore.Qt.ItemIsEnabled)
+                # cellinfo.setFlags(QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)  # make cell not editable
                 self.tableWidget.setItem(row, col, cellinfo)
-                col+=1
+                col += 1
             row += 1
 
     def accept(self):
-      if self.checkValues(self.tableWidget):
-        # export formula expression
-        self.combinationValue = self.leText.toPlainText() #self.exportValues(self.leText) 
-        # export raster list
-        lstRaster = []  
-        for i in range(self.tableWidget.rowCount()):
-          lstRaster.append('(' + str(self.tableWidget.item(i,2).text()) + ',' + str(self.tableWidget.item(i,0).text()) + ')')
-        self.rasterMatrixValue = ';'.join(lstRaster)
+        if self.checkValues(self.tableWidget):
+            # export formula expression
+            self.combinationValue = self.leText.toPlainText()  # self.exportValues(self.leText)
+            # export raster list
+            lstRaster = []
+            for i in range(self.tableWidget.rowCount()):
+                lstRaster.append('(' + str(self.tableWidget.item(i, 2).text()) +
+                                 ',' + str(self.tableWidget.item(i, 0).text()) + ')')
+            self.rasterMatrixValue = ';'.join(lstRaster)
 
-        QDialog.accept(self)
-
+            QDialog.accept(self)
 
     def reject(self):
         QDialog.reject(self)
@@ -86,60 +86,61 @@ class FactorInputDialog(BASE, WIDGET):
         return self.rasterMatrixValue, self.combinationValue
 
     def checkValues(self, table):
-      state = True
-      lstData = []
+        state = True
+        lstData = []
 
-      for row in range(table.rowCount()):
-        lstData.append(table.item(row,0).text())
+        for row in range(table.rowCount()):
+            lstData.append(table.item(row, 0).text())
 
-      res = {}
+        res = {}
 
-      for obj in lstData:
-          if obj not in res:
-              res[obj] = 0
-          res[obj] += 1
+        for obj in lstData:
+            if obj not in res:
+                res[obj] = 0
+            res[obj] += 1
 
-      lstDuplicate = []
+        lstDuplicate = []
 
-      for key,value in res.items():
-        if value > 1:
-          lstDuplicate.append(key)
-      
-      if len(lstDuplicate) > 0:
-        QMessageBox.critical(self, self.tr('Duplicated raster names'),
+        for key, value in res.items():
+            if value > 1:
+                lstDuplicate.append(key)
+
+        if len(lstDuplicate) > 0:
+            QMessageBox.critical(self, self.tr('Duplicated raster names'),
                                  self.tr('Duplicated raster names (' + ','.join(lstDuplicate) + ')'))
-        state = False
+            state = False
 
-      return state
-      
+        return state
+
     def exportValues(self, lineEdit):
-      result = lineEdit.text()
-      return result
+        result = lineEdit.text()
+        return result
 
     def importValues(self, table, strValue):
-      """rowValues = strValue.split(";")
-      for r in range(len(rowValues)):
-        row = rowValues[r]
-        if len(row)>2:
-          colValues = (row[1:len(row)-1]).split("-")
-          for c in range(len(colValues)):
-            col = colValues[c]
-            item = QTableWidgetItem()
-            item.setText(col)
-            self.tableWidget.setItem(r, c, item)"""
-      self.leText.setPlainText(strValue)
+        """rowValues = strValue.split(";")
+        for r in range(len(rowValues)):
+          row = rowValues[r]
+          if len(row)>2:
+            colValues = (row[1:len(row)-1]).split("-")
+            for c in range(len(colValues)):
+              col = colValues[c]
+              item = QTableWidgetItem()
+              item.setText(col)
+              self.tableWidget.setItem(r, c, item)"""
+        self.leText.setPlainText(strValue)
+
     def checkFormatClass(self, str):
-      res = True
-      try:
-        val = float(str)
-        if val < 0:  
-          res = False
-      except ValueError:
-        res = False
+        res = True
+        try:
+            val = float(str)
+            if val < 0:
+                res = False
+        except ValueError:
+            res = False
+            return res
         return res
-      return res
 
     def checkFormatDomain(self, str):
-      p = re.compile("[\[\]]-?[0-9\.]*,-?[0-9\.]*[\[\]]")
-      res = not (p.match(str) is None)
-      return res
+        p = re.compile("[\[\]]-?[0-9\.]*,-?[0-9\.]*[\[\]]")
+        res = not (p.match(str) is None)
+        return res

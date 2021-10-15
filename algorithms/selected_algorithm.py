@@ -58,6 +58,7 @@ from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
 # Main dialog
 # from .selected_algorithm_dialog import SelectedAlgorithmDialog
 
+
 class SelectedAlgorithm(ChloeAlgorithm):
     """Algorithm selection."""
 
@@ -80,7 +81,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
             }
         })
         self.addParameter(inputAscParam)
-    	
+
         # METRICS
 
         metricsParam = QgsProcessingParameterString(
@@ -93,20 +94,21 @@ class SelectedAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'} #'refreshMappingCombobox'}
+                # 'refreshMappingCombobox'}
+                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
             }
         })
 
         self.addParameter(metricsParam)
 
         # WINDOWS SIZE
-        
+
         windowSizeParam = QgsProcessingParameterNumber(
             name=self.WINDOW_SIZES,
             description=self.tr('Windows sizes (pixels)'),
             defaultValue=3,
             minValue=3
-                       
+
         )
         self.addParameter(windowSizeParam)
 
@@ -130,7 +132,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
                 }]
             }
         })"""
-        
+
         self.addParameter(pointPixelParam)
 
         # PIXELS_POINTS FILE
@@ -138,13 +140,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
             name=self.PIXELS_POINTS_FILE,
             description=self.tr('Pixels/points file'),
             optional=False))
-        
-        # POINT FILE
-        #self.addParameter(QgsProcessingParameterFile(
-            #name=self.POINTS_FILE,
-            #description=self.tr('Points file'),
-            #optional=False))
-        
+
         # === ADVANCED PARAMETERS ===
 
         # WINDOWS SHAPE
@@ -157,13 +153,14 @@ class SelectedAlgorithm(ChloeAlgorithm):
         windowShapeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.FRICTION_FILE, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.FRICTION_FILE,
                     'enableValue': 2
                 }]
             }
         })
-        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        windowShapeParam.setFlags(windowShapeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(windowShapeParam)
 
         # FRICTION FILE
@@ -172,7 +169,8 @@ class SelectedAlgorithm(ChloeAlgorithm):
             description=self.tr('Friction file'),
             optional=True)
 
-        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        frictionFile.setFlags(frictionFile.flags() |
+                              QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(frictionFile)
         # ANALYZE TYPE
@@ -185,14 +183,15 @@ class SelectedAlgorithm(ChloeAlgorithm):
         analyzeTypeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.DISTANCE_FUNCTION, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.DISTANCE_FUNCTION,
                     'enableValue': 1
                 }]
             }
         })
 
-        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(analyzeTypeParam)
 
         # DISTANCE FUNCTION
@@ -202,7 +201,8 @@ class SelectedAlgorithm(ChloeAlgorithm):
             description=self.tr('Distance function'),
             optional=True)
 
-        distanceFunction.setFlags(distanceFunction.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        distanceFunction.setFlags(distanceFunction.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(distanceFunction)
 
@@ -214,12 +214,12 @@ class SelectedAlgorithm(ChloeAlgorithm):
             minValue=0,
             maxValue=100,
             defaultValue=100)
-        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(maxRateMissingValues)
-        
+
         # === OUTPUT PARAMETERS ===
-        
 
         self.addParameter(ChloeCSVParameterFileDestination(
             name=self.OUTPUT_CSV,
@@ -270,7 +270,8 @@ class SelectedAlgorithm(ChloeAlgorithm):
         self.analyze_type = self.types_of_analyze[
             self.parameterAsInt(parameters, self.ANALYZE_TYPE, context)]
 
-        self.distance_formula = self.parameterAsString(parameters, self.DISTANCE_FUNCTION, context)
+        self.distance_formula = self.parameterAsString(
+            parameters, self.DISTANCE_FUNCTION, context)
 
         self.pixels_point_selection = self.parameterAsInt(
             parameters, self.PIXELS_POINTS_SELECT, context)
@@ -302,9 +303,9 @@ class SelectedAlgorithm(ChloeAlgorithm):
         name_in = os.path.splitext(base_in)[0]
         ext_in = os.path.splitext(base_in)[1]
 
-        dir_out_asc     = os.path.dirname(self.output_asc)
-        base_out_asc    = os.path.basename(self.output_asc)
-        name_out_asc    = os.path.splitext(base_out_asc)[0]
+        dir_out_asc = os.path.dirname(self.output_asc)
+        base_out_asc = os.path.basename(self.output_asc)
+        name_out_asc = os.path.splitext(base_out_asc)[0]
         #ext_out_asc     = os.path.splitext(base_out_asc)[1]
 
         # === SAVE_PROPERTIES
@@ -326,7 +327,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
     def createPropertiesTempFile(self):
         """Create Properties File."""
-
+        print('selected')
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w") as fd:
             fd.write("#"+s_time+"\n")
@@ -339,20 +340,26 @@ class SelectedAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'output_asc=' + self.output_asc + "\n", isWindows()))
 
-            fd.write("window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
+            fd.write(
+                "window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
             fd.write("metrics={" + self.metrics + "}\n")
 
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
+                fd.write("distance_function=" +
+                         str(self.distance_formula) + "\n")
             fd.write("shape=" + str(self.window_shape) + "\n")
             if self.window_shape == "FUNCTIONAL":
                 fd.write("friction=" + self.friction_file + "\n")
+
+            pixels_points_files = ChloeUtils.formatString(
+                self.pixels_points_file, isWindows())
+
             if self.pixels_point_selection == 0:   # pixel(s) file
-                fd.write("pixels=" + str(self.pixels_points_file) + "\n")
+                fd.write("pixels=" + pixels_points_files + "\n")
             elif self.pixels_point_selection == 1:  # point(s) file
-                fd.write("points=" + str(self.pixels_points_file) + "\n")
+                fd.write("points=" + pixels_points_files + "\n")
 
             fd.write("visualize_ascii=false\n")
 

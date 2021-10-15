@@ -24,7 +24,7 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog,QMessageBox
+from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog, QMessageBox
 from qgis.PyQt.QtGui import QCursor
 
 from qgis.gui import QgsMessageBar, QgsExpressionBuilderDialog, QgsFileWidget
@@ -41,18 +41,19 @@ from .components.FactorInputDialog import FactorInputDialog
 import math
 
 from ..ChloeUtils import *
-#from PyQt4.QtGui import
+# from PyQt4.QtGui import
 
 pluginPath = str(QgsApplication.pkgDataPath())
 WIDGET, BASE = uic.loadUiType(
-    os.path.join(pluginPath, 'python','plugins','processing','ui', 'widgetBaseSelector.ui'))
+    os.path.join(pluginPath, 'python', 'plugins', 'processing', 'ui', 'widgetBaseSelector.ui'))
 
 
 class FactorTablePanel(BASE, WIDGET):
 
-    def __init__(self, dialog, alg, default=None, inputMatrix=None): # standardGui => Flag used when in modeler or batch mode
+    # standardGui => Flag used when in modeler or batch mode
+    def __init__(self, dialog, alg, default=None, inputMatrix=None):
         super(FactorTablePanel, self).__init__(None)
-        self.setupUi(self) 
+        self.setupUi(self)
         self.dialog = dialog
         self.alg = alg
         self.inputMatrix = inputMatrix
@@ -61,7 +62,7 @@ class FactorTablePanel(BASE, WIDGET):
         if hasattr(self.leText, 'setPlaceholderText'):
             self.leText.setPlaceholderText(self.tr('Combination Formula'))
         self.leText.setReadOnly(True)
-        self.btnSelect.clicked.connect(self.selectValues) # Bouton "...
+        self.btnSelect.clicked.connect(self.selectValues)  # Bouton "...
 
     def selectValues(self):
         """Values selector
@@ -72,18 +73,20 @@ class FactorTablePanel(BASE, WIDGET):
         parameters = {}
         listElement = []
         # create an array to fill the factor table widget
- 
-        if (self.inputMatrix!=None):
+
+        if (self.inputMatrix != None):
             try:
-                listLayers = self.dialog.mainWidget().wrappers[self.alg.INPUTS_MATRIX].value()
+                listLayers = self.dialog.mainWidget(
+                ).wrappers[self.alg.INPUTS_MATRIX].value()
             except:
                 pass
 
             if listLayers == None:
                 return
-            
+
             if len(listLayers) == 0:
-                QMessageBox.critical(self, self.tr('Select rasters'),self.tr('No rasters selected'))
+                QMessageBox.critical(self, self.tr(
+                    'Select rasters'), self.tr('No rasters selected'))
                 return
             else:
                 i = 1
@@ -91,14 +94,14 @@ class FactorTablePanel(BASE, WIDGET):
                     lyrName = ChloeUtils.deduceLayerName(l)
                     # check if listLayers items are strings or layer objects
                     if type(l) is str:
-                        path = str(l) 
+                        path = str(l)
                     else:
                         path = str(l.dataProvider().dataSourceUri())
                     listElement.append(('m'+str(i), lyrName, path))
-                    i+=1
+                    i += 1
         # Dialog list check box
         dial = FactorInputDialog(self.tr("Combine"), listElement)
-        #Returns two strings
+        # Returns two strings
         self.resultMatrix, self.resultCombination = dial.run(FormulaText)
         # # result
         if self.resultMatrix and self.resultCombination:
@@ -108,7 +111,6 @@ class FactorTablePanel(BASE, WIDGET):
 
         # Return one string combining the raster matrix used and the combination formula (separated by .__.). Split the returned value on .__. to get two values : matrix used and combination formula
         return unicode(self.resultMatrix) + '.__.' + unicode(self.resultCombination)
-
 
     def text(self):
         return self.leText
