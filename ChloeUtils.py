@@ -472,9 +472,8 @@ class ChloeUtils:
     def formatString(path_file, isWindowPath=False, encoding='utf8'):
         res = path_file  # .encode(encoding)
         if (isWindowPath):
-            pass
-            # res = res.replace('/', '\\').replace('\\',
-            #                                    '\\\\').replace(':', '\:')
+            res = res.replace('/', '\\').replace('\\',
+                                                 '\\\\').replace(':', '\:')
         return res
 
     @staticmethod
