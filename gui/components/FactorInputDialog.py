@@ -23,11 +23,7 @@ import os
 import re
 
 from qgis.PyQt import uic, QtCore
-from qgis.PyQt.QtWidgets import QDialog, QTreeWidgetItem, QMessageBox, QTableWidgetItem
-from qgis.core import QgsRasterLayer
-
-from qgis.utils import iface
-from processing.tools import dataobjects
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 WIDGET, BASE = uic.loadUiType(
