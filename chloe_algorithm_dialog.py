@@ -311,10 +311,10 @@ class ChloeParametersPanel(ParametersPanel):
                             dataValue = param.generateTemporaryDestination()
 
                         else:
-                            dataValue = value
+                            dataValue = value.sink.value(
+                                QgsExpressionContext())[0]
 
                         newValue = {"data": dataValue, "openLayer": toBeOpened}
-
                         parameters[paramName] = newValue
 
                 if param.name() == 'SAVE_PROPERTIES':
