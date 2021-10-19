@@ -16,10 +16,6 @@
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog, QAbstractItemView
-from processing.gui.ListMultiselectWidget import ListMultiSelectWidget
-import math
-
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 WIDGET, BASE = uic.loadUiType(
@@ -29,17 +25,20 @@ WIDGET, BASE = uic.loadUiType(
 class IntSpinbox(BASE, WIDGET):
 
     """ Integer Spinbox with odd or even numbers """
+
     def __init__(self, dialog, alg, initialValue=None, minValue=None, maxValue=None, oddNum=False):
         super(IntSpinbox, self).__init__(None)
-        self.setupUi(self) 
+        self.setupUi(self)
         self.dialog = dialog
         self.alg = alg
         self.initialValue = initialValue
         self.minValue = minValue
         self.maxValue = maxValue
-        self.oddNum = oddNum # specifies wether spinbox value should be odd (True) or even (False)
+        # specifies wether spinbox value should be odd (True) or even (False)
+        self.oddNum = oddNum
         self.window_sizes_selected = set()
-        self.sbInt.valueChanged.connect(lambda x: self.updateSb()) # update value if wrong one
+        self.sbInt.valueChanged.connect(
+            lambda x: self.updateSb())  # update value if wrong one
         self.initGui()
 
     def initGui(self):
@@ -50,7 +49,7 @@ class IntSpinbox(BASE, WIDGET):
             self.sbInt.setMaximum(self.maxValue)
         self.sbInt.setSingleStep(2)
 
-    def checkValue(self, value): # return correct number
+    def checkValue(self, value):  # return correct number
         if (self.oddNum and value % 2 == 0) or (self.oddNum is False and value % 2 > 0):
             return value + 1
         else:

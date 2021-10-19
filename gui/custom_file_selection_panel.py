@@ -47,11 +47,10 @@ class CustomFileSelectionPanel(BASE, WIDGET):
     def __init__(self, isFolder, ext=None):
         super(CustomFileSelectionPanel, self).__init__(None)
         self.setupUi(self)
-
-
         self.ext = ext or '*'
         self.isFolder = isFolder
-        self.cbLoad.setText(self.tr('Open output file after running algorithm'))
+        self.cbLoad.setText(
+            self.tr('Open output file after running algorithm'))
 
         self.btnSelect.clicked.connect(self.showSelectionDialog)
 

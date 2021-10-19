@@ -6,20 +6,20 @@
 # Copyright 2018 URCAUE-Nouvelle Aquitaine
 # Author(s) J-C. Naud, O. Bedel - Alkante (http://www.alkante.com) ;
 #           H. Boussard - INRA UMR BAGAP (https://www6.rennes.inra.fr/sad)
-# 
+#
 # Created on Mon Oct 22 2018
 # This file is part of Chloe - landscape metrics.
-# 
+#
 # Chloe - landscape metrics is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # Chloe - landscape metrics is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with Chloe - landscape metrics.  If not, see <http://www.gnu.org/licenses/>.
 #####################################################################################################
@@ -28,18 +28,7 @@ import os
 import re
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog
-from qgis.PyQt.QtGui import QCursor
-
-from qgis.gui import QgsMessageBar, QgsExpressionBuilderDialog, QgsFileWidget
-from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication, QgsProject
-from qgis.utils import iface
-
-from processing.gui.RectangleMapTool import RectangleMapTool
-from processing.core.ProcessingConfig import ProcessingConfig
-from processing.tools import dataobjects
-
-from processing.gui.ListMultiselectWidget import ListMultiSelectWidget
+from qgis.core import QgsRasterLayer, QgsProject
 
 import math
 
@@ -54,7 +43,7 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
     def __init__(self, dialog, alg, dictValues={}, initialValue=None, rasterLayerParamName=None, standardGui=True):
         super(DoubleCmbBoxSelectionPanel, self).__init__(None)
-        self.setupUi(self) 
+        self.setupUi(self)
         self.dialog = dialog
         self.alg = alg
         self.dictValues = dictValues
@@ -62,7 +51,7 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
         self.standardGui = standardGui
         self.rasterLayerParamName = rasterLayerParamName
         self.cbFilter.currentIndexChanged.connect(self.updateMetric)
-        
+
         self.cbFilter.addItems(self.dictValues.keys())
         self.updateMetric()
         self.cbFilter.setCurrentText(self.initialValue)
@@ -90,9 +79,10 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
     def initCalculateMetric(self):
 
-        rasterLayerParam = self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+        rasterLayerParam = self.dialog.mainWidget(
+        ).wrappers[self.rasterLayerParamName].value()
 
-        #3.10 fix
+        # 3.10 fix
         if re.match(r"^[a-zA-Z0-9_]+$", rasterLayerParam):
             selectedLayer = QgsProject.instance().mapLayer(rasterLayerParam)
             rasterLayerParam = selectedLayer.dataProvider().dataSourceUri()
@@ -101,10 +91,11 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
             return
         elif isinstance(rasterLayerParam, QgsRasterLayer):
             rasterLayerParam = rasterLayerParam.dataProvider().dataSourceUri()
-        elif not isinstance(rasterLayerParam,str):
-            rasterLayerParam = str(rasterLayerParam)   
+        elif not isinstance(rasterLayerParam, str):
+            rasterLayerParam = str(rasterLayerParam)
         try:
-            int_values_and_nodata = ChloeUtils.extractValueNotNull(rasterLayerParam)
+            int_values_and_nodata = ChloeUtils.extractValueNotNull(
+                rasterLayerParam)
             self.dictValues = ChloeUtils.calculateMetric(
                 self.alg.types_of_metrics,
                 self.alg.types_of_metrics_simple,
@@ -128,5 +119,3 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
     def setValue(self, value):
         self.updateMetric()
-
-

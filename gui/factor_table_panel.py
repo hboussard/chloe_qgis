@@ -24,25 +24,15 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QMenu, QAction, QInputDialog, QListWidget, QListWidgetItem, QDialog, QMessageBox
-from qgis.PyQt.QtGui import QCursor
+from qgis.PyQt.QtWidgets import QMessageBox
 
-from qgis.gui import QgsMessageBar, QgsExpressionBuilderDialog, QgsFileWidget
-from qgis.core import QgsRasterLayer, QgsVectorLayer, QgsApplication, QgsProject
-from qgis.utils import iface
-
-from processing.gui.RectangleMapTool import RectangleMapTool
-from processing.tools import dataobjects
-
-from processing.gui.ListMultiselectWidget import ListMultiSelectWidget
-
+from qgis.core import QgsApplication, QgsProject
 
 from .components.FactorInputDialog import FactorInputDialog
-import math
+
 import re
 
 from ..ChloeUtils import *
-# from PyQt4.QtGui import
 
 pluginPath = str(QgsApplication.pkgDataPath())
 WIDGET, BASE = uic.loadUiType(
@@ -71,16 +61,16 @@ class FactorTablePanel(BASE, WIDGET):
         """
         # Get initial value
         FormulaText = self.leText.text()
-        parameters = {}
+
         listElement = []
         # create an array to fill the factor table widget
 
-        if (self.inputMatrix != None):
+        if self.inputMatrix is not None:
 
             listLayers = self.dialog.mainWidget(
             ).wrappers[self.alg.INPUTS_MATRIX].widgetValue()
 
-            if listLayers == None:
+            if listLayers is None:
                 return
 
             if len(listLayers) == 0:
@@ -103,9 +93,7 @@ class FactorTablePanel(BASE, WIDGET):
                         else:
                             path = str(l)
                             lyrName = ChloeUtils.deduceLayerName(l)
-                    # else:
-                        # path = str(l.dataProvider().dataSourceUri())
-                    print(f'lyrname : {lyrName}, path : {path}')
+
                     listElement.append(('m'+str(i), lyrName, path))
                     i += 1
         # Dialog list check box
