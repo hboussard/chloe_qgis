@@ -25,58 +25,31 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
 from ast import literal_eval
 
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
-import tempfile
-
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
 
+
 class FilterAlgorithm(ChloeAlgorithm):
     """
     Algorithm filtering ascii grid
     """
-    
+
     def __init__(self):
         super().__init__()
 
@@ -91,7 +64,7 @@ class FilterAlgorithm(ChloeAlgorithm):
             }
         })
         self.addParameter(inputAscParam)
-        
+
         # ASCII FILTER
         ascFilterParam = QgsProcessingParameterRasterLayer(
             name=self.ASCII_FILTER,
@@ -102,23 +75,22 @@ class FilterAlgorithm(ChloeAlgorithm):
             }
         })
         self.addParameter(ascFilterParam)
-        
+
         # FILTER VALUES
         fieldsParam = QgsProcessingParameterString(
-            name= self.FILTER_VALUES,
+            name=self.FILTER_VALUES,
             description=self.tr('Filter value(s)'),
             defaultValue='')
         fieldsParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper',
-                'input_asc' : self.ASCII_FILTER
+                'input_asc': self.ASCII_FILTER
             }
         })
         self.addParameter(fieldsParam)
-            
+
         # === OUTPUT PARAMETERS ===
-        
-        
+
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))
@@ -147,7 +119,7 @@ class FilterAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
         self.input_asc = self.parameterRasterAsFilePath(
             parameters, self.INPUT_ASC, context)
@@ -159,19 +131,16 @@ class FilterAlgorithm(ChloeAlgorithm):
         # === OUTPUT
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)
-        
+
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
-        base_in = os.path.basename(self.input_asc)
-        name_in = os.path.splitext(base_in)[0]
-        #ext_in  = os.path.splitext(base_in)[1]
 
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
         #ext_out = os.path.splitext(base_out)[1]
-        #feedback.pushInfo('self.f_path')
+        # feedback.pushInfo('self.f_path')
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
@@ -185,15 +154,7 @@ class FilterAlgorithm(ChloeAlgorithm):
 
         # === Properties file
         self.createPropertiesTempFile()
-         # Create Properties file (temp or chosed)
 
-        # === CORE
-        #commands = self.getConsoleCommandsJava(f_save_properties)
-
-        #commands = self.getConsoleCommands(parameters, context, feedback, executing=True)
-        #print('------- before')
-        #ChloeUtils.runChole(commands, feedback)
-        #print('------- after')
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
         self.createProjectionFile(f_prj)
@@ -204,8 +165,11 @@ class FilterAlgorithm(ChloeAlgorithm):
         with open(self.f_path, "w+") as fd:
             fd.write("#"+s_time+"\n")
             fd.write('treatment=filter'+"\n")
-            fd.write( ChloeUtils.formatString('input_ascii='+self.input_asc +"\n",isWindows()))  
-            fd.write( ChloeUtils.formatString('ascii_filter='+self.ascii_filter +"\n",isWindows())) 
-            fd.write( ChloeUtils.formatString('output_asc=' +self.output_asc+"\n",isWindows())) 
-            fd.write("filter_values={" + self.filter_values +"}\n")
+            fd.write(ChloeUtils.formatString(
+                'input_ascii='+self.input_asc + "\n", isWindows()))
+            fd.write(ChloeUtils.formatString('ascii_filter=' +
+                                             self.ascii_filter + "\n", isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'output_asc=' + self.output_asc+"\n", isWindows()))
+            fd.write("filter_values={" + self.filter_values + "}\n")
             fd.write("visualize_ascii=false\n")

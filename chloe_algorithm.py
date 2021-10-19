@@ -28,17 +28,6 @@ __revision__ = '$Format:%H$'
 import os
 import re
 
-from qgis.PyQt.QtCore import QUrl, QCoreApplication
-
-from qgis.core import (QgsApplication,
-                       QgsVectorFileWriter,
-                       QgsProcessingFeatureSourceDefinition,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingContext,
-                       QgsProcessingFeedback,
-                       QgsProviderRegistry,
-                       QgsMessageLog)
-
 from .chloe_algorithm_dialog import ChloeAlgorithmDialog
 from .ChloeUtils import ChloeUtils
 
@@ -47,49 +36,24 @@ from processing.tools.system import isWindows
 from qgis.utils import iface
 
 # Heavy overload
-from pprint import pformat
-import time
+from qgis.PyQt.QtCore import QCoreApplication, QLocale
+from qgis.PyQt.QtGui import QIcon
 
-from qgis.PyQt.QtCore import QCoreApplication, Qt, QLocale
-from qgis.PyQt.QtWidgets import QMessageBox, QPushButton, QSizePolicy, QDialogButtonBox
-from qgis.PyQt.QtGui import QColor, QPalette, QIcon
-
-from qgis.core import (Qgis,
-                       QgsProject,
+from qgis.core import (QgsProcessingContext,
+                       QgsProcessingFeedback,
                        QgsApplication,
                        QgsRasterLayer,
                        QgsVectorLayer,
-                       QgsProcessingUtils,
-                       QgsProcessingParameterDefinition,
-                       QgsProcessingAlgRunnerTask,
-                       QgsProcessingOutputHtml,
-                       QgsProcessingParameterVectorDestination,
-                       QgsProcessingOutputLayerDefinition,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterRasterDestination,
                        QgsProcessingAlgorithm,
-                       # QgsProxyProgressTask,
-                       QgsTaskManager,
                        QgsProcessingException,
                        QgsProcessingLayerPostProcessorInterface)
-from qgis.gui import (QgsGui,
-                      QgsMessageBar,
-                      QgsProcessingAlgorithmDialogBase)
+
 from qgis.utils import iface
 
-from processing.core.ProcessingLog import ProcessingLog
 from processing.core.ProcessingConfig import ProcessingConfig
-from processing.core.ProcessingResults import resultsList
-from processing.gui.ParametersPanel import ParametersPanel
-from processing.gui.BatchAlgorithmDialog import BatchAlgorithmDialog
-from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
-# , execute_in_place
-from processing.gui.AlgorithmExecutor import executeIterating, execute
-
-from processing.gui.wrappers import WidgetWrapper
 
 from processing.tools import dataobjects
-import glob
+
 # END : Heavy overload
 
 
@@ -278,8 +242,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
     def createCustomParametersWidget(self, parent):
         return ChloeAlgorithmDialog(self, parent=parent)
-        # return ChloeAlgorithmDialog(self)
-        # return ChloeAlgorithmBatchDialog(self)
 
     def flags(self):
         return QgsProcessingAlgorithm.FlagSupportsBatch | QgsProcessingAlgorithm.FlagNoThreading  # cannot cancel!
@@ -287,7 +249,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     # def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
 
     def getConsoleCommands(self, parameters, context, feedback, executing=True):
-        # def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
         """Get full console command to call Chole
         return arguments : The full command
         Example of return : java -jar bin/chloe-4.0.jar /tmp/distance_paramsrrVtm9.properties
@@ -329,16 +290,13 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         self.output_values[name] = value
 
     def parameterAsString(self, parameters, paramName, context):
-        #print("paramName " + str(parameters[paramName]))
-        #print("parameters " + str(parameters))
+
         if type(parameters[paramName]) == dict and "data" in parameters[paramName]:
-            print(
-                f'parameter as string type(parameters[{paramName}]) == dict and "data" in parameters[paramName] : {parameters[paramName]["data"]}')
+
             return parameters[paramName]["data"]
             # return super().parameterAsString(parameters, parameters[paramName]["data"], context)
         else:
-            print(
-                f'parameter {paramName} as string else : {super().parameterAsString(parameters, paramName, context)}')
+
             return super().parameterAsString(parameters, paramName, context)
 
     def processAlgorithm(self, parameters, context, feedback):
@@ -347,11 +305,9 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         commands = self.getConsoleCommands(parameters, context, feedback)
         ChloeUtils.runChloe(commands, feedback)
 
-        #print('parameters : {}'.format(str(parameters)))
-
         # Auto generate outputs: dict {'name parameter' : 'value', ...}
         # for output in self.destinationParameterDefinitions():
-        #print(str(output) + " " + str(output.metadata()))
+
         results = {}
         for o in self.outputDefinitions():
             if o.name() in parameters:
@@ -361,10 +317,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
         # Load OUTPUT_ASC on temp layer on context id checked box checked
         #    (it will be load after in the project)
-        #
 
-        # print('context : {}'.format(c:ontext))
-        #print('parameterDefinitions : {}'.format(self.parameterDefinitions()))
         if ('OUTPUT_ASC' in parameters) and 'openLayer' in parameters['OUTPUT_ASC'] and parameters['OUTPUT_ASC']['openLayer'] == True:
             # Load OUTPUT_ASC on temp layer on context
             #    (it will be load after in the project)
@@ -382,8 +335,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                                                              context.project(),
                                                              self.OUTPUT_ASC)
 
-            # postProcess = ChloeOutputLayerPostProcessor()t
-            # layerDetails.setPostProcessor(postProcess)
             context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
             results[self.OUTPUT_ASC] = rlayer.id()
 
@@ -396,7 +347,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                 output_csv = ChloeUtils.adjustExtension(
                     output_csv, parameters['OUTPUT_ASC']["data"])
 
-            #print("output_csv " + str(uri) + "  " + str(output_csv))
             tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
             tLayer = QgsVectorLayer(uri, tLayerName, 'delimitedtext')
             if not tLayer.isValid():
@@ -437,7 +387,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                     if rlayer.isValid():
                         rLayerName = ChloeUtils.deduceLayerName(
                             rlayer, self.name())
-                        #print('raster is valid : ' + str(rLayerName))
                         ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
                         context.temporaryLayerStore().addMapLayer(rlayer)
                         layerDetails = QgsProcessingContext.LayerDetails(
@@ -446,7 +395,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                             rlayer.id(), layerDetails)
                     else:
                         pass
-                        #print('raster is not valid')
+
         return results
 
     def helpUrl(self):

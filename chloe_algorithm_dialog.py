@@ -36,59 +36,35 @@ import pathlib
 from qgis.PyQt.QtCore import QCoreApplication, QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import (QWidget,
                                  QVBoxLayout,
-                                 QHBoxLayout,
-                                 QToolButton,
-                                 QPushButton,
                                  QLabel,
                                  QPlainTextEdit,
                                  QLineEdit,
                                  QComboBox,
                                  QCheckBox,
-                                 QSizePolicy,
-                                 QDialogButtonBox,
                                  QFileDialog,
-                                 QSpinBox,
-                                 QMessageBox)
+                                 )
 
-from qgis.PyQt.QtGui import QColor, QPalette, QIcon
-
-from qgis.PyQt import uic
-
-from qgis.utils import iface
-
-from qgis.core import (Qgis,
-                       QgsProject,
+from qgis.core import (QgsProject,
                        QgsApplication,
                        QgsSettings,
                        QgsProcessingFeedback,
-                       QgsProcessingUtils,
+
                        QgsProcessingParameterDefinition,
-                       QgsProcessingParameterString,
-                       QgsProcessingParameterFileDestination,
+
                        QgsProcessingParameterFolderDestination,
-                       QgsProcessingAlgRunnerTask,
-                       QgsProcessingOutputHtml,
+
                        QgsProcessingParameters,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingOutputLayerDefinition,
-                       QgsProcessingParameterFeatureSink,
+
                        QgsProcessingParameterRasterDestination,
-                       QgsProcessingAlgorithm,
+
                        QgsProcessingParameterFile,
-                       QgsTaskManager,
-                       QgsMessageLog,
-                       QgsProcessingParameterExtent,
-                       QgsProcessingParameterPoint,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingModelAlgorithm,
+
                        QgsExpressionContext)
 
-from qgis.gui import (QgsGui, QgsMessageBar,
-                      QgsProjectionSelectionWidget,
-                      QgsProcessingAlgorithmDialogBase,
+from qgis.gui import (QgsProjectionSelectionWidget,
                       QgsProcessingLayerOutputDestinationWidget,
-                      QgsProcessingGui,
-                      QgsProcessingParameterWidgetContext,
                       QgsProcessingHiddenWidgetWrapper)
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
@@ -96,26 +72,20 @@ from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
 from processing.gui.ParametersPanel import ParametersPanel
 from processing.gui.MultipleInputPanel import MultipleInputPanel
 from processing.gui.NumberInputPanel import NumberInputPanel
-# from processing.gui.DestinationSelectionPanel import DestinationSelectionPanel
+
 from processing.gui.FileSelectionPanel import FileSelectionPanel
 from processing.gui.wrappers import (WidgetWrapper,
-                                     EnumWidgetWrapper, MultipleLayerWidgetWrapper)
+                                     EnumWidgetWrapper)
 from processing.tools.dataobjects import createContext
-from processing.core.ProcessingLog import ProcessingLog
-from processing.core.ProcessingConfig import ProcessingConfig
-from processing.core.ProcessingResults import resultsList
+
 from processing.gui.ParametersPanel import ParametersPanel
-from processing.gui.BatchPanel import BatchPanel
-from processing.gui.BatchAlgorithmDialog import BatchAlgorithmDialog
+
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
-# , execute_in_place
-from processing.gui.AlgorithmExecutor import executeIterating, execute
-from processing.gui.Postprocessing import handleAlgorithmResults
+
 from .ChloePostProcessing import ChloehandleAlgorithmResults
 
-from processing.tools import dataobjects
 
-from processing.gui.wrappers import WidgetWrapperFactory, WidgetWrapper, RasterWidgetWrapper, FileWidgetWrapper, MultipleLayerWidgetWrapper, DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
+from processing.gui.wrappers import WidgetWrapper, RasterWidgetWrapper, FileWidgetWrapper,  DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
 
 from .gui.csv_field_selection_panel import CSVFieldSelectionPanel
 from .gui.values_selection_panel import ValuesSelectionPanel
@@ -298,7 +268,6 @@ class ChloeParametersPanel(ParametersPanel):
                         p = parameters[paramName]
 
                         toBeOpened = wrapper.customProperties().get('OPEN_AFTER_RUNNING')
-                        value = value
 
                         temporary_value_test = value
 

@@ -26,27 +26,15 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
-    QgsProcessing,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
     QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterString,
     QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
     QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback,
     QgsProcessingParameterExtent
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -106,9 +94,6 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
 
         self.addParameter(fieldsParam, createOutput=True)
 
-        # self.addParameter(QgsProcessingParameterFileDestination(self.OUTPUT_ASC,
-        #                                                        self.tr('Output Raster ascii')))
-
         self.addParameter(QgsProcessingParameterFileDestination(
             name=self.SAVE_PROPERTIES,
             description=self.tr('Properties file'),
@@ -140,8 +125,6 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
                 parameters, self.INPUT_SHAPEFILE, context)
             self.input_shp = shp_layer.dataProvider().dataSourceUri().split('|')[
                 0]
-        # print(self.parameterAsVectorLayer(
-            # parameters, self.INPUT_SHAPEFILE, context).dataProvider().dataSourceUri().split('|')[0])
 
         self.field = self.parameterAsString(parameters, self.FIELD, context)
         self.lookup_table = self.parameterAsString(
@@ -153,15 +136,10 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
         # === OUTPUT
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)
-        print(f'shape file output asc : {self.output_asc}')
-        #self.output_asc = self.getOutputValue(self.OUTPUT_ASC)
+
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
-        base_in = os.path.basename(self.input_shp)
-        name_in = os.path.splitext(base_in)[0]
-        # ext_in  = os.path.splitext(base_in)[1]
-
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
@@ -186,7 +164,6 @@ class FromShapefileAlgorithm(ChloeAlgorithm):
         self.createProjectionFile(f_prj)
 
     def createPropertiesTempFile(self):
-        print('create prop temp file')
         """Create Properties File."""
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 

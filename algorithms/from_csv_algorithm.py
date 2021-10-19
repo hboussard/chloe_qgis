@@ -25,56 +25,26 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-import re
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
 
 from qgis.core import (
-    QgsProcessing,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
-from ast import literal_eval
-
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
-import tempfile
-
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
 
 # Main dialog
 from .from_csv_algorithm_dialog import FromCSVAlgorithmDialog
-from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination, ChloeParameterFolderDestination
+from ..chloe_algorithm_dialog import ChloeParameterFolderDestination
 
 
 class FromCSVAlgorithm(ChloeAlgorithm):
@@ -86,16 +56,6 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def defineCharacteristics(self):
-    #     """
-    #     Algorithme variable and parameters parameters
-    #     """
-    #     ChloeAlgorithm.defineCharacteristics(self)
-    #
-    #     # The name/group that the user will see in the toolbox
-    #     self.i18n_group = self.tr('generate ascii grid')
-    #     self.i18n_name = self.tr('from csv')
 
     def createCustomParametersWidget(self, parent):
         return FromCSVAlgorithmDialog(self)
@@ -158,12 +118,6 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
         # === OUTPUT PARAMETERS ===
 
-        fieldsParam = ChloeASCParameterFileDestination(
-            name=self.OUTPUT_ASC,
-            description=self.tr('Output Raster ascii'))
-
-        self.addParameter(fieldsParam, createOutput=True)
-
         self.addParameter(ChloeParameterFolderDestination(
             name=self.OUTPUT_DIR,
             description=self.tr('Output directory')))
@@ -190,7 +144,7 @@ class FromCSVAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
         self.input_csv = self.parameterAsString(
             parameters, self.INPUT_FILE_CSV, context)
@@ -210,23 +164,12 @@ class FromCSVAlgorithm(ChloeAlgorithm):
             parameters, self.NODATA_VALUE, context)
 
         # === OUTPUT
-        # self.output_asc = self.parameterAsString(
-        #    parameters, self.OUTPUT_ASC, context)
-
-        #self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         self.output_dir = self.parameterAsString(
             parameters, self.OUTPUT_DIR, context)
         ChloeUtils.adjustTempDirectory(self.output_dir)
 
         # Constrution des chemins de sortie des fichiers
-        base_in = os.path.basename(self.input_csv)
-        name_in = os.path.splitext(base_in)[0]
-        #ext_in  = os.path.splitext(base_in)[1]
-
-        """dir_out = os.path.dirname(self.output_asc)
-        base_out = os.path.basename(self.output_asc)
-        name_out = os.path.splitext(base_out)[0]"""
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(

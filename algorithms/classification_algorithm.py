@@ -25,63 +25,23 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
-
-# from processing.core.GeoAlgorithm import GeoAlgorithm
-# from processing.core.parameters import ParameterMultipleInput,
-#  ParameterVector, ParameterRaster, ParameterTableField,
-# ParameterNumber, ParameterBoolean, ParameterSelection,
-# ParameterString, ParameterFile, ParameterTable
-# from processing.core.outputs import OutputVector,OutputRaster,
-#  OutputFile, OutputDirectory
-# from processing.core.SilentProgress import SilentProgress
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
-from ast import literal_eval
-
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
-import tempfile
 
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
-
-from ..ChloeUtils import ASCOutputRaster
 
 
 class ClassificationAlgorithm(ChloeAlgorithm):
@@ -148,7 +108,7 @@ class ClassificationAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
         self.input_asc = self.parameterRasterAsFilePath(
             parameters, self.INPUT_ASC, context)
@@ -162,15 +122,11 @@ class ClassificationAlgorithm(ChloeAlgorithm):
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
-        base_in = os.path.basename(self.input_asc)
-        name_in = os.path.splitext(base_in)[0]
-        # ext_in  = os.path.splitext(base_in)[1]
 
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
         # ext_out = os.path.splitext(base_out)[1]
-        # feedback.pushInfo('self.f_path')
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
@@ -187,12 +143,7 @@ class ClassificationAlgorithm(ChloeAlgorithm):
         # Create Properties file (temp or chosed)
 
         # === CORE
-        # commands = self.getConsoleCommandsJava(f_save_properties)
 
-        # commands = self.getConsoleCommands(parameters, context, feedback, executing=True)
-        # print('------- before')
-        # ChloeUtils.runChole(commands, feedback)
-        # print('------- after')
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
         self.createProjectionFile(f_prj)

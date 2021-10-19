@@ -25,52 +25,26 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
 
 from qgis.core import (
     QgsProcessing,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterRasterLayer,
     QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
-    QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
 from ast import literal_eval
 
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
 import tempfile
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
+
 
 class OverlayAlgorithm(ChloeAlgorithm):
     """
@@ -86,10 +60,9 @@ class OverlayAlgorithm(ChloeAlgorithm):
             self.INPUTS_MATRIX,
             self.tr('Matrix to overlay'),
             QgsProcessing.TypeRaster))
-                    
+
         # === OUTPUT PARAMETERS ===
-        
-        
+
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))
@@ -118,26 +91,26 @@ class OverlayAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
-        #self.inputs_matrix = self.parameterAsString(
+        # self.inputs_matrix = self.parameterAsString(
         #    parameters, self.INPUTS_MATRIX, context)
         layers_str = []
         for l in self.parameterAsLayerList(parameters, self.INPUTS_MATRIX, context):
             layers_str.append(l.source())
         self.inputs_matrix = ';'.join(layers_str)
-        
+
         # === OUTPUT
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)
-        
+
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
-        
+
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
             parameters, self.SAVE_PROPERTIES, context)
@@ -150,7 +123,7 @@ class OverlayAlgorithm(ChloeAlgorithm):
 
         # === Properties files
         self.createPropertiesTempFile()
-        
+
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
         self.createProjectionFile(f_prj)
@@ -161,6 +134,8 @@ class OverlayAlgorithm(ChloeAlgorithm):
         with open(self.f_path, "w+") as fd:
             fd.write("#"+s_time+"\n")
             fd.write('treatment=overlay'+"\n")
-            fd.write( ChloeUtils.formatString('overlaying_matrix={'+self.inputs_matrix+"}\n",isWindows()))  
-            fd.write( ChloeUtils.formatString('output_asc=' +self.output_asc+"\n",isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'overlaying_matrix={'+self.inputs_matrix+"}\n", isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'output_asc=' + self.output_asc+"\n", isWindows()))
             fd.write("visualize_ascii=false\n")

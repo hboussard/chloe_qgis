@@ -28,28 +28,16 @@ import glob
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
     QgsProcessingParameterEnum,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingOutputFolder,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterFolderDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -58,15 +46,12 @@ from ..ChloeUtils import ChloeUtils
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeParameterFolderDestination
 
+
 class SlidingMultiAlgorithm(ChloeAlgorithm):
     """Algorithm sliding multi."""
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm"""
-    #     return SlidingMultiAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -92,29 +77,28 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
+                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
             }
         })
-        
+
         self.addParameter(metricsParam)
 
         # WINDOWS SIZE
         windowSizeParam = QgsProcessingParameterString(
             name=self.WINDOW_SIZES,
-            description=self.tr('Windows sizes (pixels)')) # [constraint V2.0: "select only one"]
-        
+            description=self.tr('Windows sizes (pixels)'))  # [constraint V2.0: "select only one"]
+
         windowSizeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeIntListWidgetWrapper',
                 'initialValue': 3,
-                'minValue' : 3,
-                'maxValue' : 100001,
-                'oddNum' : True
+                'minValue': 3,
+                'maxValue': 100001,
+                'oddNum': True
             }
         })
-        
-        self.addParameter(windowSizeParam)
 
+        self.addParameter(windowSizeParam)
 
         # === ADVANCED PARAMETERS ===
 
@@ -127,24 +111,26 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         windowShapeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.FRICTION_FILE, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.FRICTION_FILE,
                     'enableValue': 2
                 }]
             }
         })
 
-        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        windowShapeParam.setFlags(windowShapeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(windowShapeParam)
 
-        # FRICTION FILE 
+        # FRICTION FILE
         frictionFile = QgsProcessingParameterFile(
             name=self.FRICTION_FILE,
             description=self.tr('Friction file'),
             optional=True)
 
-        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        frictionFile.setFlags(frictionFile.flags() |
+                              QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(frictionFile)
 
@@ -158,14 +144,15 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         analyzeTypeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.DISTANCE_FUNCTION, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.DISTANCE_FUNCTION,
                     'enableValue': 1
                 }]
             }
         })
 
-        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(analyzeTypeParam)
 
@@ -175,7 +162,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             name=self.DISTANCE_FUNCTION,
             description=self.tr('Distance function'),
             optional=True)
-        distanceFunctionParam.setFlags(distanceFunctionParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        distanceFunctionParam.setFlags(distanceFunctionParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(distanceFunctionParam)
 
         # DELTA DISPLACEMENT
@@ -184,7 +172,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             description=self.tr('Delta displacement (pixels)'),
             defaultValue=1,
             minValue=1)
-        deltaDisplacement.setFlags(deltaDisplacement.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        deltaDisplacement.setFlags(deltaDisplacement.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(deltaDisplacement)
 
@@ -193,7 +182,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             name=self.INTERPOLATE_VALUES_BOOL,
             description=self.tr('Interpolate Values'),
             defaultValue=False)
-        interpolateValues.setFlags(interpolateValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        interpolateValues.setFlags(interpolateValues.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(interpolateValues)
 
@@ -210,7 +200,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
                 'input_asc': self.INPUT_LAYER_ASC
             }
         })
-        fieldsParamFilter.setFlags(fieldsParamFilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        fieldsParamFilter.setFlags(fieldsParamFilter.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(fieldsParamFilter)
 
         # UNFILTER
@@ -226,7 +217,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             }
         })
 
-        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(fieldsParamUnfilter)
 
         # MAX RATE MISSING VALUES
@@ -236,12 +228,13 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             minValue=0,
             maxValue=100,
             defaultValue=100)
-        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(maxRateMissingValues)
 
         # === OUTPUT PARAMETERS ===
-        
+
         self.addParameter(ChloeParameterFolderDestination(
             name=self.OUTPUT_DIR,
             description=self.tr('Output directory')))
@@ -283,7 +276,8 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         self.analyze_type = self.types_of_analyze[
             self.parameterAsInt(parameters, self.ANALYZE_TYPE, context)]
 
-        self.distance_formula = self.parameterAsString(parameters, self.DISTANCE_FUNCTION, context)
+        self.distance_formula = self.parameterAsString(
+            parameters, self.DISTANCE_FUNCTION, context)
 
         self.delta_displacement = self.parameterAsInt(
             parameters, self.DELTA_DISPLACEMENT, context)
@@ -304,10 +298,6 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         self.output_dir = self.parameterAsString(
             parameters, self.OUTPUT_DIR, context)
         ChloeUtils.adjustTempDirectory(self.output_dir)
-
-        base_in = os.path.basename(self.input_layer_asc)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
@@ -342,9 +332,10 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
-                         
+
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
+                fd.write("distance_function=" +
+                         str(self.distance_formula) + "\n")
 
             fd.write("metrics={" + self.metrics + "}\n")
             fd.write("delta_displacement="
@@ -372,9 +363,10 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         self.outputFilenames = []
         baseOutAsc = os.path.basename(self.input_layer_asc)
         radical = os.path.splitext(baseOutAsc)[0]
-        lst_files =  str(self.window_sizes).split(';')
+        lst_files = str(self.window_sizes).split(';')
         for ws in lst_files:
-            for m  in self.metrics.split(';'):
-                fName = radical + "_" + str(self.types_of_shape_abrev[self.window_shape]) + "_w" + str(ws) + "_" + str(m) + "_d_" + str(self.delta_displacement) + ".asc"
+            for m in self.metrics.split(';'):
+                fName = radical + "_" + str(self.types_of_shape_abrev[self.window_shape]) + "_w" + str(
+                    ws) + "_" + str(m) + "_d_" + str(self.delta_displacement) + ".asc"
                 fFullName = self.output_dir + os.sep + fName
                 self.outputFilenames.append(fFullName)

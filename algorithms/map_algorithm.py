@@ -26,25 +26,12 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -53,7 +40,6 @@ from ..ChloeUtils import ChloeUtils
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeCSVParameterFileDestination
 # Main dialog
-#from .map_algorithm_dialog import MapAlgorithmDialog
 
 
 class MapAlgorithm(ChloeAlgorithm):
@@ -61,10 +47,6 @@ class MapAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm"""
-    #     return MapAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -90,10 +72,10 @@ class MapAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
+                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
             }
         })
-        
+
         self.addParameter(metricsParam)
 
         # === OUTPUT PARAMETERS ===
@@ -106,7 +88,7 @@ class MapAlgorithm(ChloeAlgorithm):
             name=self.SAVE_PROPERTIES,
             description=self.tr('Properties file'),
             fileFilter='Properties (*.properties)'))
-            
+
     def name(self):
         return 'map'
 
@@ -136,12 +118,6 @@ class MapAlgorithm(ChloeAlgorithm):
             parameters, self.OUTPUT_CSV, context)
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
 
-        base_in  = os.path.basename(self.input_asc)
-        
-        dir_out  = os.path.dirname (self.output_csv)
-        base_out = os.path.basename(self.output_csv)
-        name_out = os.path.splitext(base_out)[0]
-        
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
             parameters, self.SAVE_PROPERTIES, context)
@@ -168,4 +144,3 @@ class MapAlgorithm(ChloeAlgorithm):
                 'output_csv='+self.output_csv+"\n", isWindows()))
             # Writing the second part of the properties file
             fd.write("metrics={" + self.metrics + "}\n")
-

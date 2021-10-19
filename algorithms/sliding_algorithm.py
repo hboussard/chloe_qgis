@@ -27,26 +27,16 @@ import os
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
     QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
     QgsProcessingParameterEnum,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -55,8 +45,6 @@ from ..ChloeUtils import ChloeUtils
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeCSVParameterFileDestination
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
-# Main dialog
-#from .sliding_algorithm_dialog import SlidingAlgorithmDialog
 
 
 class SlidingAlgorithm(ChloeAlgorithm):
@@ -64,10 +52,6 @@ class SlidingAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm"""
-    #     return SlidingAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -96,10 +80,10 @@ class SlidingAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_ASC, 'refreshMethod': 'refreshMappingCombobox'}
+                'parentWidgetConfig': {'paramName': self.INPUT_ASC, 'refreshMethod': 'refreshMappingCombobox'}
             }
         })
-        
+
         self.addParameter(metricsParam)
 
         ###### ADVANCED PARAMETERS ######
@@ -114,14 +98,15 @@ class SlidingAlgorithm(ChloeAlgorithm):
         windowShapeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.FRICTION_FILE, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.FRICTION_FILE,
                     'enableValue': 2
                 }]
             }
         })
-        
-        windowShapeParam.setFlags(windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+
+        windowShapeParam.setFlags(windowShapeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(windowShapeParam)
 
         # FRICTION FILE (OPTIONAL)
@@ -131,7 +116,8 @@ class SlidingAlgorithm(ChloeAlgorithm):
             description=self.tr('Friction file'),
             optional=True)
 
-        frictionFile.setFlags(frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        frictionFile.setFlags(frictionFile.flags() |
+                              QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(frictionFile)
 
@@ -145,13 +131,14 @@ class SlidingAlgorithm(ChloeAlgorithm):
         analyzeTypeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.DISTANCE_FUNCTION, 
+                'dependantWidgetConfig': [{
+                    'paramName': self.DISTANCE_FUNCTION,
                     'enableValue': 1
                 }]
             }
         })
-        analyzeTypeParam.setFlags(analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        analyzeTypeParam.setFlags(analyzeTypeParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(analyzeTypeParam)
 
         # DISTANCE FUNCTION
@@ -160,29 +147,30 @@ class SlidingAlgorithm(ChloeAlgorithm):
             name=self.DISTANCE_FUNCTION,
             description=self.tr('Distance function'),
             optional=True)
-        distanceFunctionParam.setFlags(distanceFunctionParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        distanceFunctionParam.setFlags(distanceFunctionParam.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(distanceFunctionParam)
-        
+
         # DELTA DISPLACEMENT
         deltaDisplacement = QgsProcessingParameterNumber(
             name=self.DELTA_DISPLACEMENT,
             description=self.tr('Delta displacement (pixels)'),
             defaultValue=1,
             minValue=1)
-        deltaDisplacement.setFlags(deltaDisplacement.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        deltaDisplacement.setFlags(deltaDisplacement.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(deltaDisplacement)
-
 
         # INTERPOLATE VALUES BOOL
         interpolateValues = QgsProcessingParameterBoolean(
             name=self.INTERPOLATE_VALUES_BOOL,
             description=self.tr('Interpolate Values'),
             defaultValue=False)
-        interpolateValues.setFlags(interpolateValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        interpolateValues.setFlags(interpolateValues.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(interpolateValues)
-
 
         # FILTER
         fieldsParamFilter = QgsProcessingParameterString(
@@ -195,9 +183,9 @@ class SlidingAlgorithm(ChloeAlgorithm):
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
             }
         })
-        fieldsParamFilter.setFlags(fieldsParamFilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        fieldsParamFilter.setFlags(fieldsParamFilter.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(fieldsParamFilter)
-
 
         # UNFILTER
         fieldsParamUnfilter = QgsProcessingParameterString(
@@ -211,7 +199,8 @@ class SlidingAlgorithm(ChloeAlgorithm):
             }
         })
 
-        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        fieldsParamUnfilter.setFlags(fieldsParamUnfilter.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
         self.addParameter(fieldsParamUnfilter)
 
         # MAX RATE MISSING VALUES
@@ -221,12 +210,13 @@ class SlidingAlgorithm(ChloeAlgorithm):
             minValue=0,
             maxValue=100,
             defaultValue=100)
-        maxRateMissingValues.setFlags(maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced)
+        maxRateMissingValues.setFlags(maxRateMissingValues.flags(
+        ) | QgsProcessingParameterDefinition.FlagAdvanced)
 
         self.addParameter(maxRateMissingValues)
 
         # WINDOW SIZE
-        
+
         ''' USING Odd Even Spinbox wrapper
         windowSizeParam = QgsProcessingParameterNumber(
             name=self.WINDOW_SIZES,
@@ -246,13 +236,12 @@ class SlidingAlgorithm(ChloeAlgorithm):
             name=self.WINDOW_SIZES,
             description=self.tr('Windows sizes (pixels)'),
             defaultValue=3,
-            minValue=3            
+            minValue=3
         )
-        
+
         self.addParameter(windowSizeParam)
 
         # === OUTPUT PARAMETERS ===
-        
 
         self.addParameter(ChloeCSVParameterFileDestination(
             name=self.OUTPUT_CSV,
@@ -302,7 +291,8 @@ class SlidingAlgorithm(ChloeAlgorithm):
         self.analyze_type = self.types_of_analyze[
             self.parameterAsInt(parameters, self.ANALYZE_TYPE, context)]
 
-        self.distance_formula = self.parameterAsString(parameters, self.DISTANCE_FUNCTION, context)
+        self.distance_formula = self.parameterAsString(
+            parameters, self.DISTANCE_FUNCTION, context)
 
         self.delta_displacement = self.parameterAsInt(
             parameters, self.DELTA_DISPLACEMENT, context)
@@ -327,10 +317,6 @@ class SlidingAlgorithm(ChloeAlgorithm):
             parameters, self.OUTPUT_ASC, context)
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
-
-        base_in = os.path.basename(self.INPUT_ASC)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
 
         dir_out_asc = os.path.dirname(self.output_asc)
         base_out_asc = os.path.basename(self.output_asc)
@@ -368,13 +354,15 @@ class SlidingAlgorithm(ChloeAlgorithm):
             fd.write(ChloeUtils.formatString(
                 'output_asc=' + self.output_asc + "\n", isWindows()))
 
-            fd.write("window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
+            fd.write(
+                "window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
             fd.write("maximum_nodata_value_rate="
                      + str(self.maximum_rate_missing_values) + "\n")
 
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
-                
+                fd.write("distance_function=" +
+                         str(self.distance_formula) + "\n")
+
             fd.write("metrics={" + self.metrics + "}\n")
             fd.write("delta_displacement="
                      + str(self.delta_displacement) + "\n")

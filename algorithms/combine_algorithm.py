@@ -25,51 +25,19 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-import re
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
 
 from qgis.core import (
     QgsProcessing,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
-    QgsProcessingParameterRasterLayer,
     QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFolderDestination,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingParameterMatrix,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
-from ast import literal_eval
-
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
-import tempfile
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
@@ -144,19 +112,15 @@ class CombineAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
         inputFactors = self.parameterAsString(
             parameters, self.DOMAINS, context).split('.__.')
-        print(f'inputFactor : {inputFactors}')
+
         self.combination = inputFactors[1]
         self.input_asc = inputFactors[0]
-        # === OUTPUT
 
-        """ case when output directory --> deprecated """
-        # self.output_dir = self.parameterAsString(
-        #    parameters, self.OUTPUT_DIR, context)
-        # ChloeUtils.adjustTempDirectory(self.output_dir)
+        # === OUTPUT
 
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)

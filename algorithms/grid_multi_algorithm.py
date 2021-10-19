@@ -27,26 +27,13 @@ import os
 import glob
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterFolderDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -55,15 +42,12 @@ from ..ChloeUtils import ChloeUtils
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeParameterFolderDestination
 
+
 class GridMultiAlgorithm(ChloeAlgorithm):
     """Algorithm generate ascii grid from csv."""
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm."""
-    #     return GridMultiAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -90,23 +74,23 @@ class GridMultiAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
+                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMetrics'}
             }
         })
-        
+
         self.addParameter(metricsParam)
 
-        # GRID SIZES 
+        # GRID SIZES
         gridSizeParam = QgsProcessingParameterString(
             name=self.GRID_SIZES,
-            description=self.tr('Grid sizes (pixels)')) # [constraint V2.0: "select only one"]
-        
+            description=self.tr('Grid sizes (pixels)'))  # [constraint V2.0: "select only one"]
+
         gridSizeParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeIntListWidgetWrapper',
                 'initialValue': 2,
-                'maxValue' : 100001,
-                'minValue' : 2
+                'maxValue': 100001,
+                'minValue': 2
             }
         })
         self.addParameter(gridSizeParam)
@@ -118,7 +102,7 @@ class GridMultiAlgorithm(ChloeAlgorithm):
             minValue=0,
             maxValue=100,
             defaultValue=100))
-            
+
         # === OUTPUT PARAMETERS ===
         self.addParameter(ChloeParameterFolderDestination(
             name=self.OUTPUT_DIR,
@@ -162,10 +146,6 @@ class GridMultiAlgorithm(ChloeAlgorithm):
             parameters, self.OUTPUT_DIR, context)
         ChloeUtils.adjustTempDirectory(self.output_dir)
 
-        base_in = os.path.basename(self.input_layer_asc)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
-
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
             parameters, self.SAVE_PROPERTIES, context)
@@ -208,9 +188,9 @@ class GridMultiAlgorithm(ChloeAlgorithm):
         self.outputFilenames = []
         baseOutAsc = os.path.basename(self.input_layer_asc)
         radical = os.path.splitext(baseOutAsc)[0]
-        lst_files =  str(self.grid_sizes).split(';')
+        lst_files = str(self.grid_sizes).split(';')
         for ws in lst_files:
-            for m  in self.metrics.split(';'):
+            for m in self.metrics.split(';'):
                 fName = radical + "_g" + str(ws) + "_" + str(m) + ".asc"
                 fFullName = self.output_dir + os.sep + fName
                 self.outputFilenames.append(fFullName)

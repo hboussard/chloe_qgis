@@ -26,25 +26,13 @@ __revision__ = '$Format:%H$'
 import os
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -60,10 +48,6 @@ class GridAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm."""
-    #     return GridAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -89,10 +73,10 @@ class GridAlgorithm(ChloeAlgorithm):
                 'dictValues': self.types_of_metrics,
                 'initialValue': 'diversity metrics',
                 'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                'parentWidgetConfig': { 'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
+                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
             }
         })
-        
+
         self.addParameter(metricsParam)
 
         # GRID SIZE
@@ -110,18 +94,12 @@ class GridAlgorithm(ChloeAlgorithm):
             maxValue=100,
             defaultValue=100))
 
-        # self.addParameter(QgsProcessingParameterString(
-        #     name=self.COMMENT,
-        #     description=self.tr('Comment'))
-        # )
-
         # === OUTPUT PARAMETERS ===
-        
 
         self.addParameter(ChloeCSVParameterFileDestination(
             name=self.OUTPUT_CSV,
             description=self.tr('Output csv'),
-            addToMapDefaultState = False))
+            addToMapDefaultState=False))
 
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
@@ -150,7 +128,7 @@ class GridAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-  
+
         # === INPUT
         self.input_layer_asc = self.parameterRasterAsFilePath(
             parameters, self.INPUT_LAYER_ASC, context)
@@ -160,9 +138,6 @@ class GridAlgorithm(ChloeAlgorithm):
             parameters, self.MAXIMUM_RATE_MISSING_VALUES, context)
         self.metrics = self.parameterAsString(
             parameters, self.METRICS, context)
-        
-        # self.comment = self.parameterAsString(
-        #     parameters, self.COMMENT, context)
 
         # === OUTPUT
         self.output_csv = self.parameterAsString(
@@ -172,13 +147,9 @@ class GridAlgorithm(ChloeAlgorithm):
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
-        base_in = os.path.basename(self.input_layer_asc)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
-
-        dir_out_asc     = os.path.dirname(self.output_asc)
-        base_out_asc    = os.path.basename(self.output_asc)
-        name_out_asc    = os.path.splitext(base_out_asc)[0]
+        dir_out_asc = os.path.dirname(self.output_asc)
+        base_out_asc = os.path.basename(self.output_asc)
+        name_out_asc = os.path.splitext(base_out_asc)[0]
         #ext_out_asc     = os.path.splitext(base_out_asc)[1]
 
         # === SAVE_PROPERTIES
@@ -220,7 +191,7 @@ class GridAlgorithm(ChloeAlgorithm):
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w") as fd:
             fd.write("#"+s_time+"\n")
-            #fd.write("# "+self.comment+"\n")
+            # fd.write("# "+self.comment+"\n")
             fd.write("treatment=grid\n")
             fd.write(ChloeUtils.formatString(
                 'input_ascii=' + self.input_layer_asc+"\n", isWindows()))

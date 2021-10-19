@@ -25,38 +25,16 @@ __copyright__ = '(C) 2015, Victor Olaya'
 
 __revision__ = '$Format:%H$'
 
-from processing.gui.wrappers import FileWidgetWrapper, WidgetWrapper
+from processing.gui.wrappers import WidgetWrapper
 
-from qgis.core import (
-    QgsProcessingParameterDefinition,
-    QgsProcessingParameterFile,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputMapLayer,
-    QgsProcessingOutputFile,
-    QgsProcessingOutputString,
-    NULL)
-
-#from qgis.gui import (QgsProcessingGui)
-
-from qgis.PyQt.QtWidgets import (
-    QComboBox,
-    QToolButton,
-    QHBoxLayout,
-    QWidget,
-    QPushButton
-)
+from qgis.PyQt.QtWidgets import (QPushButton)
 from qgis.PyQt.QtWidgets import QFileDialog
 
-from ..gui.custom_file_selection_panel import CustomFileSelectionPanel
 from ..gui.csv_field_selection_panel import CSVFieldSelectionPanel
 
 from ..chloe_algorithm_dialog import ChloeAlgorithmDialog, ChloeParametersPanel
 from ..ChloeUtils import *
 
-#DIALOG_STANDARD = QgsProcessingGui.Standard
-#DIALOG_BATCH = QgsProcessingGui.Batch
-#DIALOG_MODELER = QgsProcessingGui.Modeler
 from processing.gui.wrappers import WidgetWrapper, DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
 
 
@@ -76,6 +54,7 @@ class FromCSVParametersPanel(ChloeParametersPanel):
 
         # Add and plug the "Import header" button in dialog
         pb = QPushButton(self.tr("Import header"))
+
         self.addExtraWidget(pb)
         self.pbHeader = pb
         self.pbHeader.clicked.connect(self.uploadHeader)

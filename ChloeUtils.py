@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from jinja2 import Template
-from processing.tools.system import isWindows, isMac
-from processing.core.ProcessingConfig import ProcessingConfig
 from qgis.core import (Qgis,
                        QgsApplication,
                        QgsVectorFileWriter,
@@ -16,8 +14,6 @@ from qgis.core import (Qgis,
                        QgsProcessingParameterFile,
                        QgsRasterLayer,
                        QgsColorRampShader,
-                       QgsSingleBandPseudoColorRenderer,
-                       QgsRasterShader,
                        QgsRasterBandStats)
 """
 ***************************************************************************

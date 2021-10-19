@@ -28,27 +28,16 @@ import glob
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
     QgsProcessingParameterEnum,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
     QgsProcessingParameterFileDestination,
-    QgsProcessingParameterFolderDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFolderDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -63,10 +52,6 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm"""
-    #     return SelectedMultiAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -268,10 +253,6 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
         self.output_dir = self.parameterAsString(
             parameters, self.OUTPUT_DIR, context)
         ChloeUtils.adjustTempDirectory(self.output_dir)
-
-        base_in = os.path.basename(self.input_layer_asc)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(

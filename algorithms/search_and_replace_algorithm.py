@@ -25,52 +25,26 @@ __revision__ = '$Format:%H$'
 
 
 import os
-import io
-import subprocess
-import time
-from qgis.PyQt.QtCore import QSettings
-from qgis.core import QgsVectorFileWriter
 
 from qgis.core import (
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
-    QgsProcessingParameterEnum,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools import dataobjects, vector
+from processing.tools.system import getTempFilename, isWindows
 
-from processing.core.ProcessingConfig import ProcessingConfig
-
-from processing.tools.system import getTempFilename, isWindows, isMac
-
-from osgeo import osr
 from time import gmtime, strftime
 
-from ast import literal_eval
-
-
-from qgis.PyQt.QtGui import QIcon
 from ..ChloeUtils import ChloeUtils
-import tempfile
 
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
+
 
 class SearchAndReplaceAlgorithm(ChloeAlgorithm):
     """
@@ -100,14 +74,14 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         fieldsParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeCsvTxtFileWidgetWrapper',
-                'fileExtensions': ['csv','txt']
+                'fileExtensions': ['csv', 'txt']
             }
         })
         self.addParameter(fieldsParam)
 
         # CHANGES
         fieldsParam = QgsProcessingParameterString(
-            name= self.CHANGES,
+            name=self.CHANGES,
             description=self.tr('Values to search and replace'),
             defaultValue='')
         fieldsParam.setIsDynamic(True)
@@ -117,25 +91,25 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         fieldsParam.setMetadata({
             'widget_wrapper': {
                 'class': 'Chloe.chloe_algorithm_dialog.ChloeMappingTableWidgetWrapper',
-                'parentWidgetConfig': { 'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox', 'paramName2': self.INPUT_ASC, 'refreshMethod2':'emptyMappingAsc'}
+                'parentWidgetConfig': {'paramName': self.MAP_CSV, 'refreshMethod': 'refreshMappingCombobox', 'paramName2': self.INPUT_ASC, 'refreshMethod2': 'emptyMappingAsc'}
             }
         })
         self.addParameter(fieldsParam)
 
         # NO DATA VALUE
         self.addParameter(QgsProcessingParameterNumber(
-            name=self.NODATA_VALUE, 
+            name=self.NODATA_VALUE,
             description=self.tr('Nodata value'),
             defaultValue=-1))
 
         # === OUTPUT PARAMETERS ===
-         
+
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,
             description=self.tr('Output Raster ascii'))
 
         self.addParameter(fieldsParam, createOutput=True)
-        
+
         self.addParameter(QgsProcessingParameterFileDestination(
             name=self.SAVE_PROPERTIES,
             description=self.tr('Properties file'),
@@ -158,7 +132,7 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
-        print('processAlgorithm')
+
         # === INPUT
         self.input_asc = self.parameterRasterAsFilePath(
             parameters, self.INPUT_ASC, context)
@@ -172,12 +146,10 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
         # === OUTPUT
         self.output_asc = self.parameterAsString(
             parameters, self.OUTPUT_ASC, context)
-        
+
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         # Constrution des chemins de sortie des fichiers
-        base_in = os.path.basename(self.input_asc)
-        name_in = os.path.splitext(base_in)[0]
 
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
@@ -195,7 +167,7 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
 
         # === Properties file
         self.createPropertiesTempFile()
-    
+
         # === Projection file
         f_prj = dir_out+os.sep+name_out+".prj"
 
@@ -204,12 +176,14 @@ class SearchAndReplaceAlgorithm(ChloeAlgorithm):
     def createPropertiesTempFile(self):
         """Create Properties File."""
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        print('path properties ' + self.f_path)
+
         with open(self.f_path, "w+") as fd:
             fd.write("#"+s_time+"\n")
             fd.write('treatment=search and replace'+"\n")
-            fd.write( ChloeUtils.formatString('input_ascii='+self.input_asc +"\n",isWindows()))
-            fd.write( ChloeUtils.formatString('output_asc=' +self.output_asc+"\n",isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'input_ascii='+self.input_asc + "\n", isWindows()))
+            fd.write(ChloeUtils.formatString(
+                'output_asc=' + self.output_asc+"\n", isWindows()))
             fd.write('changes={'+self.changes+"}\n")
             fd.write('nodata_value='+str(self.nodata_value)+"\n")
             fd.write("visualize_ascii=false\n")

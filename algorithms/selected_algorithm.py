@@ -27,26 +27,15 @@ import os
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterVectorLayer,
     QgsProcessingParameterRasterLayer,
-    QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterField,
     QgsProcessingParameterNumber,
-    QgsProcessingParameterBoolean,
     QgsProcessingParameterString,
-    QgsProcessingParameterFeatureSource,
     QgsProcessingParameterFile,
     QgsProcessingParameterEnum,
-    QgsProcessingOutputVectorLayer,
-    QgsProcessingOutputRasterLayer,
-    QgsProcessingParameterFileDestination,
-    QgsProcessingParameterRasterDestination,
-    QgsProcessingOutputFolder,
-    QgsProcessingFeedback
+    QgsProcessingParameterFileDestination
 )
 
-from processing.tools.system import getTempFilename, isWindows, isMac
+from processing.tools.system import getTempFilename, isWindows
 from time import gmtime, strftime
 from ..ChloeUtils import ChloeUtils
 
@@ -56,7 +45,6 @@ from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeCSVParameterFileDestination
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
 # Main dialog
-# from .selected_algorithm_dialog import SelectedAlgorithmDialog
 
 
 class SelectedAlgorithm(ChloeAlgorithm):
@@ -64,10 +52,6 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
     def __init__(self):
         super().__init__()
-
-    # def getCustomParametersDialog(self):
-    #     """Define Dialog associed with this algorithm."""
-    #     return SelectedAlgorithmDialog(self)
 
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
@@ -118,20 +102,6 @@ class SelectedAlgorithm(ChloeAlgorithm):
             name=self.PIXELS_POINTS_SELECT,
             description=self.tr('Pixels/points selection'),
             options=self.types_of_pixel_point_select)
-
-        """pointPixelParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{ 
-                    'paramName': self.PIXELS_FILE, 
-                    'enableValue': 0 
-                },
-                { 
-                    'paramName': self.POINTS_FILE, 
-                    'enableValue': 1 
-                }]
-            }
-        })"""
 
         self.addParameter(pointPixelParam)
 
@@ -276,12 +246,6 @@ class SelectedAlgorithm(ChloeAlgorithm):
         self.pixels_point_selection = self.parameterAsInt(
             parameters, self.PIXELS_POINTS_SELECT, context)
 
-        """self.pixels_file = self.parameterAsString(
-            parameters, self.PIXELS_FILE, context)
-
-        self.points_file = self.parameterAsString(
-            parameters, self.POINTS_FILE, context)"""
-
         self.pixels_points_file = self.parameterAsString(
             parameters, self.PIXELS_POINTS_FILE, context)
 
@@ -298,10 +262,6 @@ class SelectedAlgorithm(ChloeAlgorithm):
             parameters, self.OUTPUT_ASC, context)
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
-
-        base_in = os.path.basename(self.input_layer_asc)
-        name_in = os.path.splitext(base_in)[0]
-        ext_in = os.path.splitext(base_in)[1]
 
         dir_out_asc = os.path.dirname(self.output_asc)
         base_out_asc = os.path.basename(self.output_asc)
@@ -327,7 +287,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
     def createPropertiesTempFile(self):
         """Create Properties File."""
-        print('selected')
+
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w") as fd:
             fd.write("#"+s_time+"\n")
