@@ -98,8 +98,7 @@ class GridAlgorithm(ChloeAlgorithm):
 
         self.addParameter(ChloeCSVParameterFileDestination(
             name=self.OUTPUT_CSV,
-            description=self.tr('Output csv'),
-            addToMapDefaultState=False))
+            description=self.tr('Output csv')))
 
         fieldsParam = ChloeASCParameterFileDestination(
             name=self.OUTPUT_ASC,

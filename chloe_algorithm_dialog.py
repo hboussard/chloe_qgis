@@ -146,7 +146,7 @@ class ChloeParametersPanel(ParametersPanel):
         self.connectParameterSignals()
         self.parametersHaveChanged()
 
-    def initWidgets(self):  # overload
+    def initWidgets(self):  # heavy overload
 
         # super().initWidgets()
 
@@ -249,44 +249,15 @@ class ChloeParametersPanel(ParametersPanel):
             widget = wrapper.createWrappedWidget(self.processing_context)
             self.addOutputWidget(widget, wrapper.stretch())
 
-            print('step 1')
-            print(f'output : {type(output)}')
-            print(f'type widget : {type(widget)}')
-            print(f'name : {widget.objectName()}')
-            print('loop widgets')
-            [print(f'widget : {w}, name : {w.objectName()}')
-             for w in widget.children()]
-            #[print(w) for w in widget.children()]
-            print('end loop')
-
             if isinstance(output, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
                 if hasattr(output, "addToMapDefaultState"):
                     for w in widget.children():
                         if isinstance(w, QCheckBox):
                             w.setChecked(output.addToMapDefaultState)
 
-            #    def skipOutputChanged(widget, checkbox, skipped):
-            # TODO
-            #        enabled = not skipped
-            #
-            #        # Do not try to open formats that are write-only.
-            #        value = widget.value()
-            #        if value and isinstance(value, QgsProcessingOutputLayerDefinition) and isinstance(output, (
-            #                QgsProcessingParameterFeatureSink, QgsProcessingParameterVectorDestination)):
-            #            filename = value.sink.staticValue()
-            #            if filename not in ('memory:', ''):
-            #                path, ext = os.path.splitext(filename)
-            #                format = QgsVectorFileWriter.driverForExtension(ext)
-            #                drv = gdal.GetDriverByName(format)
-            #                if drv:
-            #                    if drv.GetMetadataItem(gdal.DCAP_OPEN) is None:
-            #                        enabled = False
-            #
-            #        checkbox.setEnabled(enabled)
-            #        checkbox.setChecked(enabled)
-
         for wrapper in list(self.wrappers.values()):
             wrapper.postInitialize(list(self.wrappers.values()))
+
         for k in self.wrappers:
             w = self.wrappers[k]
             if hasattr(w, 'getParentWidgetConfig'):
@@ -402,6 +373,12 @@ class ChloeParametersPanel(ParametersPanel):
                         raise AlgorithmDialogBase.InvalidOutputExtension(
                             widget, error)
 
+                if isinstance(param, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
+                    if hasattr(param, "addToMapDefaultState"):
+                        for w in widget.children():
+                            if isinstance(w, QCheckBox):
+                                w.setChecked(param.addToMapDefaultState)
+
                 if isinstance(param,
                               (ChloeCSVParameterFileDestination,
                                ChloeASCParameterFileDestination,
@@ -412,14 +389,6 @@ class ChloeParametersPanel(ParametersPanel):
 
                     if paramName in parameters:
                         p = parameters[paramName]
-                        # print(f'wrapper : {wrapper}')
-                        # [print(f)
-                        # for f in dir(wrapper) if not f.startswith('_')]
-                       # [print(f)
-                        # for f in vars(wrapper)]
-
-                        if isinstance(param, ChloeCSVParameterFileDestination):
-                            wrapper.setProperty('OPEN_AFTER_RUNNING', False)
 
                         toBeOpened = wrapper.customProperties().get('OPEN_AFTER_RUNNING')
 
@@ -1090,10 +1059,6 @@ class ChloeASCParameterFileDestination(QgsProcessingParameterRasterDestination):
 
     def __init__(self, name, description):
         super().__init__(name, description)
-
-        # print(self.toOutputDefinition().autoCreated())
-        print('self')
-        print(self.createByDefault())
 
     def clone(self):
         copy = ChloeASCParameterFileDestination(
