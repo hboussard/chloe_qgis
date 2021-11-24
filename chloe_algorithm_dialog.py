@@ -33,6 +33,9 @@ import warnings
 # import copy
 import pathlib
 
+
+from qgis.utils import iface
+
 from qgis.PyQt.QtCore import QCoreApplication, QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import (QWidget,
                                  QVBoxLayout,
@@ -48,24 +51,29 @@ from qgis.core import (QgsProject,
                        QgsApplication,
                        QgsSettings,
                        QgsProcessingFeedback,
-
                        QgsProcessingParameterDefinition,
-
                        QgsProcessingParameterFolderDestination,
-
                        QgsProcessingParameters,
                        QgsProcessingParameterVectorDestination,
                        QgsProcessingOutputLayerDefinition,
-
                        QgsProcessingParameterRasterDestination,
-
                        QgsProcessingParameterFile,
-
-                       QgsExpressionContext)
+                       QgsExpressionContext,
+                       QgsProcessing,
+                       QgsProcessingParameterExtent,
+                       QgsProcessingModelAlgorithm
+                       )
 
 from qgis.gui import (QgsProjectionSelectionWidget,
                       QgsProcessingLayerOutputDestinationWidget,
-                      QgsProcessingHiddenWidgetWrapper)
+                      QgsProcessingHiddenWidgetWrapper,
+                      QgsProcessingContextGenerator,
+                      QgsProcessingParameterWidgetContext,
+                      QgsProcessingParametersWidget,
+                      QgsGui,
+                      QgsProcessingGui,
+                      QgsProcessingParametersGenerator
+                      )
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
@@ -75,7 +83,8 @@ from processing.gui.NumberInputPanel import NumberInputPanel
 
 from processing.gui.FileSelectionPanel import FileSelectionPanel
 from processing.gui.wrappers import (WidgetWrapper,
-                                     EnumWidgetWrapper)
+                                     EnumWidgetWrapper,
+                                     WidgetWrapperFactory)
 from processing.tools.dataobjects import createContext
 
 from processing.gui.ParametersPanel import ParametersPanel
@@ -83,7 +92,6 @@ from processing.gui.ParametersPanel import ParametersPanel
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
 
 from .ChloePostProcessing import ChloehandleAlgorithmResults
-
 
 from processing.gui.wrappers import WidgetWrapper, RasterWidgetWrapper, FileWidgetWrapper,  DIALOG_MODELER, DIALOG_BATCH, DIALOG_STANDARD
 
@@ -140,8 +148,145 @@ class ChloeParametersPanel(ParametersPanel):
 
     def initWidgets(self):  # overload
 
-        super().initWidgets()
+        # super().initWidgets()
 
+        widget_context = QgsProcessingParameterWidgetContext()
+        widget_context.setProject(QgsProject.instance())
+        if iface is not None:
+            widget_context.setMapCanvas(iface.mapCanvas())
+            widget_context.setBrowserModel(iface.browserModel())
+            widget_context.setActiveLayer(iface.activeLayer())
+
+        widget_context.setMessageBar(self.parent().messageBar())
+        if isinstance(self.algorithm(), QgsProcessingModelAlgorithm):
+            widget_context.setModel(self.algorithm())
+
+        in_place_input_parameter_name = 'INPUT'
+        if hasattr(self.algorithm(), 'inputParameterName'):
+            in_place_input_parameter_name = self.algorithm().inputParameterName()
+
+        # Create widgets and put them in layouts
+        for param in self.algorithm().parameterDefinitions():
+            if param.flags() & QgsProcessingParameterDefinition.FlagHidden:
+                continue
+
+            if param.isDestination():
+                continue
+            else:
+                if self.in_place and param.name() in (in_place_input_parameter_name, 'OUTPUT'):
+                    # don't show the input/output parameter widgets in in-place mode
+                    # we still need to CREATE them, because other wrappers may need to interact
+                    # with them (e.g. those parameters which need the input layer for field
+                    # selections/crs properties/etc)
+                    self.wrappers[param.name()] = QgsProcessingHiddenWidgetWrapper(
+                        param, QgsProcessingGui.Standard, self)
+                    self.wrappers[param.name()].setLinkedVectorLayer(
+                        self.active_layer)
+                    continue
+
+                wrapper = WidgetWrapperFactory.create_wrapper(
+                    param, self.parent())
+                wrapper.setWidgetContext(widget_context)
+                wrapper.registerProcessingContextGenerator(
+                    self.context_generator)
+                wrapper.registerProcessingParametersGenerator(self)
+                self.wrappers[param.name()] = wrapper
+
+                # For compatibility with 3.x API, we need to check whether the wrapper is
+                # the deprecated WidgetWrapper class. If not, it's the newer
+                # QgsAbstractProcessingParameterWidgetWrapper class
+                # TODO QGIS 4.0 - remove
+                is_python_wrapper = issubclass(
+                    wrapper.__class__, WidgetWrapper)
+                stretch = 0
+                if not is_python_wrapper:
+                    widget = wrapper.createWrappedWidget(
+                        self.processing_context)
+                    stretch = wrapper.stretch()
+                else:
+                    widget = wrapper.widget
+
+                if widget is not None:
+                    if is_python_wrapper:
+                        widget.setToolTip(param.toolTip())
+
+                    label = None
+                    if not is_python_wrapper:
+                        label = wrapper.createWrappedLabel()
+                    else:
+                        label = wrapper.label
+
+                    if label is not None:
+                        self.addParameterLabel(param, label)
+                    elif is_python_wrapper:
+                        desc = param.description()
+                        if isinstance(param, QgsProcessingParameterExtent):
+                            desc += self.tr(' (xmin, xmax, ymin, ymax)')
+                        if param.flags() & QgsProcessingParameterDefinition.FlagOptional:
+                            desc += self.tr(' [optional]')
+                        widget.setText(desc)
+
+                    self.addParameterWidget(param, widget, stretch)
+
+        for output in self.algorithm().destinationParameterDefinitions():
+            if output.flags() & QgsProcessingParameterDefinition.FlagHidden:
+                continue
+
+            if self.in_place and output.name() in (in_place_input_parameter_name, 'OUTPUT'):
+                continue
+
+            wrapper = QgsGui.processingGuiRegistry().createParameterWidgetWrapper(
+                output, QgsProcessingGui.Standard)
+            wrapper.setWidgetContext(widget_context)
+            wrapper.registerProcessingContextGenerator(self.context_generator)
+            wrapper.registerProcessingParametersGenerator(self)
+            self.wrappers[output.name()] = wrapper
+
+            label = wrapper.createWrappedLabel()
+            if label is not None:
+                self.addOutputLabel(label)
+
+            widget = wrapper.createWrappedWidget(self.processing_context)
+            self.addOutputWidget(widget, wrapper.stretch())
+
+            print('step 1')
+            print(f'output : {type(output)}')
+            print(f'type widget : {type(widget)}')
+            print(f'name : {widget.objectName()}')
+            print('loop widgets')
+            [print(f'widget : {w}, name : {w.objectName()}')
+             for w in widget.children()]
+            #[print(w) for w in widget.children()]
+            print('end loop')
+
+            if isinstance(output, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
+                if hasattr(output, "addToMapDefaultState"):
+                    for w in widget.children():
+                        if isinstance(w, QCheckBox):
+                            w.setChecked(output.addToMapDefaultState)
+
+            #    def skipOutputChanged(widget, checkbox, skipped):
+            # TODO
+            #        enabled = not skipped
+            #
+            #        # Do not try to open formats that are write-only.
+            #        value = widget.value()
+            #        if value and isinstance(value, QgsProcessingOutputLayerDefinition) and isinstance(output, (
+            #                QgsProcessingParameterFeatureSink, QgsProcessingParameterVectorDestination)):
+            #            filename = value.sink.staticValue()
+            #            if filename not in ('memory:', ''):
+            #                path, ext = os.path.splitext(filename)
+            #                format = QgsVectorFileWriter.driverForExtension(ext)
+            #                drv = gdal.GetDriverByName(format)
+            #                if drv:
+            #                    if drv.GetMetadataItem(gdal.DCAP_OPEN) is None:
+            #                        enabled = False
+            #
+            #        checkbox.setEnabled(enabled)
+            #        checkbox.setChecked(enabled)
+
+        for wrapper in list(self.wrappers.values()):
+            wrapper.postInitialize(list(self.wrappers.values()))
         for k in self.wrappers:
             w = self.wrappers[k]
             if hasattr(w, 'getParentWidgetConfig'):
@@ -264,12 +409,19 @@ class ChloeParametersPanel(ParametersPanel):
                                )):
 
                     paramName = param.name()
+
                     if paramName in parameters:
                         p = parameters[paramName]
+                        # print(f'wrapper : {wrapper}')
+                        # [print(f)
+                        # for f in dir(wrapper) if not f.startswith('_')]
+                       # [print(f)
+                        # for f in vars(wrapper)]
+
+                        if isinstance(param, ChloeCSVParameterFileDestination):
+                            wrapper.setProperty('OPEN_AFTER_RUNNING', False)
 
                         toBeOpened = wrapper.customProperties().get('OPEN_AFTER_RUNNING')
-
-                        temporary_value_test = value
 
                         if type(value) == QgsProcessingOutputLayerDefinition:
                             temporary_value_test = value.sink.value(
@@ -353,11 +505,11 @@ class ChloeParametersPanel(ParametersPanel):
 
             commands = self.algorithm().getConsoleCommands(
                 parameters, context, feedback, executing=False)
-            #print(f'commands {commands}')
+            # print(f'commands {commands}')
             commands = [c for c in commands if c not in ['cmd.exe', '/C ']]
             self.text.setPlainText(" ".join(commands))
         except AlgorithmDialogBase.InvalidParameterValue as e:
-            #print(f'except {e}')
+            # print(f'except {e}')
             self.text.setPlainText(
                 self.tr("Invalid value for parameter '{0}'").format(e.parameter.description()))
             if e.parameter.name() == 'MAP_CSV':
@@ -916,6 +1068,7 @@ class ChloeCSVParameterFileDestination(QgsProcessingParameterVectorDestination):
 
     def __init__(self, name, description, addToMapDefaultState=False):
         super().__init__(name, description)
+
         self.addToMapDefaultState = addToMapDefaultState
 
     def defaultFileExtension(self):
@@ -937,6 +1090,10 @@ class ChloeASCParameterFileDestination(QgsProcessingParameterRasterDestination):
 
     def __init__(self, name, description):
         super().__init__(name, description)
+
+        # print(self.toOutputDefinition().autoCreated())
+        print('self')
+        print(self.createByDefault())
 
     def clone(self):
         copy = ChloeASCParameterFileDestination(
