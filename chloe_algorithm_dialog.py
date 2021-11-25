@@ -372,11 +372,11 @@ class ChloeParametersPanel(ParametersPanel):
                             widget, error)
 
                 #print(f'param : {param} , value : {value}')
-                if isinstance(param, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
-                    if hasattr(param, "addToMapDefaultState"):
-                        for w in widget.children():
-                            if isinstance(w, QCheckBox):
-                                w.setChecked(param.addToMapDefaultState)
+                # if isinstance(param, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
+                #     if hasattr(param, "addToMapDefaultState"):
+                #         for w in widget.children():
+                #             if isinstance(w, QCheckBox):
+                #                 w.setChecked(param.addToMapDefaultState)
 
                 if isinstance(param,
                               (ChloeCSVParameterFileDestination,
@@ -390,7 +390,7 @@ class ChloeParametersPanel(ParametersPanel):
                         p = parameters[paramName]
 
                         toBeOpened = wrapper.customProperties().get('OPEN_AFTER_RUNNING')
-
+                        print(f'param : {param}, topbeopn : {toBeOpened}')
                         temporary_value_test = None
 
                         # get temporary value test from value.sink in case of QgsProcessingParameterRasterDestination/QgsProcessingParameterVectorDestination
@@ -460,12 +460,31 @@ class ChloeParametersPanel(ParametersPanel):
 
         context = createContext()
         feedback = QgsProcessingFeedback()
+
+        for output in self.algorithm().destinationParameterDefinitions():
+
+            if isinstance(output, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination)):
+
+                try:
+                    wrapper = self.wrappers[output.name()]
+                except KeyError:
+                    continue
+
+                widget = wrapper.wrappedWidget()
+
+                if hasattr(output, "addToMapDefaultState"):
+                    for w in widget.children():
+                        if isinstance(w, QCheckBox):
+                            if w.checkState():
+                                w.setChecked(output.addToMapDefaultState)
+
         try:
             parameters = self.dialog.createProcessingParameters()
             for output in self.algorithm().destinationParameterDefinitions():
                 if not output.name() in parameters or parameters[output.name()] is None:
                     if not output.flags() & QgsProcessingParameterDefinition.FlagOptional:
                         parameters[output.name()] = self.tr("[temporary file]")
+
             for p in self.algorithm().parameterDefinitions():
                 if p.flags() & QgsProcessingParameterDefinition.FlagHidden:
                     continue
