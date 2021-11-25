@@ -50,14 +50,24 @@ class FromCSVAlgorithmDialog(ChloeAlgorithmDialog):
 class FromCSVParametersPanel(ChloeParametersPanel):
 
     def __init__(self, parent, alg):
+
+        self.dialog = parent
+
         super().__init__(parent, alg)
 
-        # Add and plug the "Import header" button in dialog
-        pb = QPushButton(self.tr("Import header"))
+    def initWidgets(self):
 
-        self.addExtraWidget(pb)
-        self.pbHeader = pb
+        super().initWidgets()
+
+        # Add and plug the "Import header" button in dialog
+        self.pb = QPushButton(self.tr("Import header"))
+
+        self.pbHeader = self.pb
         self.pbHeader.clicked.connect(self.uploadHeader)
+
+        # insert extra pb
+        ChloeUtils.insertWidgetInLayout(
+            parent=self.dialog, target_layout_name='mScrollAreaLayout', widget=self.pb, position=3)
 
     def uploadHeader(self):
         """Import header from ASCII or TXT file.
@@ -82,7 +92,7 @@ class FromCSVParametersPanel(ChloeParametersPanel):
         # Select the file with a QFileDialog()
         dlg = QFileDialog()
         dlg.setFileMode(QFileDialog.AnyFile)
-        #dlg.setFilter("ASC File (*.asc);; TXT File (*.txt);;All File (*.*)")
+        # dlg.setFilter("ASC File (*.asc);; TXT File (*.txt);;All File (*.*)")
         dlg.setNameFilters(
             ["All File (*.*)", "ASC File (*.asc)", "TXT File (*.txt)"])
         dlg.selectNameFilter("All File (*.*)")

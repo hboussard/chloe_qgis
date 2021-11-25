@@ -44,7 +44,7 @@ from qgis.PyQt.QtWidgets import (QWidget,
                                  QLineEdit,
                                  QComboBox,
                                  QCheckBox,
-                                 QFileDialog,
+                                 QFileDialog
                                  )
 
 from qgis.core import (QgsProject,
@@ -59,7 +59,6 @@ from qgis.core import (QgsProject,
                        QgsProcessingParameterRasterDestination,
                        QgsProcessingParameterFile,
                        QgsExpressionContext,
-                       QgsProcessing,
                        QgsProcessingParameterExtent,
                        QgsProcessingModelAlgorithm
                        )
@@ -67,12 +66,9 @@ from qgis.core import (QgsProject,
 from qgis.gui import (QgsProjectionSelectionWidget,
                       QgsProcessingLayerOutputDestinationWidget,
                       QgsProcessingHiddenWidgetWrapper,
-                      QgsProcessingContextGenerator,
                       QgsProcessingParameterWidgetContext,
-                      QgsProcessingParametersWidget,
                       QgsGui,
-                      QgsProcessingGui,
-                      QgsProcessingParametersGenerator
+                      QgsProcessingGui
                       )
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
@@ -126,6 +122,7 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
 class ChloeParametersPanel(ParametersPanel):
 
     def __init__(self, parent, alg):
+
         super().__init__(parent, alg)
 
         self.dialog = parent
@@ -143,6 +140,7 @@ class ChloeParametersPanel(ParametersPanel):
         w.setLayout(layout)
         self.addExtraWidget(w)
 
+        # self.pbHeader = pb
         self.connectParameterSignals()
         self.parametersHaveChanged()
 

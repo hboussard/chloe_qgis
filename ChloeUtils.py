@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from PyQt5.QtWidgets import QLayout, QVBoxLayout, QWidget
 from jinja2 import Template
 from qgis.core import (Qgis,
                        QgsApplication,
@@ -50,6 +51,8 @@ from osgeo import gdal
 import numpy as np
 import math
 import psycopg2
+
+from qgis.PyQt.QtWidgets import (QWidget, QLayout, QVBoxLayout)
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -464,6 +467,7 @@ class ChloeUtils:
 
 # --------------------------------------------------ADD----------------------
 
+
     @staticmethod
     def formatString(path_file, isWindowPath=False, encoding='utf8'):
         res = path_file  # .encode(encoding)
@@ -600,7 +604,7 @@ class ChloeUtils:
 
     @staticmethod
     def toOddNumber(input_integer: int) -> int:
-        """ return a odd number if input number is even """
+        """ returns a odd number if input number is even """
         if int(input_integer) % 2 == 0:
             return int(input_integer) + 1
         else:
@@ -608,7 +612,7 @@ class ChloeUtils:
 
     @staticmethod
     def toEvenNumber(input_integer: int) -> int:
-        """ return a even number if input number is odd """
+        """ returns a even number if input number is odd """
         if int(input_integer) % 2 > 0:
             return int(input_integer) + 1
         else:
@@ -616,13 +620,24 @@ class ChloeUtils:
 
     @staticmethod
     def displayFloatToInt(input_float) -> str:
-        """ return an int formated string if input number is an integer """
+        """ returns an int formated string if input number is an integer """
         if input_float is None:
             return None
         elif input_float.is_integer():
             return str(int(input_float))
         else:
             return str(input_float)
+
+    @staticmethod
+    def insertWidgetInLayout(parent, target_layout_name: str, widget: QWidget, position: int):
+        """ insert a widget at a given position in a target layout """
+        if not parent:
+            return
+
+        for layout in parent.findChildren(QLayout):
+            if isinstance(layout, (QVBoxLayout)):
+                if layout.objectName() == target_layout_name:
+                    layout.insertWidget(position, widget)
 
 
 class ASCOutputRaster(QgsProcessingOutputRasterLayer):
