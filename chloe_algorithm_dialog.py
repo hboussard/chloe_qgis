@@ -371,6 +371,7 @@ class ChloeParametersPanel(ParametersPanel):
                         raise AlgorithmDialogBase.InvalidOutputExtension(
                             widget, error)
 
+                #print(f'param : {param} , value : {value}')
                 if isinstance(param, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
                     if hasattr(param, "addToMapDefaultState"):
                         for w in widget.children():
@@ -390,17 +391,24 @@ class ChloeParametersPanel(ParametersPanel):
 
                         toBeOpened = wrapper.customProperties().get('OPEN_AFTER_RUNNING')
 
+                        temporary_value_test = None
+
+                        # get temporary value test from value.sink in case of QgsProcessingParameterRasterDestination/QgsProcessingParameterVectorDestination
                         if type(value) == QgsProcessingOutputLayerDefinition:
                             temporary_value_test = value.sink.value(
                                 QgsExpressionContext())[0]
 
-                        if temporary_value_test == 'TEMPORARY_OUTPUT':
+                        if temporary_value_test == 'TEMPORARY_OUTPUT' or value == 'TEMPORARY_OUTPUT':
 
                             dataValue = param.generateTemporaryDestination()
 
                         else:
-                            dataValue = value.sink.value(
-                                QgsExpressionContext())[0]
+                            if temporary_value_test:
+                                dataValue = value.sink.value(
+                                    QgsExpressionContext())[0]
+                            else:
+                                # if QgsProcessingParameterFolderDestination don't use the sink value
+                                dataValue = value
 
                         newValue = {"data": dataValue, "openLayer": toBeOpened}
                         parameters[paramName] = newValue
