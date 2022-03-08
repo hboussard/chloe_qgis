@@ -15,13 +15,14 @@
 """
 
 from builtins import str
-__author__ = 'Jean-Charles Naud/Alkante'
-__date__ = '2017-10-17'
+
+__author__ = "Jean-Charles Naud/Alkante"
+__date__ = "2017-10-17"
 
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
 
@@ -32,7 +33,7 @@ from qgis.core import (
     QgsProcessingParameterString,
     QgsProcessingParameterFile,
     QgsProcessingParameterEnum,
-    QgsProcessingParameterFileDestination
+    QgsProcessingParameterFileDestination,
 )
 
 from processing.tools.system import getTempFilename, isWindows
@@ -44,6 +45,7 @@ from ..ChloeUtils import ChloeUtils
 from ..chloe_algorithm import ChloeAlgorithm
 from ..chloe_algorithm_dialog import ChloeCSVParameterFileDestination
 from ..chloe_algorithm_dialog import ChloeASCParameterFileDestination
+
 # Main dialog
 
 
@@ -56,32 +58,39 @@ class SelectedAlgorithm(ChloeAlgorithm):
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
         inputAscParam = QgsProcessingParameterRasterLayer(
-            name=self.INPUT_LAYER_ASC,
-            description=self.tr('Input layer asc'))
+            name=self.INPUT_LAYER_ASC, description=self.tr("Input layer asc")
+        )
 
-        inputAscParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeAscRasterWidgetWrapper'
+        inputAscParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeAscRasterWidgetWrapper"
+                }
             }
-        })
+        )
         self.addParameter(inputAscParam)
 
         # METRICS
 
         metricsParam = QgsProcessingParameterString(
-            name=self.METRICS,
-            description=self.tr('Select metrics'))
+            name=self.METRICS, description=self.tr("Select metrics")
+        )
 
-        metricsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper',
-                'dictValues': self.types_of_metrics,
-                'initialValue': 'diversity metrics',
-                'rasterLayerParamName': self.INPUT_LAYER_ASC,
-                # 'refreshMappingCombobox'}
-                'parentWidgetConfig': {'paramName': self.INPUT_LAYER_ASC, 'refreshMethod': 'refreshMappingCombobox'}
+        metricsParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeDoubleComboboxWidgetWrapper",
+                    "dictValues": self.types_of_metrics,
+                    "initialValue": "diversity metrics",
+                    "rasterLayerParamName": self.INPUT_LAYER_ASC,
+                    # 'refreshMappingCombobox'}
+                    "parentWidgetConfig": {
+                        "paramName": self.INPUT_LAYER_ASC,
+                        "refreshMethod": "refreshMappingCombobox",
+                    },
+                }
             }
-        })
+        )
 
         self.addParameter(metricsParam)
 
@@ -89,10 +98,9 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
         windowSizeParam = QgsProcessingParameterNumber(
             name=self.WINDOW_SIZES,
-            description=self.tr('Windows sizes (pixels)'),
+            description=self.tr("Windows sizes (pixels)"),
             defaultValue=3,
-            minValue=3
-
+            minValue=3,
         )
         self.addParameter(windowSizeParam)
 
@@ -100,16 +108,20 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
         pointPixelParam = QgsProcessingParameterEnum(
             name=self.PIXELS_POINTS_SELECT,
-            description=self.tr('Pixels/points selection'),
-            options=self.types_of_pixel_point_select)
+            description=self.tr("Pixels/points selection"),
+            options=self.types_of_pixel_point_select,
+        )
 
         self.addParameter(pointPixelParam)
 
         # PIXELS_POINTS FILE
-        self.addParameter(QgsProcessingParameterFile(
-            name=self.PIXELS_POINTS_FILE,
-            description=self.tr('Pixels/points file'),
-            optional=False))
+        self.addParameter(
+            QgsProcessingParameterFile(
+                name=self.PIXELS_POINTS_FILE,
+                description=self.tr("Pixels/points file"),
+                optional=False,
+            )
+        )
 
         # === ADVANCED PARAMETERS ===
 
@@ -117,62 +129,71 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
         windowShapeParam = QgsProcessingParameterEnum(
             name=self.WINDOW_SHAPE,
-            description=self.tr('Window shape'),
-            options=self.types_of_shape)
+            description=self.tr("Window shape"),
+            options=self.types_of_shape,
+        )
 
-        windowShapeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{
-                    'paramName': self.FRICTION_FILE,
-                    'enableValue': 2
-                }]
+        windowShapeParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper",
+                    "dependantWidgetConfig": [
+                        {"paramName": self.FRICTION_FILE, "enableValue": 2}
+                    ],
+                }
             }
-        })
-        windowShapeParam.setFlags(windowShapeParam.flags(
-        ) | QgsProcessingParameterDefinition.FlagAdvanced)
+        )
+        windowShapeParam.setFlags(
+            windowShapeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced
+        )
         self.addParameter(windowShapeParam)
 
         # FRICTION FILE
         frictionFile = QgsProcessingParameterFile(
-            name=self.FRICTION_FILE,
-            description=self.tr('Friction file'),
-            optional=True)
+            name=self.FRICTION_FILE, description=self.tr("Friction file"), optional=True
+        )
 
-        frictionFile.setFlags(frictionFile.flags() |
-                              QgsProcessingParameterDefinition.FlagAdvanced)
+        frictionFile.setFlags(
+            frictionFile.flags() | QgsProcessingParameterDefinition.FlagAdvanced
+        )
 
         self.addParameter(frictionFile)
         # ANALYZE TYPE
 
         analyzeTypeParam = QgsProcessingParameterEnum(
             name=self.ANALYZE_TYPE,
-            description=self.tr('Analyze type'),
-            options=self.types_of_analyze)
+            description=self.tr("Analyze type"),
+            options=self.types_of_analyze,
+        )
 
-        analyzeTypeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{
-                    'paramName': self.DISTANCE_FUNCTION,
-                    'enableValue': 1
-                }]
+        analyzeTypeParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeEnumUpdateStateWidgetWrapper",
+                    "dependantWidgetConfig": [
+                        {"paramName": self.DISTANCE_FUNCTION, "enableValue": 1}
+                    ],
+                }
             }
-        })
+        )
 
-        analyzeTypeParam.setFlags(analyzeTypeParam.flags(
-        ) | QgsProcessingParameterDefinition.FlagAdvanced)
+        analyzeTypeParam.setFlags(
+            analyzeTypeParam.flags() | QgsProcessingParameterDefinition.FlagAdvanced
+        )
         self.addParameter(analyzeTypeParam)
 
         # DISTANCE FUNCTION
 
         distanceFunction = QgsProcessingParameterString(
             name=self.DISTANCE_FUNCTION,
-            description=self.tr('Distance function'),
-            optional=True)
+            description=self.tr("Distance function"),
+            defaultValue="exp(-pow(distance, 2)/pow(dmax/2, 2))",
+            optional=True,
+        )
 
-        distanceFunction.setFlags(distanceFunction.flags(
-        ) | QgsProcessingParameterDefinition.FlagAdvanced)
+        distanceFunction.setFlags(
+            distanceFunction.flags() | QgsProcessingParameterDefinition.FlagAdvanced
+        )
 
         self.addParameter(distanceFunction)
 
@@ -180,45 +201,52 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
         maxRateMissingValues = QgsProcessingParameterNumber(
             name=self.MAXIMUM_RATE_MISSING_VALUES,
-            description=self.tr('Maximum rate of missing values'),
+            description=self.tr("Maximum rate of missing values"),
             minValue=0,
             maxValue=100,
-            defaultValue=100)
-        maxRateMissingValues.setFlags(maxRateMissingValues.flags(
-        ) | QgsProcessingParameterDefinition.FlagAdvanced)
+            defaultValue=100,
+        )
+        maxRateMissingValues.setFlags(
+            maxRateMissingValues.flags() | QgsProcessingParameterDefinition.FlagAdvanced
+        )
 
         self.addParameter(maxRateMissingValues)
 
         # === OUTPUT PARAMETERS ===
 
-        self.addParameter(ChloeCSVParameterFileDestination(
-            name=self.OUTPUT_CSV,
-            description=self.tr('Output csv')))
+        self.addParameter(
+            ChloeCSVParameterFileDestination(
+                name=self.OUTPUT_CSV, description=self.tr("Output csv")
+            )
+        )
 
         fieldsParam = ChloeASCParameterFileDestination(
-            name=self.OUTPUT_ASC,
-            description=self.tr('Output Raster ascii'))
+            name=self.OUTPUT_ASC, description=self.tr("Output Raster ascii")
+        )
         self.addParameter(fieldsParam, createOutput=True)
 
-        self.addParameter(QgsProcessingParameterFileDestination(
-            name=self.SAVE_PROPERTIES,
-            description=self.tr('Properties file'),
-            fileFilter='Properties (*.properties)'))
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                name=self.SAVE_PROPERTIES,
+                description=self.tr("Properties file"),
+                fileFilter="Properties (*.properties)",
+            )
+        )
 
     def name(self):
-        return 'selected'
+        return "selected"
 
     def displayName(self):
-        return self.tr('selected')
+        return self.tr("selected")
 
     def group(self):
-        return self.tr('landscape metrics')
+        return self.tr("landscape metrics")
 
     def groupId(self):
-        return 'landscapemetrics'
+        return "landscapemetrics"
 
     def commandName(self):
-        return 'selected'
+        return "selected"
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
@@ -226,51 +254,56 @@ class SelectedAlgorithm(ChloeAlgorithm):
         # === INPUT
 
         self.input_layer_asc = self.parameterRasterAsFilePath(
-            parameters, self.INPUT_LAYER_ASC, context)
+            parameters, self.INPUT_LAYER_ASC, context
+        )
 
         self.window_shape = self.types_of_shape[
-            self.parameterAsInt(parameters, self.WINDOW_SHAPE, context)]
+            self.parameterAsInt(parameters, self.WINDOW_SHAPE, context)
+        ]
 
         self.friction_file = self.parameterAsString(
-            parameters, self.FRICTION_FILE, context)
+            parameters, self.FRICTION_FILE, context
+        )
 
-        self.window_sizes = self.parameterAsInt(
-            parameters, self.WINDOW_SIZES, context)
+        self.window_sizes = self.parameterAsInt(parameters, self.WINDOW_SIZES, context)
 
         self.analyze_type = self.types_of_analyze[
-            self.parameterAsInt(parameters, self.ANALYZE_TYPE, context)]
+            self.parameterAsInt(parameters, self.ANALYZE_TYPE, context)
+        ]
 
         self.distance_formula = self.parameterAsString(
-            parameters, self.DISTANCE_FUNCTION, context)
+            parameters, self.DISTANCE_FUNCTION, context
+        )
 
         self.pixels_point_selection = self.parameterAsInt(
-            parameters, self.PIXELS_POINTS_SELECT, context)
+            parameters, self.PIXELS_POINTS_SELECT, context
+        )
 
         self.pixels_points_file = self.parameterAsString(
-            parameters, self.PIXELS_POINTS_FILE, context)
+            parameters, self.PIXELS_POINTS_FILE, context
+        )
 
         self.maximum_rate_missing_values = self.parameterAsInt(
-            parameters, self.MAXIMUM_RATE_MISSING_VALUES, context)
+            parameters, self.MAXIMUM_RATE_MISSING_VALUES, context
+        )
 
-        self.metrics = self.parameterAsString(
-            parameters, self.METRICS, context)
+        self.metrics = self.parameterAsString(parameters, self.METRICS, context)
 
         # === OUTPUT
-        self.output_csv = self.parameterAsString(
-            parameters, self.OUTPUT_CSV, context)
-        self.output_asc = self.parameterAsString(
-            parameters, self.OUTPUT_ASC, context)
+        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
+        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
         dir_out_asc = os.path.dirname(self.output_asc)
         base_out_asc = os.path.basename(self.output_asc)
         name_out_asc = os.path.splitext(base_out_asc)[0]
-        #ext_out_asc     = os.path.splitext(base_out_asc)[1]
+        # ext_out_asc     = os.path.splitext(base_out_asc)[1]
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
-            parameters, self.SAVE_PROPERTIES, context)
+            parameters, self.SAVE_PROPERTIES, context
+        )
 
         if f_save_properties:
             self.f_path = f_save_properties
@@ -282,7 +315,7 @@ class SelectedAlgorithm(ChloeAlgorithm):
         self.createPropertiesTempFile()
 
         # === Projection file
-        f_prj = dir_out_asc+os.sep+name_out_asc+".prj"
+        f_prj = dir_out_asc + os.sep + name_out_asc + ".prj"
         self.createProjectionFile(f_prj)
 
     def createPropertiesTempFile(self):
@@ -290,33 +323,48 @@ class SelectedAlgorithm(ChloeAlgorithm):
 
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w") as fd:
-            fd.write("#"+s_time+"\n")
+            fd.write("#" + s_time + "\n")
 
             fd.write("treatment=" + self.name() + "\n")
-            fd.write(ChloeUtils.formatString(
-                'input_ascii=' + self.input_layer_asc+"\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
-                'output_csv=' + self.output_csv + "\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
-                'output_asc=' + self.output_asc + "\n", isWindows()))
+            fd.write(
+                ChloeUtils.formatString(
+                    "input_ascii=" + self.input_layer_asc + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "output_csv=" + self.output_csv + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "output_asc=" + self.output_asc + "\n", isWindows()
+                )
+            )
 
             fd.write(
-                "window_sizes={" + str(ChloeUtils.toOddNumber(self.window_sizes)) + "}\n")
-            fd.write("maximum_nodata_value_rate="
-                     + str(self.maximum_rate_missing_values) + "\n")
+                "window_sizes={"
+                + str(ChloeUtils.toOddNumber(self.window_sizes))
+                + "}\n"
+            )
+            fd.write(
+                "maximum_nodata_value_rate="
+                + str(self.maximum_rate_missing_values)
+                + "\n"
+            )
             fd.write("metrics={" + self.metrics + "}\n")
 
             if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" +
-                         str(self.distance_formula) + "\n")
+                fd.write("distance_function=" + str(self.distance_formula) + "\n")
             fd.write("shape=" + str(self.window_shape) + "\n")
             if self.window_shape == "FUNCTIONAL":
                 fd.write("friction=" + self.friction_file + "\n")
 
             pixels_points_files = ChloeUtils.formatString(
-                self.pixels_points_file, isWindows())
+                self.pixels_points_file, isWindows()
+            )
 
-            if self.pixels_point_selection == 0:   # pixel(s) file
+            if self.pixels_point_selection == 0:  # pixel(s) file
                 fd.write("pixels=" + pixels_points_files + "\n")
             elif self.pixels_point_selection == 1:  # point(s) file
                 fd.write("points=" + pixels_points_files + "\n")
