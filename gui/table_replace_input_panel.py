@@ -38,12 +38,10 @@ import math
 from ..ChloeUtils import ChloeUtils
 
 pluginPath = os.path.dirname(__file__)
-WIDGET, BASE = uic.loadUiType(
-    os.path.join(pluginPath, 'ui', 'DlgTableReplaceInput.ui'))
+WIDGET, BASE = uic.loadUiType(os.path.join(pluginPath, "ui", "DlgTableReplaceInput.ui"))
 
 
 class TableReplaceInputPanel(BASE, WIDGET):
-
     def __init__(self, dialog, alg, default=None, batchGui=False):
         super(TableReplaceInputPanel, self).__init__(None)
         self.setupUi(self)
@@ -52,8 +50,8 @@ class TableReplaceInputPanel(BASE, WIDGET):
         self.batchGui = batchGui
         # self.dialog[linked_param].valuechanged.connect(self.test)
         # print(str(self.dialog))
-        #parametersPanel = self.dialog.mainWidget()
-        #wrapper = parametersPanel.wrappers[linked_param]
+        # parametersPanel = self.dialog.mainWidget()
+        # wrapper = parametersPanel.wrappers[linked_param]
         # print(str(wrapper))
 
         self.pbFromAsc.clicked.connect(self.updateMapASC)
@@ -66,10 +64,11 @@ class TableReplaceInputPanel(BASE, WIDGET):
         if self.batchGui:
             rasterLayerParam = self.dialog.mainWidget().wrappers[0][0].value()
         else:
-            rasterLayerParam = self.dialog.mainWidget(
-            ).wrappers[self.rasterLayerParamName].value()
+            rasterLayerParam = (
+                self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+            )
 
-         # 3.10 fix
+        # 3.10 fix
         if re.match(r"^[a-zA-Z0-9_]+$", rasterLayerParam):
             selectedLayer = QgsProject.instance().mapLayer(rasterLayerParam)
             rasterLayerParam = selectedLayer.dataProvider().dataSourceUri()
@@ -86,7 +85,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
         if self.batchGui:
             p = self.dialog.mainWidget().wrappers[0][0].value()
         else:
-            p = self.dialog.mainWidget().wrappers['INPUT_ASC'].value()
+            p = self.dialog.mainWidget().wrappers["INPUT_ASC"].value()
 
         if p is None:
             return
@@ -103,18 +102,19 @@ class TableReplaceInputPanel(BASE, WIDGET):
             f_input = str(p)
 
             # === Test algorithm
-        ds = gdal.Open(f_input)                 # DataSet
-        band = ds.GetRasterBand(1)             # -> band
-        array = np.array(band.ReadAsArray())    # -> matrice values
+        ds = gdal.Open(f_input)  # DataSet
+        band = ds.GetRasterBand(1)  # -> band
+        array = np.array(band.ReadAsArray())  # -> matrice values
         values = np.unique(array)
         # Add nodata values in numpy array
         values_and_nodata = np.insert(values, 0, band.GetNoDataValue())
-        int_values_and_nodata = np.unique(
-            [int(math.floor(x)) for x in values_and_nodata])
-
+        # int_values_and_nodata = np.unique(
+        #     [int(math.floor(x)) for x in values_and_nodata]
+        # )
+        values_and_nodata = np.unique([math.floor(x) for x in values_and_nodata])
         # Dialog list check box
         row = 0
-        for tup in int_values_and_nodata:
+        for tup in values_and_nodata:
             item = QTableWidgetItem()
             item.setText(str(tup))
             self.twAssociation.setItem(row, 0, item)
@@ -136,9 +136,9 @@ class TableReplaceInputPanel(BASE, WIDGET):
             # == Get list index
             if mapFile:
                 if os.path.exists(mapFile):
-                    with open(mapFile, 'r') as f:
+                    with open(mapFile, "r") as f:
                         line = next(f)
-                    headers = list(filter(None, re.split('\n|;| |,', line)))
+                    headers = list(filter(None, re.split("\n|;| |,", line)))
                     # print(str(headers))
                     self.cmbBox.addItems(headers[1:])
         except:
@@ -148,10 +148,10 @@ class TableReplaceInputPanel(BASE, WIDGET):
         try:
             if self.mapFile:
                 if os.path.exists(self.mapFile):
-                        #print('before open header')
-                    with open(self.mapFile, 'r') as f:
+                    # print('before open header')
+                    with open(self.mapFile, "r") as f:
                         line = next(f)
-                    headers = list(filter(None, re.split('\n|;| |,', line)))
+                    headers = list(filter(None, re.split("\n|;| |,", line)))
                     name_col = self.cmbBox.currentText()
                     idex_col = headers[1:].index(name_col) + 1
         except:
@@ -160,16 +160,16 @@ class TableReplaceInputPanel(BASE, WIDGET):
         t_ass = []  # Table d'association
         if self.mapFile:
             if os.path.exists(self.mapFile):
-                with open(self.mapFile, 'r') as f:
+                with open(self.mapFile, "r") as f:
                     b_header = 1
-                    #print('before iterating lines')
+                    # print('before iterating lines')
                     for line in f:
                         # print(str(line))
                         if b_header == 1:
                             b_header = 0
-                            continue   # Jump the header
+                            continue  # Jump the header
                         # print(str(line))
-                        data = list(filter(None, re.split('\n|;| |,', line)))
+                        data = list(filter(None, re.split("\n|;| |,", line)))
                         # Table two dimention
                         t_ass.append([data[0], data[idex_col]])
 
@@ -190,7 +190,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
             for row in range(0, wt.rowCount()):
                 r0 = wt.item(row, 0)
                 r1 = wt.item(row, 1)
-                if r0 != None and r0 != '':
+                if r0 != None and r0 != "":
                     try:
                         r1 = float(wt.item(row, 1).text())
                     except:
@@ -242,8 +242,8 @@ class TableReplaceInputPanel(BASE, WIDGET):
                         pass
             s_res = []
             for r in res:
-                s_res.append("("+str(r[0])+","+str(r[1])+")")
-            final_res = ';'.join(s_res)
+                s_res.append("(" + str(r[0]) + "," + str(r[1]) + ")")
+            final_res = ";".join(s_res)
             self.leText.setText(final_res)
         except:
             self.leText.setText("")
@@ -257,7 +257,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
         currentItemRow = self.twAssociation.currentItem().row()
         currentValue = self.twAssociation.currentItem().text()
 
-        if currentValue is None or currentValue == '':
+        if currentValue is None or currentValue == "":
             return
 
         # check if cellValue allready exists in tablewidget
@@ -265,9 +265,16 @@ class TableReplaceInputPanel(BASE, WIDGET):
 
             for row in range(0, self.twAssociation.rowCount()):
 
-                if self.twAssociation.item(row, 0) is not None and currentValue == self.twAssociation.item(row, 0).text() and row != currentItemRow:
-                    QMessageBox.critical(self, self.tr('Cell value error'), self.tr(
-                        '"{}" is already used'.format(currentValue)))
+                if (
+                    self.twAssociation.item(row, 0) is not None
+                    and currentValue == self.twAssociation.item(row, 0).text()
+                    and row != currentItemRow
+                ):
+                    QMessageBox.critical(
+                        self,
+                        self.tr("Cell value error"),
+                        self.tr('"{}" is already used'.format(currentValue)),
+                    )
                     self.twAssociation.currentItem().setText(None)
                     return
 
@@ -276,8 +283,11 @@ class TableReplaceInputPanel(BASE, WIDGET):
         try:
             float(currentValue)
         except:
-            QMessageBox.critical(self, self.tr('Cell value error'), self.tr(
-                '"{}" is not a numeric value'.format(currentValue)))
+            QMessageBox.critical(
+                self,
+                self.tr("Cell value error"),
+                self.tr('"{}" is not a numeric value'.format(currentValue)),
+            )
             self.twAssociation.currentItem().setText(None)
 
     def text(self):
