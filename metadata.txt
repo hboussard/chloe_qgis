@@ -9,10 +9,10 @@
 [general]
 name=Chloe - landscape metrics
 qgisMinimumVersion=3.16
-description=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe.
+description=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe version 4.1 bêta 7.
 version=3.16.1
-author=Jean-Charles Naud, Olivier Bedel, Hugues Boussard, Daan Guillerme
-email=hugues.boussard@inra.fr
+author=Daan Guillerme, Hugues Boussard, Paul Meurice, Jean-Charles Naud, Olivier Bedel
+email=daan.guillerme@fdc22.com
 
 about=Extension utilisant et contenant le logiciel d'analyse cartographique par métrique paysagère Chloe.
 
@@ -28,7 +28,7 @@ repository=https://github.com/hboussard/chloe_qgis
 # Tags are comma separated with spaces allowed
 tags=processing
 
-homepage=https://www6.rennes.inra.fr/bagap/PRODUCTIONS/Logiciels
+homepage=https://www6.rennes.inrae.fr/bagap/PRODUCTIONS/Logiciels
 category=Analysis
 icon=icon.png
 # experimental flag
