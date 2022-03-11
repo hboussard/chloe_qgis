@@ -113,6 +113,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
         # )
         real_values_and_nodata = np.unique([x for x in values_and_nodata])
 
+        # check if unique input values number is < 65
         if len(real_values_and_nodata) > 64:
             QMessageBox.critical(
                 self,
@@ -123,11 +124,18 @@ class TableReplaceInputPanel(BASE, WIDGET):
             )
             return
 
+        for val in real_values_and_nodata:
+            print(val)
         # Dialog list check box
         row = 0
         for tup in real_values_and_nodata:
+            if tup.is_integer():
+                input_value = int(tup)
+            else:
+                input_value = tup
+
             item = QTableWidgetItem()
-            item.setText(str(tup))
+            item.setText(str(input_value))
             self.twAssociation.setItem(row, 0, item)
             row += 1
 
@@ -246,7 +254,9 @@ class TableReplaceInputPanel(BASE, WIDGET):
             for row in range(0, wt.rowCount()):
                 r0 = wt.item(row, 0)
                 r1 = wt.item(row, 1)
-                if r0 is not None and r1 is not None:
+                if (r0 is not None and r0.text() != "") and (
+                    r1 is not None and r1.text() != ""
+                ):
                     try:
                         res.append((r0.text(), r1.text()))
                     except:
