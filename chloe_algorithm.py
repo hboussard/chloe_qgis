@@ -17,13 +17,13 @@
 ***************************************************************************
 """
 
-__author__ = 'Jean-Charles Naud/Alkante'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
+__author__ = "Jean-Charles Naud/Alkante"
+__date__ = "August 2012"
+__copyright__ = "(C) 2012, Victor Olaya"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
 import re
@@ -39,14 +39,16 @@ from qgis.utils import iface
 from qgis.PyQt.QtCore import QCoreApplication, QLocale
 from qgis.PyQt.QtGui import QIcon
 
-from qgis.core import (QgsProcessingContext,
-                       QgsProcessingFeedback,
-                       QgsApplication,
-                       QgsRasterLayer,
-                       QgsVectorLayer,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingException,
-                       QgsProcessingLayerPostProcessorInterface)
+from qgis.core import (
+    QgsProcessingContext,
+    QgsProcessingFeedback,
+    QgsApplication,
+    QgsRasterLayer,
+    QgsVectorLayer,
+    QgsProcessingAlgorithm,
+    QgsProcessingException,
+    QgsProcessingLayerPostProcessorInterface,
+)
 
 from qgis.utils import iface
 
@@ -58,90 +60,93 @@ from processing.tools import dataobjects
 
 
 class ChloeOutputLayerPostProcessor(QgsProcessingLayerPostProcessorInterface):
-
     def postProcessLayer(self, layer, context, feedback):
-        #print("postProcessing " + layer.name())
+        # print("postProcessing " + layer.name())
         if isinstance(layer, QgsRasterLayer):
-            ChloeUtils.setLayerSymbology(layer, 'continuous.qml')
+            ChloeUtils.setLayerSymbology(layer, "continuous.qml")
 
 
 class ChloeAlgorithm(QgsProcessingAlgorithm):
     # All possible paramaters name
-    INPUT_ASC = 'INPUT_ASC'
-    INPUT_LAYER_ASC = 'INPUT_LAYER_ASC'
-    WINDOW_SHAPE = 'WINDOW_SHAPE'
-    FRICTION_FILE = 'FRICTION_FILE'
-    WINDOW_SIZES = 'WINDOW_SIZES'
-    GRID_SIZES = 'GRID_SIZES'
-    DOMAINS = 'DOMAINS'
-    VALUES_RANGES = 'VALUES_RANGES'
-    ASCII_FILTER = 'ASCII_FILTER'
-    FILTER_VALUES = 'FILTER_VALUES'
-    MAP_CSV = 'MAP_CSV'
-    CHANGES = 'CHANGES'
-    NODATA_VALUE = 'NODATA_VALUE'
+    INPUT_ASC = "INPUT_ASC"
+    INPUT_LAYER_ASC = "INPUT_LAYER_ASC"
+    WINDOW_SHAPE = "WINDOW_SHAPE"
+    FRICTION_FILE = "FRICTION_FILE"
+    WINDOW_SIZES = "WINDOW_SIZES"
+    GRID_SIZES = "GRID_SIZES"
+    DOMAINS = "DOMAINS"
+    VALUES_RANGES = "VALUES_RANGES"
+    ASCII_FILTER = "ASCII_FILTER"
+    FILTER_VALUES = "FILTER_VALUES"
+    MAP_CSV = "MAP_CSV"
+    CHANGES = "CHANGES"
+    NODATA_VALUE = "NODATA_VALUE"
 
-    types_of_analyze = ['threshold', 'weighted distance']
-    DISTANCE_FUNCTION = 'DISTANCE_FUNCTION'
-    ANALYZE_TYPE = 'ANALYZE_TYPE'
+    types_of_analyze = ["threshold", "weighted distance"]
+    DISTANCE_FUNCTION = "DISTANCE_FUNCTION"
+    ANALYZE_TYPE = "ANALYZE_TYPE"
 
-    INPUTS_MATRIX = 'INPUTS_MATRIX'
-    INPUT_FILE_CSV = 'INPUT_FILE_CSV'
-    INPUT_SHAPEFILE = 'INPUT_SHAPEFILE'
+    INPUTS_MATRIX = "INPUTS_MATRIX"
+    INPUT_FILE_CSV = "INPUT_FILE_CSV"
+    INPUT_SHAPEFILE = "INPUT_SHAPEFILE"
 
-    FIELDS = 'FIELDS'
-    FIELD = 'FIELD'
+    FIELDS = "FIELDS"
+    FIELD = "FIELD"
 
-    LOOKUP_TABLE = 'LOOKUP_TABLE'
-    EXTENT = 'EXTENT'
+    LOOKUP_TABLE = "LOOKUP_TABLE"
+    EXTENT = "EXTENT"
 
-    N_COLS = 'N_COLS'
-    N_ROWS = 'N_ROWS'
-    XLL_CORNER = 'XLL_CORNER'
-    YLL_CORNER = 'YLL_CORNER'
-    CELL_SIZE = 'CELL_SIZE'
+    N_COLS = "N_COLS"
+    N_ROWS = "N_ROWS"
+    XLL_CORNER = "XLL_CORNER"
+    YLL_CORNER = "YLL_CORNER"
+    CELL_SIZE = "CELL_SIZE"
 
-    CLUSTER = 'CLUSTER'
-    CLUSTER_DISTANCE = 'CLUSTER_DISTANCE'
-    CLUSTER_TYPE = 'CLUSTER_TYPE'
-    CLUSTER_FRICTION = 'CLUSTER_FRICTION'
-    CLUSTER_MIN_AREA = 'CLUSTER_MIN_AREA'
-    types_of_cluster = ['rook neighbourhood', 'queen neighbourhood',
-                        'euclidian distance', 'functional distance']
+    CLUSTER = "CLUSTER"
+    CLUSTER_DISTANCE = "CLUSTER_DISTANCE"
+    CLUSTER_TYPE = "CLUSTER_TYPE"
+    CLUSTER_FRICTION = "CLUSTER_FRICTION"
+    CLUSTER_MIN_AREA = "CLUSTER_MIN_AREA"
+    types_of_cluster = [
+        "rook neighbourhood",
+        "queen neighbourhood",
+        "euclidian distance",
+        "functional distance",
+    ]
 
-    DISTANCE_MAX = 'DISTANCE_MAX'
-    DISTANCE_TYPE = 'DISTANCE_TYPE'
-    DISTANCE_FRICTION = 'DISTANCE_FRICTION'
+    DISTANCE_MAX = "DISTANCE_MAX"
+    DISTANCE_TYPE = "DISTANCE_TYPE"
+    DISTANCE_FRICTION = "DISTANCE_FRICTION"
 
-    types_of_distance = ['euclidian distance', 'functional distance']
-    DELTA_DISPLACEMENT = 'DELTA_DISPLACEMENT'
-    INTERPOLATE_VALUES_BOOL = 'INTERPOLATE_VALUES_BOOL'
+    types_of_distance = ["euclidian distance", "functional distance"]
+    DELTA_DISPLACEMENT = "DELTA_DISPLACEMENT"
+    INTERPOLATE_VALUES_BOOL = "INTERPOLATE_VALUES_BOOL"
 
-    FILTER = 'FILTER'
-    UNFILTER = 'UNFILTER'
+    FILTER = "FILTER"
+    UNFILTER = "UNFILTER"
 
-    PIXELS_POINTS_SELECT = 'PIXELS_POINTS_SELECT'
-    PIXELS_POINTS_FILE = 'PIXELS_POINTS_FILE'
-    #PIXELS_FILE = 'PIXELS_FILE'
-    #POINTS_FILE = 'POINTS_FILE'
+    PIXELS_POINTS_SELECT = "PIXELS_POINTS_SELECT"
+    PIXELS_POINTS_FILE = "PIXELS_POINTS_FILE"
+    # PIXELS_FILE = 'PIXELS_FILE'
+    # POINTS_FILE = 'POINTS_FILE'
 
-    MAXIMUM_RATE_MISSING_VALUES = 'MAXIMUM_RATE_MISSING_VALUES'
-    METRICS = 'METRICS'
-    OPEN_ALL_ASC = 'OPEN_ALL_ASC'
+    MAXIMUM_RATE_MISSING_VALUES = "MAXIMUM_RATE_MISSING_VALUES"
+    METRICS = "METRICS"
+    OPEN_ALL_ASC = "OPEN_ALL_ASC"
 
-    SAVE_PROPERTIES = 'SAVE_PROPERTIES'
+    SAVE_PROPERTIES = "SAVE_PROPERTIES"
 
-    OUTPUT_DIR = 'OUTPUT_DIR'
-    OUTPUT_ASC = 'OUTPUT_ASC'
-    OUTPUT_CSV = 'OUTPUT_CSV'
-    OUTPUT_CSV2 = 'OUTPUT_CSV2'
+    OUTPUT_DIR = "OUTPUT_DIR"
+    OUTPUT_ASC = "OUTPUT_ASC"
+    OUTPUT_CSV = "OUTPUT_CSV"
+    OUTPUT_CSV2 = "OUTPUT_CSV2"
 
-    #COMMENT = 'COMMENT'
+    # COMMENT = 'COMMENT'
 
-    types_of_pixel_point_select = ['pixel(s) file', 'point(s) file']
-    types_of_shape = ['CIRCLE', 'SQUARE', 'FUNCTIONAL']
+    types_of_pixel_point_select = ["pixel(s) file", "point(s) file"]
+    types_of_shape = ["CIRCLE", "SQUARE", "FUNCTIONAL"]
 
-    types_of_shape_abrev = {'CIRCLE': 'cr', 'SQUARE': 'sq', 'FUNCTIONAL': 'fn'}
+    types_of_shape_abrev = {"CIRCLE": "cr", "SQUARE": "sq", "FUNCTIONAL": "fn"}
 
     types_of_metrics = {
         "value metrics": [
@@ -150,7 +155,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "N-valid",
             "Nclass",
             "pN-valid",
-            "N-type"],
+            "N-type",
+        ],
         "couples metrics": [
             "E-hete",
             "E-homo",
@@ -158,14 +164,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "NC-homo",
             "NC-total",
             "NC-valid",
-            "pNC-valid"],
-        "patches metrics": [
-            "LPI",
-            "MPS",
-            "NP",
-            "SDPS"],
-        "connectivity metrics": [
-            "HC"],
+            "pNC-valid",
+        ],
+        "patches metrics": ["LPI", "MPS", "NP", "SDPS"],
+        "connectivity metrics": ["HC"],
         "diversity metrics": [
             "HET",
             "HET-agg",
@@ -173,16 +175,9 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "SHDI",
             "SHEI",
             "SIDI",
-            "SIEI"],
-        "landspace grain": [
-            "MD",
-            "LG3",
-            "LG4",
-            "LG5",
-            "MD3",
-            "MD4",
-            "MD5"
+            "SIEI",
         ],
+        "landspace grain": ["MD", "LG3", "LG4", "LG5", "MD3", "MD4", "MD5"],
         "quantitative metrics": [
             "NAT",
             "average",
@@ -193,46 +188,42 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             "standard_deviation",
             "standard_error",
             "sum",
-            "variance"]
+            "variance",
+        ],
     }
 
     types_of_metrics_simple = {
-        "value metrics": [
-            "NV_",
-            "pNV_"],
+        "value metrics": ["NV_", "pNV_"],
         "patches metrics": [
             "LPI-class_",
             "MPS-class_",
             "NP-class_",
             "SDPS-class_",
-            "VCPS-class_"],
-        "connectivity metrics": [
-            "AI_",
-            "HC-class_"]
+            "VCPS-class_",
+        ],
+        "connectivity metrics": ["AI_", "HC-class_"],
     }
 
     types_of_metrics_cross = {
-        "couples metrics": [
-            "E_",
-            "NC_",
-            "pNC_"],
+        "couples metrics": ["E_", "NC_", "pNC_"],
         "diversity metrics": [
             # "HETC_"
-        ]
+        ],
     }
 
     def __init__(self):
         super().__init__()
         self.output_values = {}
-        self.f_path = ''  # Path of properties files
+        self.f_path = ""  # Path of properties files
 
     def icon(self):
-        iconPath = os.path.normpath(os.path.join(
-            os.path.dirname(__file__), 'images', 'chloe_icon.png'))
+        iconPath = os.path.normpath(
+            os.path.join(os.path.dirname(__file__), "images", "chloe_icon.png")
+        )
         return QIcon(iconPath)
 
     def tags(self):
-        return ['chloe', self.commandName()]
+        return ["chloe", self.commandName()]
 
     # def svgIconPath(self):
     #    return QgsApplication.iconPath("providerChloe.svg")
@@ -244,7 +235,10 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         return ChloeAlgorithmDialog(self, parent=parent)
 
     def flags(self):
-        return QgsProcessingAlgorithm.FlagSupportsBatch | QgsProcessingAlgorithm.FlagNoThreading  # cannot cancel!
+        return (
+            QgsProcessingAlgorithm.FlagSupportsBatch
+            | QgsProcessingAlgorithm.FlagNoThreading
+        )  # cannot cancel!
 
     # def getConsoleCommandsJava(self, f_save_properties, force_properties=None):
 
@@ -256,7 +250,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
-            parameters, self.SAVE_PROPERTIES, context)
+            parameters, self.SAVE_PROPERTIES, context
+        )
 
         if f_save_properties:
             self.f_path = f_save_properties
@@ -268,21 +263,21 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         # If JAVA provider parameter in defined use it (Typical Windows Case), else use simple 'java' command (Linux Case)
         java = ProcessingConfig.getSetting(ChloeUtils.JAVA)
         if java:
-            arguments = ['"'+java+'"']
+            arguments = ['"' + java + '"']
         else:
-            arguments = ['java']
-        arguments.append('-jar')
-        arguments.append('bin' + os.sep + 'chloe-4.0.jar')
+            arguments = ["java"]
+        arguments.append("-jar")
+        arguments.append("bin" + os.sep + "chloe-4.1.jar")
 
         # Get temp file path if not existe
         force_properties = False  # TODO implementation of this
-        if force_properties:    # Force properties path
-            arguments.append('"'+force_properties+'"')
+        if force_properties:  # Force properties path
+            arguments.append('"' + force_properties + '"')
         else:
             if not self.f_path:
-                #self.f_path = self.getOutputValue(self.SAVE_PROPERTIES)
+                # self.f_path = self.getOutputValue(self.SAVE_PROPERTIES)
                 self.f_path = f_save_properties
-            arguments.append('"'+self.f_path+'"')
+            arguments.append('"' + self.f_path + '"')
 
         return arguments
 
@@ -318,81 +313,97 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         # Load OUTPUT_ASC on temp layer on context id checked box checked
         #    (it will be load after in the project)
 
-        if ('OUTPUT_ASC' in parameters) and 'openLayer' in parameters['OUTPUT_ASC'] and parameters['OUTPUT_ASC']['openLayer'] == True:
+        if (
+            ("OUTPUT_ASC" in parameters)
+            and "openLayer" in parameters["OUTPUT_ASC"]
+            and parameters["OUTPUT_ASC"]["openLayer"] == True
+        ):
             # Load OUTPUT_ASC on temp layer on context
             #    (it will be load after in the project)
 
-            output_asc = parameters['OUTPUT_ASC']["data"]
+            output_asc = parameters["OUTPUT_ASC"]["data"]
             rlayer = QgsRasterLayer(output_asc, "hillshade")
             if not rlayer.isValid():
                 raise QgsProcessingException(
-                    self.tr("""Cannot load the output in the application"""))
+                    self.tr("""Cannot load the output in the application""")
+                )
 
             rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
-            ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+            ChloeUtils.setLayerSymbology(rlayer, "continuous.qml")
             context.temporaryLayerStore().addMapLayer(rlayer)
-            layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
-                                                             context.project(),
-                                                             self.OUTPUT_ASC)
+            layerDetails = QgsProcessingContext.LayerDetails(
+                rLayerName, context.project(), self.OUTPUT_ASC
+            )
 
             context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
             results[self.OUTPUT_ASC] = rlayer.id()
 
-        if ('OUTPUT_CSV' in parameters) and 'openLayer' in parameters['OUTPUT_CSV'] and parameters['OUTPUT_CSV']['openLayer'] == True:
-            uri = "file:///" + \
-                str(results['OUTPUT_CSV']) + \
-                "?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
-            output_csv = parameters['OUTPUT_CSV']["data"]
-            if 'OUTPUT_ASC' in parameters:
+        if (
+            ("OUTPUT_CSV" in parameters)
+            and "openLayer" in parameters["OUTPUT_CSV"]
+            and parameters["OUTPUT_CSV"]["openLayer"] is True
+        ):
+            uri = (
+                "file:///"
+                + str(results["OUTPUT_CSV"])
+                + "?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
+            )
+            output_csv = parameters["OUTPUT_CSV"]["data"]
+            if "OUTPUT_ASC" in parameters:
                 output_csv = ChloeUtils.adjustExtension(
-                    output_csv, parameters['OUTPUT_ASC']["data"])
+                    output_csv, parameters["OUTPUT_ASC"]["data"]
+                )
 
             tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
-            tLayer = QgsVectorLayer(uri, tLayerName, 'delimitedtext')
+            tLayer = QgsVectorLayer(uri, tLayerName, "delimitedtext")
             if not tLayer.isValid():
                 raise QgsProcessingException(
-                    self.tr("""Cannot load the output in the application"""))
+                    self.tr("""Cannot load the output in the application""")
+                )
 
             context.temporaryLayerStore().addMapLayer(tLayer)
-            layerDetails = QgsProcessingContext.LayerDetails(tLayerName,
-                                                             context.project(),
-                                                             self.OUTPUT_CSV)
+            layerDetails = QgsProcessingContext.LayerDetails(
+                tLayerName, context.project(), self.OUTPUT_CSV
+            )
             context.addLayerToLoadOnCompletion(tLayer.id(), layerDetails)
             results[self.OUTPUT_CSV] = tLayer.id()
 
         # and self.outputFilenames
-        if ('OUTPUT_DIR' in parameters) and ('openLayer' in parameters['OUTPUT_DIR']) and parameters['OUTPUT_DIR']['openLayer'] == True:
+        if (
+            ("OUTPUT_DIR" in parameters)
+            and ("openLayer" in parameters["OUTPUT_DIR"])
+            and parameters["OUTPUT_DIR"]["openLayer"] == True
+        ):
             # === import all asc for multi algorithm
 
-            outputDir = self.parameterAsString(
-                parameters, self.OUTPUT_DIR, context)
+            outputDir = self.parameterAsString(parameters, self.OUTPUT_DIR, context)
             if outputDir != None:
                 # self.prepareMultiProjectionFiles()
                 for file in self.outputFilenames:
-                    #print(file + " " + os.path.splitext(os.path.basename(file))[0])
+                    # print(file + " " + os.path.splitext(os.path.basename(file))[0])
                     rlayer = QgsRasterLayer(
-                        file, os.path.splitext(os.path.basename(file))[0])
-                    #rlayer = QgsRasterLayer(load_it, "hillshade")
+                        file, os.path.splitext(os.path.basename(file))[0]
+                    )
+                    # rlayer = QgsRasterLayer(load_it, "hillshade")
                     # if not rlayer.isValid():
                     #    raise QgsProcessingException(self.tr("""Cannot load the outpout in the application"""))
-                    #rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
-                    #ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+                    # rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+                    # ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
                     # context.temporaryLayerStore().addMapLayer(rlayer)
                     # layerDetails = QgsProcessingContext.LayerDetails(rLayerName,
                     #                                        context.project(),
                     #                                        self.OUTPUT_DIR)
                     #
-                    #context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
+                    # context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
 
                     if rlayer.isValid():
-                        rLayerName = ChloeUtils.deduceLayerName(
-                            rlayer, self.name())
-                        ChloeUtils.setLayerSymbology(rlayer, 'continuous.qml')
+                        rLayerName = ChloeUtils.deduceLayerName(rlayer, self.name())
+                        ChloeUtils.setLayerSymbology(rlayer, "continuous.qml")
                         context.temporaryLayerStore().addMapLayer(rlayer)
                         layerDetails = QgsProcessingContext.LayerDetails(
-                            rLayerName, context.project(), self.OUTPUT_DIR)
-                        context.addLayerToLoadOnCompletion(
-                            rlayer.id(), layerDetails)
+                            rLayerName, context.project(), self.OUTPUT_DIR
+                        )
+                        context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
                     else:
                         pass
 
@@ -409,8 +420,15 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #     return helpPath + '{}.html'.format(self.commandName())
         localeName = QLocale.system().name()
         helpFilename = self.name() + "_" + localeName + ".html"
-        helpfile = os.path.dirname(
-            __file__) + os.sep+"."+os.sep+"help_algorithm"+os.sep + helpFilename
+        helpfile = (
+            os.path.dirname(__file__)
+            + os.sep
+            + "."
+            + os.sep
+            + "help_algorithm"
+            + os.sep
+            + helpFilename
+        )
         return helpfile
 
     def shortHelpString(self):
@@ -421,15 +439,37 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         helpfile = self.helpUrl()
         plugin_path = os.path.dirname(__file__)
 
-        if (isWindows()):
-            context = {'plugin_path': 'file:///'+(plugin_path+os.sep).replace('/', '\\'),
-                       'image_path': 'file:///'+(plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep).replace('/', '\\')}
+        if isWindows():
+            context = {
+                "plugin_path": "file:///" + (plugin_path + os.sep).replace("/", "\\"),
+                "image_path": "file:///"
+                + (
+                    plugin_path
+                    + os.sep
+                    + "."
+                    + os.sep
+                    + "help_algorithm"
+                    + os.sep
+                    + "images"
+                    + os.sep
+                ).replace("/", "\\"),
+            }
         else:
-            context = {'plugin_path': plugin_path+os.sep,
-                       'image_path': plugin_path+os.sep+'.'+os.sep+'help_algorithm'+os.sep+'images'+os.sep}
+            context = {
+                "plugin_path": plugin_path + os.sep,
+                "image_path": plugin_path
+                + os.sep
+                + "."
+                + os.sep
+                + "help_algorithm"
+                + os.sep
+                + "images"
+                + os.sep,
+            }
         # print(helpfile)
         content = ChloeUtils.file_get_contents(
-            helpfile, encoding='utf-8', context=context)
+            helpfile, encoding="utf-8", context=context
+        )
 
         if not (content == None):
             return content
@@ -442,38 +482,39 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
             parameters[param.name()] = "1"
         context = QgsProcessingContext()
         feedback = QgsProcessingFeedback()
-        name = self.getConsoleCommands(
-            parameters, context, feedback, executing=False)[0]
+        name = self.getConsoleCommands(parameters, context, feedback, executing=False)[
+            0
+        ]
         if name.endswith(".py"):
             name = name[:-3]
         return name
 
-    def tr(self, string, context=''):
-        if context == '':
+    def tr(self, string, context=""):
+        if context == "":
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)
 
     def createProjectionFile(self, f_prj, crs=None, layer_crs=None, param=None):
         """Create Projection File"""
 
-        if crs:               # crs given
+        if crs:  # crs given
             crs_output = crs
-        elif layer_crs:          # crs from layer
+        elif layer_crs:  # crs from layer
 
             # Constrution des chemins de sortie des fichiers
             dir_in = os.path.dirname(layer_crs)
             base_in = os.path.basename(layer_crs)
             name_in = os.path.splitext(base_in)[0]
-            path_prj_in = dir_in+os.sep+name_in+'.prj'
+            path_prj_in = dir_in + os.sep + name_in + ".prj"
 
             if os.path.isfile(path_prj_in):
                 crs_output = dataobjects.getObjectFromUri(layer_crs).crs()
 
-            else:                 # crs project
-                #crs_output = iface.mapCanvas().mapRenderer().destinationCrs()
+            else:  # crs project
+                # crs_output = iface.mapCanvas().mapRenderer().destinationCrs()
                 crs_output = iface.mapCanvas().mapSettings().destinationCrs()
-        else:                 # crs project
-            #crs_output = iface.mapCanvas().mapRenderer().destinationCrs()
+        else:  # crs project
+            # crs_output = iface.mapCanvas().mapRenderer().destinationCrs()
             crs_output = iface.mapCanvas().mapSettings().destinationCrs()
 
         # with os.open(f_prj,os.O_CREAT|os.O_WRONLY) as fd:
@@ -481,7 +522,7 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         #     os.write(fd, b_string)
 
         with open(f_prj, "w") as fd:
-            #b_string = str.encode(crs_output.toWkt())
+            # b_string = str.encode(crs_output.toWkt())
             fd.write(crs_output.toWkt())
 
     def prepareMultiProjectionFiles(self):
@@ -495,9 +536,8 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
     def parameterRasterAsFilePath(self, parameters, paramName, context):
         res = self.parameterAsString(parameters, paramName, context)
 
-        if res == None or res == '' or re.match(r"^[a-zA-Z0-9_]+$", res):
-            layer = self.parameterAsRasterLayer(
-                parameters, paramName, context)
-            res = layer.dataProvider().dataSourceUri().split('|')[0]
+        if res == None or res == "" or re.match(r"^[a-zA-Z0-9_]+$", res):
+            layer = self.parameterAsRasterLayer(parameters, paramName, context)
+            res = layer.dataProvider().dataSourceUri().split("|")[0]
 
         return res
