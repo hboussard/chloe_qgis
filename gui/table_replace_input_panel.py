@@ -111,10 +111,21 @@ class TableReplaceInputPanel(BASE, WIDGET):
         # int_values_and_nodata = np.unique(
         #     [int(math.floor(x)) for x in values_and_nodata]
         # )
-        values_and_nodata = np.unique([math.floor(x) for x in values_and_nodata])
+        real_values_and_nodata = np.unique([x for x in values_and_nodata])
+
+        if len(real_values_and_nodata) > 64:
+            QMessageBox.critical(
+                self,
+                self.tr("Input values error"),
+                self.tr(
+                    f"to much input values ({len(real_values_and_nodata)}). Maximum allowed : 64"
+                ),
+            )
+            return
+
         # Dialog list check box
         row = 0
-        for tup in values_and_nodata:
+        for tup in real_values_and_nodata:
             item = QTableWidgetItem()
             item.setText(str(tup))
             self.twAssociation.setItem(row, 0, item)
