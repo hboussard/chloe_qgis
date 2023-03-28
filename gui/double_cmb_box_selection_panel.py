@@ -36,12 +36,20 @@ from ..ChloeUtils import *
 
 pluginPath = os.path.dirname(__file__)
 WIDGET, BASE = uic.loadUiType(
-    os.path.join(pluginPath, 'ui', 'WgtDoubleCmbBoxSelector.ui'))
+    os.path.join(pluginPath, "ui", "WgtDoubleCmbBoxSelector.ui")
+)
 
 
 class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
-
-    def __init__(self, dialog, alg, dictValues={}, initialValue=None, rasterLayerParamName=None, standardGui=True):
+    def __init__(
+        self,
+        dialog,
+        alg,
+        dictValues={},
+        initialValue=None,
+        rasterLayerParamName=None,
+        standardGui=True,
+    ):
         super(DoubleCmbBoxSelectionPanel, self).__init__(None)
         self.setupUi(self)
         self.dialog = dialog
@@ -79,8 +87,9 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
 
     def initCalculateMetric(self):
 
-        rasterLayerParam = self.dialog.mainWidget(
-        ).wrappers[self.rasterLayerParamName].value()
+        rasterLayerParam = (
+            self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
+        )
 
         # 3.10 fix
         if re.match(r"^[a-zA-Z0-9_]+$", rasterLayerParam):
@@ -94,13 +103,12 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
         elif not isinstance(rasterLayerParam, str):
             rasterLayerParam = str(rasterLayerParam)
         try:
-            int_values_and_nodata = ChloeUtils.extractValueNotNull(
-                rasterLayerParam)
+            int_values_and_nodata = ChloeUtils.extractValueNotNull(rasterLayerParam)
             self.dictValues = ChloeUtils.calculateMetric(
                 self.alg.types_of_metrics,
                 self.alg.types_of_metrics_simple,
                 self.alg.types_of_metrics_cross,
-                int_values_and_nodata
+                int_values_and_nodata,
             )
         except:
             self.dictValues = []

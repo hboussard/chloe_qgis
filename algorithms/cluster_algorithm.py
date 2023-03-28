@@ -15,13 +15,14 @@
 """
 
 from builtins import str
-__author__ = 'Jean-Charles Naud/Alkante'
-__date__ = '2017-10-17'
+
+__author__ = "Jean-Charles Naud/Alkante"
+__date__ = "2017-10-17"
 
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 import os
@@ -32,7 +33,7 @@ from qgis.core import (
     QgsProcessingParameterEnum,
     QgsProcessingParameterString,
     QgsProcessingParameterFile,
-    QgsProcessingParameterFileDestination
+    QgsProcessingParameterFileDestination,
 )
 
 from processing.tools.system import getTempFilename, isWindows
@@ -60,137 +61,156 @@ class ClusterAlgorithm(ChloeAlgorithm):
         # === INPUT PARAMETERS ===
 
         inputAscParam = QgsProcessingParameterRasterLayer(
-            name=self.INPUT_ASC,
-            description=self.tr('Input layer asc'))
+            name=self.INPUT_ASC, description=self.tr("Input layer asc")
+        )
 
-        inputAscParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeAscRasterWidgetWrapper'
+        inputAscParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeAscRasterWidgetWrapper"
+                }
             }
-        })
+        )
         self.addParameter(inputAscParam)
 
         # CLUSTER
         fieldsParam = QgsProcessingParameterString(
             name=self.CLUSTER,
-            description=self.tr('Clusters from value(s)'),
-            defaultValue='')
-        fieldsParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper'
+            description=self.tr("Clusters from value(s)"),
+            defaultValue="",
+        )
+        fieldsParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeValuesWidgetWrapper"
+                }
             }
-        })
+        )
         self.addParameter(fieldsParam)
 
         # CLUSTER TYPE
         clusterTypeParam = QgsProcessingParameterEnum(
-            self.CLUSTER_TYPE,
-            self.tr('Cluster type'),
-            self.types_of_cluster)
+            self.CLUSTER_TYPE, self.tr("Cluster type"), self.types_of_cluster
+        )
 
         self.addParameter(clusterTypeParam)
 
-        clusterTypeParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeMultiEnumUpdateStateWidgetWrapper',
-                'dependantWidgetConfig': [{
-                    'paramName': self.CLUSTER_DISTANCE,
-                    'enableValue': '2,3'
-                },
-                    {
-                    'paramName': self.CLUSTER_FRICTION,
-                    'enableValue': '3'
-                }]
+        clusterTypeParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeMultiEnumUpdateStateWidgetWrapper",
+                    "dependantWidgetConfig": [
+                        {"paramName": self.CLUSTER_DISTANCE, "enableValue": "2,3"},
+                        {"paramName": self.CLUSTER_FRICTION, "enableValue": "3"},
+                    ],
+                }
             }
-        })
+        )
 
         # CLUSTER DISTANCE
-        self.addParameter(QgsProcessingParameterNumber(
-            name=self.CLUSTER_DISTANCE,
-            description=self.tr(
-                'Distance in meters (only for euclidean and functional distance)'),
-            type=QgsProcessingParameterNumber.Double,
-            optional=True,
-            minValue=0))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                name=self.CLUSTER_DISTANCE,
+                description=self.tr(
+                    "Distance in meters (only for euclidean and functional distance)"
+                ),
+                type=QgsProcessingParameterNumber.Double,
+                optional=True,
+                minValue=0,
+            )
+        )
 
         # CLUSTER FRICTION
-        self.addParameter(QgsProcessingParameterFile(
-            name=self.CLUSTER_FRICTION,
-            description=self.tr('Friction file'),
-            optional=True))
+        self.addParameter(
+            QgsProcessingParameterFile(
+                name=self.CLUSTER_FRICTION,
+                description=self.tr("Friction file"),
+                optional=True,
+            )
+        )
 
         # CLUSTER MIN AREA
-        self.addParameter(QgsProcessingParameterNumber(
-            name=self.CLUSTER_MIN_AREA,
-            description=self.tr('Minimal area (Ha)'),
-            type=QgsProcessingParameterNumber.Double,
-            defaultValue=0.0,
-            minValue=0.0))
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                name=self.CLUSTER_MIN_AREA,
+                description=self.tr("Minimal area (Ha)"),
+                type=QgsProcessingParameterNumber.Double,
+                defaultValue=0.0,
+                minValue=0.0,
+            )
+        )
 
         # === OUTPUT PARAMETERS ===
 
-        self.addParameter(ChloeCSVParameterFileDestination(
-            name=self.OUTPUT_CSV,
-            description=self.tr('Output csv (*.csv)')))
+        self.addParameter(
+            ChloeCSVParameterFileDestination(
+                name=self.OUTPUT_CSV, description=self.tr("Output csv (*.csv)")
+            )
+        )
 
         fieldsParam = ChloeASCParameterFileDestination(
-            name=self.OUTPUT_ASC,
-            description=self.tr('Output Raster ascii'))
+            name=self.OUTPUT_ASC, description=self.tr("Output Raster ascii")
+        )
 
         self.addParameter(fieldsParam, createOutput=True)
 
-        self.addParameter(QgsProcessingParameterFileDestination(
-            name=self.SAVE_PROPERTIES,
-            description=self.tr('Properties file'),
-            fileFilter='Properties (*.properties)'))
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                name=self.SAVE_PROPERTIES,
+                description=self.tr("Properties file"),
+                fileFilter="Properties (*.properties)",
+            )
+        )
 
     def name(self):
-        return 'cluster'
+        return "cluster"
 
     def displayName(self):
-        return self.tr('cluster')
+        return self.tr("cluster")
 
     def group(self):
-        return self.tr('util')
+        return self.tr("util")
 
     def groupId(self):
-        return 'util'
+        return "util"
 
     def commandName(self):
-        return 'java'
+        return "java"
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
 
         # === INPUT
         self.input_asc = self.parameterRasterAsFilePath(
-            parameters, self.INPUT_ASC, context)
-        self.cluster = self.parameterAsString(
-            parameters, self.CLUSTER, context)
+            parameters, self.INPUT_ASC, context
+        )
+        self.cluster = self.parameterAsString(parameters, self.CLUSTER, context)
 
-        clusterTypeValue = self.parameterAsInt(
-            parameters, self.CLUSTER_TYPE, context)
-        self.cluster_type = self.types_of_cluster[clusterTypeValue].split(' ')[
-            0]
+        clusterTypeValue = self.parameterAsInt(parameters, self.CLUSTER_TYPE, context)
+        self.cluster_type = self.types_of_cluster[clusterTypeValue].split(" ")[0]
 
         self.cluster_min_area = self.parameterAsString(
-            parameters, self.CLUSTER_MIN_AREA, context)
+            parameters, self.CLUSTER_MIN_AREA, context
+        )
 
-        self.cluster_distance = self.parameterAsString(
-            parameters, self.CLUSTER_DISTANCE, context) if clusterTypeValue in [2, 3] else None
+        self.cluster_distance = (
+            self.parameterAsString(parameters, self.CLUSTER_DISTANCE, context)
+            if clusterTypeValue in [2, 3]
+            else None
+        )
 
-        self.cluster_friction = self.parameterAsString(
-            parameters, self.CLUSTER_FRICTION, context) if clusterTypeValue in [3] else None
+        self.cluster_friction = (
+            self.parameterAsString(parameters, self.CLUSTER_FRICTION, context)
+            if clusterTypeValue in [3]
+            else None
+        )
 
         # === OUTPUT
-        self.output_asc = self.parameterAsString(
-            parameters, self.OUTPUT_ASC, context)
+        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
 
-        self.output_csv = self.parameterAsString(
-            parameters, self.OUTPUT_CSV, context)
+        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
 
-        self.output_csv = ChloeUtils.adjustExtension(
-            self.output_csv, self.output_asc)
+        self.output_csv = ChloeUtils.adjustExtension(self.output_csv, self.output_asc)
 
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
@@ -203,7 +223,8 @@ class ClusterAlgorithm(ChloeAlgorithm):
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
-            parameters, self.SAVE_PROPERTIES, context)
+            parameters, self.SAVE_PROPERTIES, context
+        )
 
         if f_save_properties:
             self.f_path = f_save_properties
@@ -218,30 +239,45 @@ class ClusterAlgorithm(ChloeAlgorithm):
         # === CORE
 
         # === Projection file
-        f_prj = dir_out+os.sep+name_out+".prj"
+        f_prj = dir_out + os.sep + name_out + ".prj"
         self.createProjectionFile(f_prj)
 
     def createPropertiesTempFile(self):
         """Create Properties File."""
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w+") as fd:
-            fd.write("#"+s_time+"\n")
+            fd.write("#" + s_time + "\n")
             fd.write("treatment=cluster\n")
             fd.write("visualize_ascii=false\n")
-            fd.write(ChloeUtils.formatString(
-                'input_ascii='+self.input_asc + "\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
-                'output_asc=' + self.output_asc+"\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
-                'output_csv=' + self.output_csv+"\n", isWindows()))
-            fd.write(ChloeUtils.formatString('minimum_total_area=' +
-                                             self.cluster_min_area+"\n", isWindows()))
+            fd.write(
+                ChloeUtils.formatString(
+                    "input_ascii=" + self.input_asc + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "output_asc=" + self.output_asc + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "output_csv=" + self.output_csv + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "minimum_total_area=" + self.cluster_min_area + "\n", isWindows()
+                )
+            )
             fd.write("cluster={" + self.cluster + "}\n")
             fd.write("cluster_type=" + self.cluster_type + "\n")
             if not (self.cluster_distance is None):
-                fd.write("cluster_distance=" +
-                         str(self.cluster_distance) + "\n")
+                fd.write("cluster_distance=" + str(self.cluster_distance) + "\n")
             if not (self.cluster_friction is None):
-                fd.write(ChloeUtils.formatString("cluster_friction=" +
-                                                 str(self.cluster_friction) + "\n", isWindows()))
+                fd.write(
+                    ChloeUtils.formatString(
+                        "cluster_friction=" + str(self.cluster_friction) + "\n",
+                        isWindows(),
+                    )
+                )
             fd.write("minimum_total_area=" + self.cluster_min_area + "\n")

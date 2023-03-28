@@ -30,7 +30,7 @@ from qgis.core import (
     QgsProcessing,
     QgsProcessingParameterMultipleLayers,
     QgsProcessingParameterString,
-    QgsProcessingParameterFileDestination
+    QgsProcessingParameterFileDestination,
 )
 
 from processing.tools.system import getTempFilename, isWindows
@@ -56,23 +56,28 @@ class CombineAlgorithm(ChloeAlgorithm):
         # === INPUT PARAMETERS ===
 
         # INPUT MATRIX
-        self.addParameter(QgsProcessingParameterMultipleLayers(
-            self.INPUTS_MATRIX,
-            self.tr('Input rasters'),
-            QgsProcessing.TypeRaster))
+        self.addParameter(
+            QgsProcessingParameterMultipleLayers(
+                self.INPUTS_MATRIX, self.tr("Input rasters"), QgsProcessing.TypeRaster
+            )
+        )
 
         # COMBINE EXPRESSION
         combineParam = QgsProcessingParameterString(
-            name=self.DOMAINS,
-            description=self.tr('Combination'),
-            defaultValue='')
-        combineParam.setMetadata({
-            'widget_wrapper': {
-                'class': 'Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper',
-                'input_matrix': self.INPUTS_MATRIX,
-                'parentWidgetConfig': {'paramName': self.INPUTS_MATRIX, 'refreshMethod': 'resetFormula'}
+            name=self.DOMAINS, description=self.tr("Combination"), defaultValue=""
+        )
+        combineParam.setMetadata(
+            {
+                "widget_wrapper": {
+                    "class": "Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper",
+                    "input_matrix": self.INPUTS_MATRIX,
+                    "parentWidgetConfig": {
+                        "paramName": self.INPUTS_MATRIX,
+                        "refreshMethod": "resetFormula",
+                    },
+                }
             }
-        })
+        )
 
         self.addParameter(combineParam)
 
@@ -84,46 +89,50 @@ class CombineAlgorithm(ChloeAlgorithm):
 
         # Output Asc
         fieldsParam = ChloeASCParameterFileDestination(
-            name=self.OUTPUT_ASC,
-            description=self.tr('Output Raster ascii'))
+            name=self.OUTPUT_ASC, description=self.tr("Output Raster ascii")
+        )
 
         self.addParameter(fieldsParam, createOutput=True)
 
         # Properties file
-        self.addParameter(QgsProcessingParameterFileDestination(
-            name=self.SAVE_PROPERTIES,
-            description=self.tr('Properties file'),
-            fileFilter='Properties (*.properties)'))
+        self.addParameter(
+            QgsProcessingParameterFileDestination(
+                name=self.SAVE_PROPERTIES,
+                description=self.tr("Properties file"),
+                fileFilter="Properties (*.properties)",
+            )
+        )
 
     def name(self):
-        return 'combine'
+        return "combine"
 
     def displayName(self):
-        return self.tr('Combine')
+        return self.tr("Combine")
 
     def group(self):
-        return self.tr('util')
+        return self.tr("util")
 
     def groupId(self):
-        return 'util'
+        return "util"
 
     def commandName(self):
-        return 'combine'
+        return "combine"
 
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
 
         # === INPUT
-        inputFactors = self.parameterAsString(
-            parameters, self.DOMAINS, context).split('.__.')
+        inputFactors = self.parameterAsString(parameters, self.DOMAINS, context).split(
+            ".__."
+        )
 
         self.combination = inputFactors[1]
         self.input_asc = inputFactors[0]
 
+        print(self.combination)
         # === OUTPUT
 
-        self.output_asc = self.parameterAsString(
-            parameters, self.OUTPUT_ASC, context)
+        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
 
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -134,7 +143,8 @@ class CombineAlgorithm(ChloeAlgorithm):
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
-            parameters, self.SAVE_PROPERTIES, context)
+            parameters, self.SAVE_PROPERTIES, context
+        )
 
         if f_save_properties:
             self.f_path = f_save_properties
@@ -146,19 +156,24 @@ class CombineAlgorithm(ChloeAlgorithm):
         self.createPropertiesTempFile()
 
         # === Projection file
-        f_prj = dir_out+os.sep+name_out+".prj"
+        f_prj = dir_out + os.sep + name_out + ".prj"
         self.createProjectionFile(f_prj)
 
     def createPropertiesTempFile(self):
         """Create Properties File."""
         s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
         with open(self.f_path, "w+") as fd:
-            fd.write("#"+s_time+"\n")
+            fd.write("#" + s_time + "\n")
             fd.write("visualize_ascii=false\n")
-            fd.write('treatment=combine'+"\n")
+            fd.write("treatment=combine" + "\n")
+            fd.write("combination=" + self.combination + "\n")
             fd.write(
-                'combination='+self.combination+"\n")
-            fd.write(ChloeUtils.formatString(
-                'output_asc=' + self.output_asc+"\n", isWindows()))
-            fd.write(ChloeUtils.formatString(
-                'factors={'+self.input_asc+"}\n", isWindows()))
+                ChloeUtils.formatString(
+                    "output_asc=" + self.output_asc + "\n", isWindows()
+                )
+            )
+            fd.write(
+                ChloeUtils.formatString(
+                    "factors={" + self.input_asc + "}\n", isWindows()
+                )
+            )
