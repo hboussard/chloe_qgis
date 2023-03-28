@@ -47,6 +47,7 @@ from qgis.PyQt.QtWidgets import (
     QComboBox,
     QCheckBox,
     QFileDialog,
+    QLayout,
 )
 
 from qgis.core import (
@@ -64,15 +65,29 @@ from qgis.core import (
     QgsExpressionContext,
     QgsProcessingParameterExtent,
     QgsProcessingModelAlgorithm,
+    QgsProcessingParameterMultipleLayers,
+    QgsProcessingParameterString,
+    QgsProcessingParameterNumber,
+    QgsProcessingParameterDistance,
+    QgsProcessingParameterFile,
+    QgsProcessingParameterField,
+    QgsProcessingParameterExpression,
+    QgsProcessingOutputString,
+    QgsProcessingOutputFile,
 )
 
 from qgis.gui import (
     QgsProjectionSelectionWidget,
     QgsProcessingLayerOutputDestinationWidget,
     QgsProcessingHiddenWidgetWrapper,
+    QgsProcessingParametersGenerator,
+    QgsPanelWidget,
     QgsProcessingParameterWidgetContext,
     QgsGui,
     QgsProcessingGui,
+    QgsTextFormatWidget,
+    QgsDoubleSpinBox,
+    QgsProcessingMapLayerComboBox,
 )
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
@@ -86,12 +101,15 @@ from processing.gui.wrappers import (
     WidgetWrapper,
     EnumWidgetWrapper,
     WidgetWrapperFactory,
+    StringWidgetWrapper,
 )
 from processing.tools.dataobjects import createContext
 
 from processing.gui.ParametersPanel import ParametersPanel
 
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
+
+from processing.modeler.MultilineTextPanel import MultilineTextPanel
 
 from .ChloePostProcessing import ChloehandleAlgorithmResults
 
@@ -189,10 +207,13 @@ class ChloeParametersPanel(ParametersPanel):
                         if isinstance(widget, FileSelectionPanel):
                             widget.leText.textChanged.connect(m)
                         elif isinstance(p, RasterWidgetWrapper):
-                            try:
-                                p.combo.valueChanged.connect(m)  # QGIS 3.8 version
-                            except:
-                                p.combo.currentIndexChanged.connect(m)  # QGIS LTR 3.4
+                            p.combo.valueChanged.connect(m)
+                            # try:
+                            #     p.combo.valueChanged.connect(m)  # QGIS 3.8 version
+
+                            # except:
+                            #     p.combo.currentIndexChanged.connect(m)  # QGIS LTR 3.4
+                            #     print("3.4")
                         elif isinstance(widget, MultipleInputPanel):
                             try:
                                 widget.selectionChanged.connect(m)
@@ -210,18 +231,24 @@ class ChloeParametersPanel(ParametersPanel):
                                 widget2.leText.textChanged.connect(m2)
 
                             elif isinstance(p2, RasterWidgetWrapper):
-                                try:
-                                    p2.combo.valueChanged.connect(
-                                        m2
-                                    )  # QGIS 3.8 version
-                                except:
-                                    p2.combo.currentIndexChanged.connect(
-                                        m2
-                                    )  # QGIS LTR 3.4
+                                p2.combo.valueChanged.connect(m2)
+                                # try:
+                                #     p2.combo.valueChanged.connect(
+                                #         m2
+                                #     )  # QGIS 3.8 version
+                                # except:
+                                #     p2.combo.currentIndexChanged.connect(
+                                #         m2
+                                #     )  # QGIS LTR 3.4
                         except:
                             pass
 
-    def createProcessingParameters(self):
+    def createProcessingParameters(
+        self, flags=QgsProcessingParametersGenerator.Flags()
+    ):
+        include_default = not (
+            flags & QgsProcessingParametersGenerator.Flag.SkipDefaultValueParameters
+        )
         parameters = {}
         for p, v in self.extra_parameters.items():
             parameters[p] = v
@@ -253,7 +280,8 @@ class ChloeParametersPanel(ParametersPanel):
                     continue
 
                 value = wrapper.parameterValue()
-                parameters[param.name()] = value
+                if param.defaultValue() != value or include_default:
+                    parameters[param.name()] = value
 
                 if not param.checkValueIsAcceptable(value):
                     raise AlgorithmDialogBase.InvalidParameterValue(param, widget)
@@ -278,7 +306,7 @@ class ChloeParametersPanel(ParametersPanel):
 
                 if value and isinstance(value, QgsProcessingOutputLayerDefinition):
                     value.destinationProject = dest_project
-                if value:
+                if value and (param.defaultValue() != value or include_default):
                     parameters[param.name()] = value
 
                     context = createContext()
@@ -380,32 +408,17 @@ class ChloeParametersPanel(ParametersPanel):
             w.destinationChanged.connect(self.parametersHaveChanged)
 
     def parametersHaveChanged(self):
-
         context = createContext()
         feedback = QgsProcessingFeedback()
-
-        for output in self.algorithm().destinationParameterDefinitions():
-
-            if isinstance(
-                output,
-                (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination),
-            ):
-
-                try:
-                    wrapper = self.wrappers[output.name()]
-                except KeyError:
-                    continue
-
-                widget = wrapper.wrappedWidget()
-
-                if hasattr(output, "addToMapDefaultState"):
-                    for w in widget.children():
-                        if isinstance(w, QCheckBox):
-                            if w.checkState():
-                                w.setChecked(output.addToMapDefaultState)
-
         try:
-            parameters = self.dialog.createProcessingParameters()
+            # messy as all heck, but we don't want to call the dialog's implementation of
+            # createProcessingParameters as we want to catch the exceptions raised by the
+            # parameter panel instead...
+            parameters = (
+                {}
+                if self.dialog.mainWidget() is None
+                else self.dialog.mainWidget().createProcessingParameters()
+            )
             for output in self.algorithm().destinationParameterDefinitions():
                 if not output.name() in parameters or parameters[output.name()] is None:
                     if (
@@ -413,7 +426,6 @@ class ChloeParametersPanel(ParametersPanel):
                         & QgsProcessingParameterDefinition.FlagOptional
                     ):
                         parameters[output.name()] = self.tr("[temporary file]")
-
             for p in self.algorithm().parameterDefinitions():
                 if p.flags() & QgsProcessingParameterDefinition.FlagHidden:
                     continue
@@ -431,21 +443,87 @@ class ChloeParametersPanel(ParametersPanel):
                     self.text.setPlainText("")
                     return
 
-            commands = self.algorithm().getConsoleCommands(
-                parameters, context, feedback, executing=False
-            )
-            # print(f'commands {commands}')
-            commands = [c for c in commands if c not in ["cmd.exe", "/C "]]
-            self.text.setPlainText(" ".join(commands))
+            try:
+                commands = self.algorithm().getConsoleCommands(
+                    parameters, context, feedback, executing=False
+                )
+                commands = [c for c in commands if c not in ["cmd.exe", "/C "]]
+                self.text.setPlainText(" ".join(commands))
+            except QgsProcessingException as e:
+                self.text.setPlainText(str(e))
         except AlgorithmDialogBase.InvalidParameterValue as e:
-            # print(f'except {e}')
             self.text.setPlainText(
                 self.tr("Invalid value for parameter '{0}'").format(
                     e.parameter.description()
                 )
             )
-            if e.parameter.name() == "MAP_CSV":
-                raise
+        except AlgorithmDialogBase.InvalidOutputExtension as e:
+            self.text.setPlainText(e.message)
+        # context = createContext()
+        # feedback = QgsProcessingFeedback()
+
+        # for output in self.algorithm().destinationParameterDefinitions():
+
+        #     if isinstance(
+        #         output,
+        #         (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination),
+        #     ):
+
+        #         try:
+        #             wrapper = self.wrappers[output.name()]
+        #         except KeyError:
+        #             continue
+
+        #         widget = wrapper.wrappedWidget()
+
+        #         if hasattr(output, "addToMapDefaultState"):
+        #             for w in widget.children():
+        #                 if isinstance(w, QCheckBox):
+        #                     if w.checkState():
+        #                         w.setChecked(output.addToMapDefaultState)
+
+        # try:
+        #     parameters = self.dialog.createProcessingParameters()
+        #     for output in self.algorithm().destinationParameterDefinitions():
+        #         if not output.name() in parameters or parameters[output.name()] is None:
+        #             if (
+        #                 not output.flags()
+        #                 & QgsProcessingParameterDefinition.FlagOptional
+        #             ):
+        #                 parameters[output.name()] = self.tr("[temporary file]")
+
+        #     for p in self.algorithm().parameterDefinitions():
+        #         if p.flags() & QgsProcessingParameterDefinition.FlagHidden:
+        #             continue
+
+        #         if (
+        #             p.flags() & QgsProcessingParameterDefinition.FlagOptional
+        #             and p.name() not in parameters
+        #         ):
+        #             continue
+
+        #         if p.name() not in parameters or not p.checkValueIsAcceptable(
+        #             parameters[p.name()]
+        #         ):
+        #             # not ready yet
+        #             self.text.setPlainText("")
+        #             return
+
+        #     commands = self.algorithm().getConsoleCommands(
+        #         parameters, context, feedback, executing=False
+        #     )
+        #     # print(f'commands {commands}')
+        #     commands = [c for c in commands if c not in ["cmd.exe", "/C "]]
+        #     self.text.setPlainText(" ".join(commands))
+        # except AlgorithmDialogBase.InvalidParameterValue as e:
+        #     # print(f'except {e}')
+        #     self.text.setPlainText(
+        #         self.tr("Invalid value for parameter '{0}'").format(
+        #             e.parameter.description()
+        #         )
+        #     )
+        #     if e.parameter.name() == "MAP_CSV":
+        #         raise
 
 
 class ChloeFieldsFromCSVWidgetWrapper(WidgetWrapper):
@@ -513,10 +591,14 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
             )
         # MODELER GUI
         else:
-            widget = QLineEdit()
-            widget.setPlaceholderText("1;2;5")
-            if self.parameterDefinition().defaultValue():
-                widget.setText(self.parameterDefinition().defaultValue())
+            # if isinstance(layout, (QVBoxLayout)):
+            #     if layout.objectName() == target_layout_name:
+            #         layout.insertWidget(position, widget)
+            print(super().__dict__)
+            widget = QLineEdit()  # QgsPanelWidget()
+            # widget.setPlaceholderText("1;2;5")
+            # if self.parameterDefinition().defaultValue():
+            #     widget.setText(self.parameterDefinition().defaultValue())
             return widget
 
     def setValue(self, value):
@@ -524,20 +606,53 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
         if value is None:
             return
         # STANDARD AND BATCH GUI
-        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
+        if self.dialogType in (DIALOG_STANDARD, DIALOG_BATCH):
             self.widget.setValue(str(value))
         # MODELER GUI
-        else:
-            self.widget.setText(str(value))
+        # else:
+        #     pass
+        # self.widget.setText(str(value))
+        # if self.parameterDefinition().multiLine():
+        #     self.widget.setValue(value)
+        # else:
+        #     self.setComboValue(value)
 
     def value(self):
         """Get value on the widget/component."""
         # STANDARD AND BATCH GUI
-        if self.dialogType == DIALOG_STANDARD or self.dialogType == DIALOG_BATCH:
+        if self.dialogType in (DIALOG_STANDARD, DIALOG_BATCH):
             return self.widget.getValue()
         # MODELER GUI
-        else:
-            return self.widget.text()
+        # else:
+        #     pass
+        # return self.widget.text()
+
+        # if self.parameterDefinition().multiLine():
+        #     value = self.widget.getValue()
+        #     option = self.widget.getOption()
+        #     if option == MultilineTextPanel.USE_TEXT:
+        #         if value == "":
+        #             if (
+        #                 self.parameterDefinition().flags()
+        #                 & QgsProcessingParameterDefinition.FlagOptional
+        #             ):
+        #                 return None
+        #             else:
+        #                 raise InvalidParameterValue()
+        #         else:
+        #             return value
+        #     else:
+        #         return value
+        # else:
+
+        #     def validator(v):
+        #         return (
+        #             bool(v)
+        #             or self.parameterDefinition().flags()
+        #             & QgsProcessingParameterDefinition.FlagOptional
+        #         )
+
+        #     return self.comboValue(validator)
 
 
 class ChloeClassificationTableWidgetWrapper(WidgetWrapper):
@@ -594,10 +709,19 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
             )
         # BATCH AND MODELER GUI
         else:
+            if self.dialogType == DIALOG_MODELER:
+                print("test modeler")
+                print(
+                    self.dialog.getAvailableValuesOfType(
+                        QgsProcessingParameterMultipleLayers
+                    )
+                )
             widget = QLineEdit()
             widget.setPlaceholderText("Combination Formula")
             if self.parameterDefinition().defaultValue():
                 widget.setText(self.parameterDefinition().defaultValue())
+            else:
+                widget.setText("m1")
             return widget
 
     def setValue(self, value):
@@ -774,7 +898,7 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
                 rasterLayerParamName,
             )
         # BATCH GUI
-        elif self.dialogType == DIALOG_BATCH:
+        elif self.dialogType in (DIALOG_BATCH, DIALOG_MODELER):
             return DoubleCmbBoxSelectionPanel(
                 self.dialog,
                 self.param.algorithm(),
@@ -785,12 +909,12 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
             )
             # get raster values
         # MODELER GUI
-        else:
-            widget = QLineEdit()
-            widget.setPlaceholderText("")
-            if self.parameterDefinition().defaultValue():
-                widget.setText(self.parameterDefinition().defaultValue())
-            return widget
+        # else:
+        #     widget = QLineEdit()
+        #     widget.setPlaceholderText("")
+        #     if self.parameterDefinition().defaultValue():
+        #         widget.setText(self.parameterDefinition().defaultValue())
+        #     return widget
 
     def setValue(self, value):
         """Set value on the widget/component."""
