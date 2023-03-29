@@ -129,7 +129,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
         # Dialog list check box
         row = 0
         for tup in real_values_and_nodata:
-            if tup.is_integer():
+            if float(tup).is_integer():
                 input_value = int(tup)
             else:
                 input_value = tup
@@ -164,17 +164,26 @@ class TableReplaceInputPanel(BASE, WIDGET):
             pass
 
     def applyCSVMap(self):
+
         try:
             if self.mapFile:
-                if os.path.exists(self.mapFile):
-                    # print('before open header')
-                    with open(self.mapFile, "r") as f:
-                        line = next(f)
-                    headers = list(filter(None, re.split("\n|;| |,", line)))
-                    name_col = self.cmbBox.currentText()
-                    idex_col = headers[1:].index(name_col) + 1
+                pass
         except:
             return
+
+        if self.mapFile:
+            if os.path.exists(self.mapFile):
+                # print('before open header')
+                with open(self.mapFile, "r") as f:
+                    line = next(f)
+                headers = list(filter(None, re.split("\n|;| |,", line)))
+                name_col = self.cmbBox.currentText()
+                idex_col = headers[1:].index(name_col) + 1
+            else:
+                QMessageBox.critical(
+                    self, self.tr("Select csv"), self.tr("No csv file selected")
+                )
+                return
 
         t_ass = []  # Table d'association
         if self.mapFile:
