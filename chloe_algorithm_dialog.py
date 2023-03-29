@@ -201,7 +201,11 @@ class ChloeParametersPanel(ParametersPanel):
 
                     if m is not None:
 
-                        widget = p.wrappedWidget()
+                        # widget = p.wrappedWidget()
+                        if issubclass(p.__class__, WidgetWrapper):
+                            widget = p.widget
+                        else:
+                            widget = p.wrappedWidget()
                         # todo generalize valueChanged handling
                         # to any type of widget componant
                         if isinstance(widget, FileSelectionPanel):
@@ -410,6 +414,7 @@ class ChloeParametersPanel(ParametersPanel):
     def parametersHaveChanged(self):
         context = createContext()
         feedback = QgsProcessingFeedback()
+
         try:
             # messy as all heck, but we don't want to call the dialog's implementation of
             # createProcessingParameters as we want to catch the exceptions raised by the
@@ -754,7 +759,7 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         """Label create"""
         if self.dialogType == DIALOG_STANDARD:
             return super().createLabel()
-        else:
+        else:  # ?????
             return super().createLabel()
 
     def createWidget(self, parentWidgetConfig=None):
