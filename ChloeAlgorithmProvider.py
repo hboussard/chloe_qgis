@@ -17,21 +17,20 @@
 ***************************************************************************
 """
 
-__author__ = 'Jean-Charles Naud/Alkante'
-__date__ = 'August 2012'
-__copyright__ = '(C) 2012, Victor Olaya'
+__author__ = "Jean-Charles Naud/Alkante"
+__date__ = "August 2012"
+__copyright__ = "(C) 2012, Victor Olaya"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
+from .helpers.constants import JAVA
 
 from qgis.PyQt.QtCore import QCoreApplication
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import (QgsApplication,
-                       QgsProcessingProvider,
-                       QgsRuntimeProfiler)
+from qgis.core import QgsApplication, QgsProcessingProvider, QgsRuntimeProfiler
 from processing.core.ProcessingConfig import ProcessingConfig, Setting
 from .ChloeUtils import ChloeUtils
 
@@ -54,52 +53,51 @@ from .algorithms.combine_algorithm import CombineAlgorithm
 
 
 class ChloeAlgorithmProvider(QgsProcessingProvider):
-
     def __init__(self):
         super().__init__()
         self.algs = []
 
     def load(self):
-        with QgsRuntimeProfiler.profile('Chloe Provider'):
+        with QgsRuntimeProfiler.profile("Chloe Provider"):
             ProcessingConfig.settingIcons[self.name()] = self.icon()
-            ProcessingConfig.addSetting(Setting(self.name(), 'ACTIVATE_CHLOE',
-                                                self.tr('Activate'), True))
-            ProcessingConfig.addSetting(Setting(
-                self.name(),
-                ChloeUtils.JAVA,
-                self.tr('Path java exe'),
-                ''))
+            ProcessingConfig.addSetting(
+                Setting(self.name(), "ACTIVATE_CHLOE", self.tr("Activate"), True)
+            )
+            ProcessingConfig.addSetting(
+                Setting(self.name(), JAVA, self.tr("Path java exe"), "")
+            )
             ProcessingConfig.readSettings()
             self.refreshAlgorithms()
         return True
 
     def unload(self):
-        ProcessingConfig.removeSetting('ACTIVATE_CHLOE')
-        ProcessingConfig.removeSetting(ChloeUtils.JAVA)
+        ProcessingConfig.removeSetting("ACTIVATE_CHLOE")
+        ProcessingConfig.removeSetting(JAVA)
 
     def isActive(self):
-        return ProcessingConfig.getSetting('ACTIVATE_CHLOE')
+        return ProcessingConfig.getSetting("ACTIVATE_CHLOE")
 
     def setActive(self, active):
-        ProcessingConfig.setSettingValue('ACTIVATE_CHLOE', active)
+        ProcessingConfig.setSettingValue("ACTIVATE_CHLOE", active)
 
     def name(self):
-        return 'Chloe - Landscape metrics'
+        return "Chloe - Landscape metrics"
 
     def longName(self):
-        #version = ChloeUtils.readableVersion()
+        # version = ChloeUtils.readableVersion()
         # return 'CHLOE ({})'.format(version)
-        return 'Chloe - Landscape metrics'
+        return "Chloe - Landscape metrics"
 
     def id(self):
-        return 'chloe'
+        return "chloe"
 
     def helpId(self):
-        return 'chloe'
+        return "chloe"
 
     def icon(self):
-        iconPath = os.path.normpath(os.path.join(
-            os.path.dirname(__file__), 'images', 'chloe_icon.png'))
+        iconPath = os.path.normpath(
+            os.path.join(os.path.dirname(__file__), "images", "chloe_icon.png")
+        )
         return QIcon(iconPath)
 
     # def svgIconPath(self):
@@ -122,7 +120,7 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
             OverlayAlgorithm(),
             FilterAlgorithm(),
             SearchAndReplaceAlgorithm(),
-            CombineAlgorithm()
+            CombineAlgorithm(),
         ]
         for a in self.algs:
             self.addAlgorithm(a)
@@ -136,7 +134,7 @@ class ChloeAlgorithmProvider(QgsProcessingProvider):
         """
         return False
 
-    def tr(self, string, context=''):
-        if context == '':
-            context = 'ChloeAlgorithmProvider'
+    def tr(self, string, context=""):
+        if context == "":
+            context = "ChloeAlgorithmProvider"
         return QCoreApplication.translate(context, string)

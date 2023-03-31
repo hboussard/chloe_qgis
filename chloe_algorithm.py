@@ -261,13 +261,13 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                 self.f_path = getTempFilename(ext="properties")
 
         # If JAVA provider parameter in defined use it (Typical Windows Case), else use simple 'java' command (Linux Case)
-        java = ProcessingConfig.getSetting(ChloeUtils.JAVA)
+        java = ProcessingConfig.getSetting(JAVA)
         if java:
             arguments = ['"' + java + '"']
         else:
             arguments = ["java"]
         arguments.append("-jar")
-        arguments.append("bin" + os.sep + "chloe-4.1.jar")
+        arguments.append(f"bin{os.sep}{CHLOE_BIN_NAME}")
 
         # Get temp file path if not existe
         force_properties = False  # TODO implementation of this
