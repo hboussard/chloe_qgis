@@ -59,35 +59,16 @@ from qgis.core import (
     QgsProcessingParameterFolderDestination,
     QgsProcessingParameters,
     QgsProcessingParameterVectorDestination,
-    QgsProcessingOutputLayerDefinition,
     QgsProcessingParameterRasterDestination,
     QgsProcessingParameterFile,
-    QgsExpressionContext,
-    QgsProcessingParameterExtent,
-    QgsProcessingModelAlgorithm,
+    QgsProcessingException,
     QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterString,
-    QgsProcessingParameterNumber,
-    QgsProcessingParameterDistance,
     QgsProcessingParameterFile,
-    QgsProcessingParameterField,
-    QgsProcessingParameterExpression,
-    QgsProcessingOutputString,
-    QgsProcessingOutputFile,
 )
 
 from qgis.gui import (
     QgsProjectionSelectionWidget,
     QgsProcessingLayerOutputDestinationWidget,
-    QgsProcessingHiddenWidgetWrapper,
-    QgsProcessingParametersGenerator,
-    QgsPanelWidget,
-    QgsProcessingParameterWidgetContext,
-    QgsGui,
-    QgsProcessingGui,
-    QgsTextFormatWidget,
-    QgsDoubleSpinBox,
-    QgsProcessingMapLayerComboBox,
 )
 
 from processing.gui.AlgorithmDialog import AlgorithmDialog
@@ -100,8 +81,6 @@ from processing.gui.FileSelectionPanel import FileSelectionPanel
 from processing.gui.wrappers import (
     WidgetWrapper,
     EnumWidgetWrapper,
-    WidgetWrapperFactory,
-    StringWidgetWrapper,
 )
 from processing.tools.dataobjects import createContext
 
@@ -175,206 +154,34 @@ class ChloeParametersPanel(ParametersPanel):
 
         super().initWidgets()
 
-        # if isinstance(
-        #     output,
-        #     (
-        #         ChloeCSVParameterFileDestination,
-        #         ChloeASCParameterFileDestination,
-        #         ChloeParameterFolderDestination,
-        #     ),
-        # ):
-        #     if hasattr(output, "addToMapDefaultState"):
-        #         for w in widget.children():
-        #             if isinstance(w, QCheckBox):
-        #                 w.setChecked(output.addToMapDefaultState)
-
         for k in self.wrappers:
             w = self.wrappers[k]
             if hasattr(w, "getParentWidgetConfig"):
-                # print(str(w) + " "  + "getParentWidgetConfig")
                 config = w.getParentWidgetConfig()
+                print(config)
                 if config is not None:
-
-                    # LINKED PARAMETER ONE
-                    p = self.wrappers[config["paramName"]]
-                    m = getattr(w, config["refreshMethod"])
-
-                    if m is not None:
-
-                        # widget = p.wrappedWidget()
-                        if issubclass(p.__class__, WidgetWrapper):
-                            widget = p.widget
+                    linked_params = config.get("linkedParams", [])
+                    for linked_param in linked_params:
+                        p = self.wrappers[linked_param["paramName"]]
+                        m = getattr(w, linked_param["refreshMethod"])
+                        if m is not None:
+                            widget = (
+                                p.widget
+                                if issubclass(p.__class__, WidgetWrapper)
+                                else p.wrappedWidget()
+                            )
+                            # add here widget signal connections
+                            if isinstance(widget, FileSelectionPanel):
+                                widget.leText.textChanged.connect(m)
+                            elif isinstance(p, RasterWidgetWrapper):
+                                p.combo.valueChanged.connect(m)
+                            elif isinstance(widget, MultipleInputPanel):
+                                try:
+                                    widget.selectionChanged.connect(m)
+                                except:
+                                    pass
                         else:
-                            widget = p.wrappedWidget()
-                        # todo generalize valueChanged handling
-                        # to any type of widget componant
-                        if isinstance(widget, FileSelectionPanel):
-                            widget.leText.textChanged.connect(m)
-                        elif isinstance(p, RasterWidgetWrapper):
-                            p.combo.valueChanged.connect(m)
-                            # try:
-                            #     p.combo.valueChanged.connect(m)  # QGIS 3.8 version
-
-                            # except:
-                            #     p.combo.currentIndexChanged.connect(m)  # QGIS LTR 3.4
-                            #     print("3.4")
-                        elif isinstance(widget, MultipleInputPanel):
-                            try:
-                                widget.selectionChanged.connect(m)
-                            except:
-                                pass
-                                # p.combo.currentIndexChanged.connect(m)
-
-                        # LINKED PARAMETER TWO
-                        try:
-                            p2 = self.wrappers[config["paramName2"]]
-                            m2 = getattr(w, config["refreshMethod2"])
-
-                            widget2 = p2.wrappedWidget()
-                            if isinstance(widget2, FileSelectionPanel):
-                                widget2.leText.textChanged.connect(m2)
-
-                            elif isinstance(p2, RasterWidgetWrapper):
-                                p2.combo.valueChanged.connect(m2)
-                                # try:
-                                #     p2.combo.valueChanged.connect(
-                                #         m2
-                                #     )  # QGIS 3.8 version
-                                # except:
-                                #     p2.combo.currentIndexChanged.connect(
-                                #         m2
-                                #     )  # QGIS LTR 3.4
-                        except:
-                            pass
-
-    def createProcessingParameters(
-        self, flags=QgsProcessingParametersGenerator.Flags()
-    ):
-        include_default = not (
-            flags & QgsProcessingParametersGenerator.Flag.SkipDefaultValueParameters
-        )
-        parameters = {}
-        for p, v in self.extra_parameters.items():
-            parameters[p] = v
-
-        for param in self.algorithm().parameterDefinitions():
-            # print(param)
-
-            if param.flags() & QgsProcessingParameterDefinition.FlagHidden:
-                continue
-            if not param.isDestination():
-                try:
-                    wrapper = self.wrappers[param.name()]
-                except KeyError:
-                    continue
-
-                # For compatibility with 3.x API, we need to check whether the wrapper is
-                # the deprecated WidgetWrapper class. If not, it's the newer
-                # QgsAbstractProcessingParameterWidgetWrapper class
-                # TODO QGIS 4.0 - remove
-                if issubclass(wrapper.__class__, WidgetWrapper):
-                    widget = wrapper.widget
-                else:
-                    widget = wrapper.wrappedWidget()
-
-                if (
-                    not isinstance(wrapper, QgsProcessingHiddenWidgetWrapper)
-                    and widget is None
-                ):
-                    continue
-
-                value = wrapper.parameterValue()
-                if param.defaultValue() != value or include_default:
-                    parameters[param.name()] = value
-
-                if not param.checkValueIsAcceptable(value):
-                    raise AlgorithmDialogBase.InvalidParameterValue(param, widget)
-            else:
-                if self.in_place and param.name() == "OUTPUT":
-                    parameters[param.name()] = "memory:"
-                    continue
-
-                try:
-                    wrapper = self.wrappers[param.name()]
-                except KeyError:
-                    continue
-
-                widget = wrapper.wrappedWidget()
-                value = wrapper.parameterValue()
-
-                dest_project = None
-
-                if wrapper.customProperties().get("OPEN_AFTER_RUNNING"):
-
-                    dest_project = QgsProject.instance()
-
-                if value and isinstance(value, QgsProcessingOutputLayerDefinition):
-                    value.destinationProject = dest_project
-                if value and (param.defaultValue() != value or include_default):
-                    parameters[param.name()] = value
-
-                    context = createContext()
-                    ok, error = param.isSupportedOutputValue(value, context)
-                    if not ok:
-                        raise AlgorithmDialogBase.InvalidOutputExtension(widget, error)
-
-                # print(f'param : {param} , value : {value}')
-                # if isinstance(param, (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination, ChloeParameterFolderDestination)):
-                #     if hasattr(param, "addToMapDefaultState"):
-                #         for w in widget.children():
-                #             if isinstance(w, QCheckBox):
-                #                 w.setChecked(param.addToMapDefaultState)
-
-                if isinstance(
-                    param,
-                    (
-                        ChloeCSVParameterFileDestination,
-                        ChloeASCParameterFileDestination,
-                        ChloeParameterFolderDestination,
-                    ),
-                ):
-
-                    paramName = param.name()
-
-                    if paramName in parameters:
-                        p = parameters[paramName]
-
-                        toBeOpened = wrapper.customProperties().get(
-                            "OPEN_AFTER_RUNNING"
-                        )
-                        print(f"param : {param}, topbeopn : {toBeOpened}")
-                        temporary_value_test = None
-
-                        # get temporary value test from value.sink in case of QgsProcessingParameterRasterDestination/QgsProcessingParameterVectorDestination
-                        if type(value) == QgsProcessingOutputLayerDefinition:
-                            temporary_value_test = value.sink.value(
-                                QgsExpressionContext()
-                            )[0]
-
-                        if (
-                            temporary_value_test == "TEMPORARY_OUTPUT"
-                            or value == "TEMPORARY_OUTPUT"
-                        ):
-
-                            dataValue = param.generateTemporaryDestination()
-
-                        else:
-                            if temporary_value_test:
-                                dataValue = value.sink.value(QgsExpressionContext())[0]
-                            else:
-                                # if QgsProcessingParameterFolderDestination don't use the sink value
-                                dataValue = value
-
-                        newValue = {"data": dataValue, "openLayer": toBeOpened}
-                        parameters[paramName] = newValue
-
-                if param.name() == "SAVE_PROPERTIES":
-                    if widget is not None:
-                        if value == "TEMPORARY_OUTPUT":
-                            newValue = param.generateTemporaryDestination()
-                            parameters["SAVE_PROPERTIES"] = newValue
-
-        return self.algorithm().preprocessParameters(parameters)
+                            continue
 
     def connectParameterSignals(self):
         for wrapper in list(self.wrappers.values()):
@@ -464,71 +271,6 @@ class ChloeParametersPanel(ParametersPanel):
             )
         except AlgorithmDialogBase.InvalidOutputExtension as e:
             self.text.setPlainText(e.message)
-        # context = createContext()
-        # feedback = QgsProcessingFeedback()
-
-        # for output in self.algorithm().destinationParameterDefinitions():
-
-        #     if isinstance(
-        #         output,
-        #         (ChloeCSVParameterFileDestination, ChloeASCParameterFileDestination),
-        #     ):
-
-        #         try:
-        #             wrapper = self.wrappers[output.name()]
-        #         except KeyError:
-        #             continue
-
-        #         widget = wrapper.wrappedWidget()
-
-        #         if hasattr(output, "addToMapDefaultState"):
-        #             for w in widget.children():
-        #                 if isinstance(w, QCheckBox):
-        #                     if w.checkState():
-        #                         w.setChecked(output.addToMapDefaultState)
-
-        # try:
-        #     parameters = self.dialog.createProcessingParameters()
-        #     for output in self.algorithm().destinationParameterDefinitions():
-        #         if not output.name() in parameters or parameters[output.name()] is None:
-        #             if (
-        #                 not output.flags()
-        #                 & QgsProcessingParameterDefinition.FlagOptional
-        #             ):
-        #                 parameters[output.name()] = self.tr("[temporary file]")
-
-        #     for p in self.algorithm().parameterDefinitions():
-        #         if p.flags() & QgsProcessingParameterDefinition.FlagHidden:
-        #             continue
-
-        #         if (
-        #             p.flags() & QgsProcessingParameterDefinition.FlagOptional
-        #             and p.name() not in parameters
-        #         ):
-        #             continue
-
-        #         if p.name() not in parameters or not p.checkValueIsAcceptable(
-        #             parameters[p.name()]
-        #         ):
-        #             # not ready yet
-        #             self.text.setPlainText("")
-        #             return
-
-        #     commands = self.algorithm().getConsoleCommands(
-        #         parameters, context, feedback, executing=False
-        #     )
-        #     # print(f'commands {commands}')
-        #     commands = [c for c in commands if c not in ["cmd.exe", "/C "]]
-        #     self.text.setPlainText(" ".join(commands))
-        # except AlgorithmDialogBase.InvalidParameterValue as e:
-        #     # print(f'except {e}')
-        #     self.text.setPlainText(
-        #         self.tr("Invalid value for parameter '{0}'").format(
-        #             e.parameter.description()
-        #         )
-        #     )
-        #     if e.parameter.name() == "MAP_CSV":
-        #         raise
 
 
 class ChloeFieldsFromCSVWidgetWrapper(WidgetWrapper):
@@ -751,6 +493,7 @@ class ChloeFactorTableWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def resetFormula(self):
+        print("rest formula")
         self.widget.resetFormula()
 
 
@@ -802,7 +545,7 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMappingCombobox(self):
-
+        print("refreshMappingCombobox")
         paramPanel = self.dialog.mainWidget()
         wrapper = paramPanel.wrappers[self.parentWidgetConfig["paramName"]]
         widget = wrapper.widget
@@ -810,6 +553,7 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         self.widget.updateMapCSV(mapFile=mappingFilepath)
 
     def refreshMappingAsc(self):
+        print("refreshMappingAsc")
         self.widget.updateMapASC()
 
     def emptyMappingAsc(self):
@@ -997,6 +741,7 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMetrics(self):
+        print("refresh metrics")
         self.widget.update()
 
 
@@ -1225,13 +970,8 @@ class ChloeCsvTxtFileSelectionPanel(FileSelectionPanel):
 
 
 class ChloeCSVParameterFileDestination(QgsProcessingParameterVectorDestination):
-    # def __init__(self, name, description, fileFilter='CSV (*.csv)', addToMapDefaultState=False):
-    # super().__init__(name=name, description=description, fileFilter=fileFilter)
-
-    def __init__(self, name, description, addToMapDefaultState=False):
+    def __init__(self, name, description):
         super().__init__(name, description)
-
-        self.addToMapDefaultState = addToMapDefaultState
 
     def defaultFileExtension(self):
         return "csv"
@@ -1241,15 +981,15 @@ class ChloeCSVParameterFileDestination(QgsProcessingParameterVectorDestination):
             QCoreApplication.translate("ChloeAlgorithm", "CSV files")
         )
 
-    def checkValueIsAcceptable(self, input, context=None):
-        try:
-            # STANDARD GUI RETURN
-            return "data" in input and super().checkValueIsAcceptable(
-                input["data"], context
-            )
-        except:
-            # BATCH AND MODERLER GUI RETURN
-            return input and super().checkValueIsAcceptable(input, context)
+    # def checkValueIsAcceptable(self, input, context=None):
+    #     try:
+    #         # STANDARD GUI RETURN
+    #         return "data" in input and super().checkValueIsAcceptable(
+    #             input["data"], context
+    #         )
+    #     except:
+    #         # BATCH AND MODERLER GUI RETURN
+    #         return input and super().checkValueIsAcceptable(input, context)
 
 
 class ChloeASCParameterFileDestination(QgsProcessingParameterRasterDestination):
@@ -1286,15 +1026,24 @@ class ChloeASCParameterFileDestination(QgsProcessingParameterRasterDestination):
             )
         return True, ""
 
-    def checkValueIsAcceptable(self, input, context=None):
-        try:
-            # STANDARD GUI RETURN
-            return "data" in input and super().checkValueIsAcceptable(
-                input["data"], context
-            )
-        except:
-            # BATCH AND MODERLER GUI RETURN
-            return input and super().checkValueIsAcceptable(input, context)
+    # def checkValueIsAcceptable(self, input, context=None):
+    #     # print(input)
+    #     try:
+    #         # print(
+    #         #     "data" in input
+    #         #     and super().checkValueIsAcceptable(input["data"], context)
+    #         # )
+    #         # print("data" in input)
+    #         # STANDARD GUI RETURN
+    #         # return "data" in input and super().checkValueIsAcceptable(
+    #         #     input["data"], context
+    #         # )
+    #         return True
+    #     except:
+    #         # BATCH AND MODERLER GUI RETURN
+    #         # data = input.sink.value(QgsExpressionContext())[0]
+    #         return input and super().checkValueIsAcceptable(input, context)
+    #         # return super().checkValueIsAcceptable(data, context)
 
 
 class ChloeParameterFolderDestination(QgsProcessingParameterFolderDestination):
@@ -1305,12 +1054,12 @@ class ChloeParameterFolderDestination(QgsProcessingParameterFolderDestination):
         copy = ChloeParameterFolderDestination(self.name(), self.description())
         return copy
 
-    def checkValueIsAcceptable(self, input, context=None):
-        try:
-            # STANDARD GUI RETURN
-            return "data" in input and super().checkValueIsAcceptable(
-                input["data"], context
-            )
-        except:
-            # BATCH AND MODERLER GUI RETURN
-            return input and super().checkValueIsAcceptable(input, context)
+    # def checkValueIsAcceptable(self, input, context=None):
+    #     try:
+    #         # STANDARD GUI RETURN
+    #         return "data" in input and super().checkValueIsAcceptable(
+    #             input["data"], context
+    #         )
+    #     except:
+    #         # BATCH AND MODERLER GUI RETURN
+    #         return input and super().checkValueIsAcceptable(input, context)

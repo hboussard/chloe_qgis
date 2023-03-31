@@ -25,7 +25,6 @@ __date__ = "2017-10-17"
 __revision__ = "$Format:%H$"
 
 import os
-import glob
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
@@ -38,8 +37,7 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-from time import gmtime, strftime
+from processing.tools.system import isWindows
 from ..ChloeUtils import ChloeUtils
 
 
@@ -82,8 +80,12 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
                     "initialValue": "diversity metrics",
                     "rasterLayerParamName": self.INPUT_LAYER_ASC,
                     "parentWidgetConfig": {
-                        "paramName": self.INPUT_LAYER_ASC,
-                        "refreshMethod": "refreshMetrics",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUT_LAYER_ASC,
+                                "refreshMethod": "refreshMetrics",
+                            },
+                        ]
                     },
                 }
             }
@@ -348,68 +350,57 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
-        # === Properties file
-        self.createPropertiesTempFile()
+        # === Properties files
+        self.createProperties()
 
         # === output filenames
         self.deduceOutputFilenames()
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File"""
+        properties_lines: list[str] = []
 
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w") as fd:
-            fd.write("#" + s_time + "\n")
-
-            fd.write("treatment=sliding\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_layer_asc + "\n", isWindows()
-                )
+        properties_lines.append("treatment=sliding\n")
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"input_ascii={self.input_layer_asc}\n", isWindows()
             )
+        )
 
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_folder=" + self.output_dir + "\n", isWindows()
-                )
-            )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_folder={self.output_dir}\n", isWindows())
+        )
 
-            fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
-            fd.write(
-                "maximum_nodata_value_rate="
-                + str(self.maximum_rate_missing_values)
-                + "\n"
-            )
+        properties_lines.append(f"window_sizes={{{str(self.window_sizes)}}}\n")
+        properties_lines.append(
+            f"maximum_nodata_value_rate={str(self.maximum_rate_missing_values)}\n"
+        )
 
-            if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
+        if self.analyze_type == "weighted distance":
+            properties_lines.append(f"distance_function={str(self.distance_formula)}\n")
 
-            fd.write("metrics={" + self.metrics + "}\n")
-            fd.write("delta_displacement=" + str(self.delta_displacement) + "\n")
-            fd.write("shape=" + str(self.window_shape) + "\n")
-            if self.window_shape == "FUNCTIONAL":
-                fd.write("friction_map=" + self.friction_file + "\n")
+        properties_lines.append(f"metrics={{{self.metrics}}}\n")
+        properties_lines.append(f"delta_displacement={str(self.delta_displacement)}\n")
+        properties_lines.append(f"shape={str(self.window_shape)}\n")
+        if self.window_shape == "FUNCTIONAL":
+            properties_lines.append(f"friction_map={self.friction_file}\n")
 
-            if self.b_interpolate_values:
-                fd.write("interpolation=true\n")
-            else:
-                fd.write("interpolation=false\n")
+        if self.b_interpolate_values:
+            properties_lines.append("interpolation=true\n")
+        else:
+            properties_lines.append("interpolation=false\n")
 
-            if self.filter:
-                fd.write("filters={" + self.filter + "}\n")
-            if self.unfilter:
-                fd.write("unfilters={" + self.unfilter + "}\n")
+        if self.filter:
+            properties_lines.append(f"filters={{{self.filter}}}\n")
+        if self.unfilter:
+            properties_lines.append(f"unfilters={{{self.unfilter}}}\n")
 
-            fd.write("visualize_ascii=false\n")
+        properties_lines.append("export_csv=true\n")
+        properties_lines.append("export_ascii=true\n")
 
-            fd.write("export_csv=true\n")
-            fd.write("export_ascii=true\n")
+        self.createPropertiesFile(properties_lines)
 
     def deduceOutputFilenames(self):
         self.outputFilenames = []
@@ -418,17 +409,6 @@ class SlidingMultiAlgorithm(ChloeAlgorithm):
         lst_files = str(self.window_sizes).split(";")
         for ws in lst_files:
             for m in self.metrics.split(";"):
-                fName = (
-                    radical
-                    + "_"
-                    + str(self.types_of_shape_abrev[self.window_shape])
-                    + "_w"
-                    + str(ws)
-                    + "_"
-                    + str(m)
-                    + "_d_"
-                    + str(self.delta_displacement)
-                    + ".asc"
-                )
+                fName = f"{radical}_{str(self.types_of_shape_abrev[self.window_shape])}_w{str(ws)}_{str(m)}_d_{str(self.delta_displacement)}.asc"
                 fFullName = self.output_dir + os.sep + fName
                 self.outputFilenames.append(fFullName)

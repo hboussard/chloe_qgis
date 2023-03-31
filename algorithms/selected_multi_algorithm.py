@@ -25,7 +25,6 @@ __date__ = "2017-10-17"
 __revision__ = "$Format:%H$"
 
 import os
-import glob
 
 from qgis.core import (
     QgsProcessingParameterDefinition,
@@ -38,14 +37,13 @@ from qgis.core import (
     QgsProcessingParameterFolderDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-from time import gmtime, strftime
+from processing.tools.system import isWindows
+
 from ..ChloeUtils import ChloeUtils
 
 
 # Mother class
 from ..chloe_algorithm import ChloeAlgorithm
-from ..chloe_algorithm_dialog import ChloeParameterFolderDestination
 
 
 class SelectedMultiAlgorithm(ChloeAlgorithm):
@@ -82,8 +80,12 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
                     "initialValue": "diversity metrics",
                     "rasterLayerParamName": self.INPUT_LAYER_ASC,
                     "parentWidgetConfig": {
-                        "paramName": self.INPUT_LAYER_ASC,
-                        "refreshMethod": "refreshMetrics",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUT_LAYER_ASC,
+                                "refreshMethod": "refreshMetrics",
+                            },
+                        ]
                     },
                 }
             }
@@ -296,65 +298,54 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
-        # === Properties file
-        self.createPropertiesTempFile()
+        # === Properties files
+        self.createProperties()
 
         # === output filenames
         self.deduceOutputFilenames()
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
-
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w") as fd:
-            fd.write("#" + s_time + "\n")
-            fd.write("treatment=selected\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_layer_asc + "\n", isWindows()
-                )
+        properties_lines: list[str] = []
+        properties_lines.append("treatment=selected\n")
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"input_ascii={self.input_layer_asc}\n", isWindows()
             )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_folder=" + self.output_dir + "\n", isWindows()
-                )
-            )
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_folder={self.output_dir}\n", isWindows())
+        )
 
-            fd.write("window_sizes={" + str(self.window_sizes) + "}\n")
-            fd.write(
-                "maximum_nodata_value_rate="
-                + str(self.maximum_rate_missing_values)
-                + "\n"
-            )
+        properties_lines.append(f"window_sizes={{{str(self.window_sizes)}}}\n")
+        properties_lines.append(
+            f"maximum_nodata_value_rate={str(self.maximum_rate_missing_values)}\n"
+        )
 
-            if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
+        if self.analyze_type == "weighted distance":
+            properties_lines.append(f"distance_function={str(self.distance_formula)}\n")
 
-            fd.write("metrics={" + self.metrics + "}\n")
+        properties_lines.append(f"metrics={{{self.metrics}}}\n")
 
-            fd.write("shape=" + str(self.window_shape) + "\n")
-            if self.window_shape == "FUNCTIONAL":
-                fd.write("friction_matrix=" + self.friction_file + "\n")
+        properties_lines.append(f"shape={str(self.window_shape)}\n")
+        if self.window_shape == "FUNCTIONAL":
+            properties_lines.append(f"friction_matrix={self.friction_file}\n")
 
-            pixels_points_files = ChloeUtils.formatString(
-                self.pixels_point_file, isWindows()
-            )
+        pixels_points_files = ChloeUtils.formatString(
+            self.pixels_point_file, isWindows()
+        )
 
-            if self.pixels_point_selection == 0:  # pixel(s) file
-                fd.write("pixels=" + pixels_points_files + "\n")
-            elif self.pixels_point_selection == 1:  # point(s) file
-                fd.write("points=" + pixels_points_files + "\n")
+        if self.pixels_point_selection == 0:  # pixel(s) file
+            properties_lines.append(f"pixels={pixels_points_files}\n")
+        elif self.pixels_point_selection == 1:  # point(s) file
+            properties_lines.append(f"points={pixels_points_files}\n")
 
-            fd.write("visualize_ascii=false\n")
+        properties_lines.append("export_csv=true\n")
+        properties_lines.append("export_ascii=true\n")
 
-            fd.write("export_csv=true\n")
-            fd.write("export_ascii=true\n")
+        self.createPropertiesFile(properties_lines)
 
     def deduceOutputFilenames(self):
         self.outputFilenames = []
@@ -363,15 +354,7 @@ class SelectedMultiAlgorithm(ChloeAlgorithm):
         lst_files = str(self.window_sizes).split(";")
         for ws in lst_files:
             for m in self.metrics.split(";"):
-                fName = (
-                    radical
-                    + "_"
-                    + str(self.types_of_shape_abrev[self.window_shape])
-                    + "_w"
-                    + str(ws)
-                    + "_"
-                    + str(m)
-                    + ".asc"
-                )
+                fName = f"{radical}_{str(self.types_of_shape_abrev[self.window_shape])}_w{str(ws)}_{str(m)}.asc"
+
                 fFullName = self.output_dir + os.sep + fName
                 self.outputFilenames.append(fFullName)

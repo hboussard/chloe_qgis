@@ -37,8 +37,8 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-from time import gmtime, strftime
+from processing.tools.system import isWindows
+
 from ..ChloeUtils import ChloeUtils
 
 
@@ -85,8 +85,12 @@ class SlidingAlgorithm(ChloeAlgorithm):
                     "initialValue": "diversity metrics",
                     "rasterLayerParamName": self.INPUT_ASC,
                     "parentWidgetConfig": {
-                        "paramName": self.INPUT_ASC,
-                        "refreshMethod": "refreshMappingCombobox",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUT_ASC,
+                                "refreshMethod": "refreshMappingCombobox",
+                            },
+                        ]
                     },
                 }
             }
@@ -352,8 +356,12 @@ class SlidingAlgorithm(ChloeAlgorithm):
         self.metrics = self.parameterAsString(parameters, self.METRICS, context)
 
         # === OUTPUT
-        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_csv = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_CSV, context
+        )
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -367,81 +375,69 @@ class SlidingAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        f_save_properties: str = self.parameterAsString(
+            parameters, self.SAVE_PROPERTIES, context
+        )
 
-        # === Properties file
-        self.createPropertiesTempFile()
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
+
+        # === Properties files
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out_asc + os.sep + name_out_asc + ".prj"
+        f_prj: str = f"{dir_out_asc}{os.sep}{name_out_asc}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
+        properties_lines: list[str] = []
 
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w") as fd:
-            fd.write("#" + s_time + "\n")
-            fd.write("treatment=sliding\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.INPUT_ASC + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_csv=" + self.output_csv + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
-            )
+        properties_lines.append("treatment=sliding\n")
+        properties_lines.append(
+            ChloeUtils.formatString(f"input_ascii={self.INPUT_ASC}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_csv={self.output_csv}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
 
-            fd.write(
-                "window_sizes={"
-                + str(ChloeUtils.toOddNumber(self.window_sizes))
-                + "}\n"
-            )
-            fd.write(
-                "maximum_nodata_value_rate="
-                + str(self.maximum_rate_missing_values)
-                + "\n"
-            )
+        properties_lines.append(
+            f"window_sizes={{{str(ChloeUtils.toOddNumber(self.window_sizes))}}}\n"
+        )
+        properties_lines.append(
+            f"maximum_nodata_value_rate={str(self.maximum_rate_missing_values)}\n"
+        )
 
-            if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
+        if self.analyze_type == "weighted distance":
+            properties_lines.append(f"distance_function={str(self.distance_formula)}\n")
 
-            fd.write("metrics={" + self.metrics + "}\n")
-            fd.write("delta_displacement=" + str(self.delta_displacement) + "\n")
-            fd.write("shape=" + str(self.window_shape) + "\n")
-            if self.window_shape == "FUNCTIONAL":
-                fd.write("friction=" + self.friction_file + "\n")
+        properties_lines.append(f"metrics={{{self.metrics}}}\n")
+        properties_lines.append(f"delta_displacement={str(self.delta_displacement)}\n")
+        properties_lines.append(f"shape={str(self.window_shape)}\n")
+        if self.window_shape == "FUNCTIONAL":
+            properties_lines.append(f"friction={self.friction_file}\n")
 
-            if self.b_interpolate_values:
-                fd.write("interpolation=true\n")
-            else:
-                fd.write("interpolation=false\n")
+        if self.b_interpolate_values:
+            properties_lines.append("interpolation=true\n")
+        else:
+            properties_lines.append("interpolation=false\n")
 
-            if self.filter:
-                fd.write("filters={" + self.filter + "}\n")
-            if self.unfilter:
-                fd.write("unfilters={" + self.unfilter + "}\n")
+        if self.filter:
+            properties_lines.append(f"filters={{{self.filter}}}\n")
+        if self.unfilter:
+            properties_lines.append(f"unfilters={{{self.unfilter}}}\n")
 
-            fd.write("visualize_ascii=false\n")
+        # Writing the second part of the properties file
+        if self.output_csv:
+            properties_lines.append("export_csv=true\n")
+        else:
+            properties_lines.append("export_csv=false\n")
 
-            # Writing the second part of the properties file
-            if self.output_csv:
-                fd.write("export_csv=true\n")
-            else:
-                fd.write("export_csv=false\n")
+        if self.output_asc:
+            properties_lines.append("export_ascii=true\n")
+        else:
+            properties_lines.append("export_ascii=false\n")
 
-            if self.output_asc:
-                fd.write("export_ascii=true\n")
-            else:
-                fd.write("export_ascii=false\n")
+        self.createPropertiesFile(properties_lines)

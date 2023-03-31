@@ -14,8 +14,6 @@
 
 """
 
-from builtins import str
-
 __author__ = "Jean-Charles Naud/Alkante"
 __date__ = "2017-10-17"
 
@@ -33,11 +31,7 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-
-from time import gmtime, strftime
-
-from ast import literal_eval
+from processing.tools.system import isWindows
 
 from ..ChloeUtils import ChloeUtils
 
@@ -143,7 +137,9 @@ class FilterAlgorithm(ChloeAlgorithm):
         )
 
         # === OUTPUT
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
 
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -152,47 +148,34 @@ class FilterAlgorithm(ChloeAlgorithm):
         dir_out = os.path.dirname(self.output_asc)
         base_out = os.path.basename(self.output_asc)
         name_out = os.path.splitext(base_out)[0]
-        # ext_out = os.path.splitext(base_out)[1]
-        # feedback.pushInfo('self.f_path')
 
         # === SAVE_PROPERTIES
         f_save_properties = self.parameterAsString(
             parameters, self.SAVE_PROPERTIES, context
         )
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
-
-        # === Properties file
-        self.createPropertiesTempFile()
+        # === Properties files
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out + os.sep + name_out + ".prj"
+        f_prj: str = f"{dir_out}{os.sep}{name_out}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w+") as fd:
-            fd.write("#" + s_time + "\n")
-            fd.write("treatment=filter" + "\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_asc + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "ascii_filter=" + self.ascii_filter + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
-            )
-            fd.write("filter_values={" + self.filter_values + "}\n")
-            fd.write("visualize_ascii=false\n")
+        properties_lines: list[str] = []
+
+        properties_lines.append(f"treatment=filter\n")
+        properties_lines.append(
+            ChloeUtils.formatString(f"input_ascii={self.input_asc}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"ascii_filter={self.ascii_filter}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
+        properties_lines.append(f"filter_values={{{self.filter_values}}}\n")
+
+        self.createPropertiesFile(properties_lines)

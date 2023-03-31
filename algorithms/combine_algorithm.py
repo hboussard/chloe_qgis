@@ -15,13 +15,14 @@
 """
 
 from builtins import str
-__author__ = 'Jean-Charles Naud/Alkante'
-__date__ = '2017-10-17'
+
+__author__ = "Jean-Charles Naud/Alkante"
+__date__ = "2017-10-17"
 
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 
 import os
@@ -72,8 +73,12 @@ class CombineAlgorithm(ChloeAlgorithm):
                     "class": "Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper",
                     "input_matrix": self.INPUTS_MATRIX,
                     "parentWidgetConfig": {
-                        "paramName": self.INPUTS_MATRIX,
-                        "refreshMethod": "resetFormula",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUTS_MATRIX,
+                                "refreshMethod": "resetFormula",
+                            },
+                        ]
                     },
                 }
             }
@@ -82,10 +87,6 @@ class CombineAlgorithm(ChloeAlgorithm):
         self.addParameter(combineParam)
 
         # === OUTPUT PARAMETERS ===
-
-        # self.addParameter(ChloeParameterFolderDestination(
-        #    name=self.OUTPUT_DIR,
-        #    description=self.tr('Output directory')))
 
         # Output Asc
         fieldsParam = ChloeASCParameterFileDestination(
@@ -129,10 +130,12 @@ class CombineAlgorithm(ChloeAlgorithm):
         self.combination = inputFactors[1]
         self.input_asc = inputFactors[0]
 
-        print(self.combination)
+        # print(self.combination)
         # === OUTPUT
 
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
 
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -146,34 +149,26 @@ class CombineAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
         # === Properties files
-        self.createPropertiesTempFile()
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out + os.sep + name_out + ".prj"
+        f_prj: str = f"{dir_out}{os.sep}{name_out}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w+") as fd:
-            fd.write("#" + s_time + "\n")
-            fd.write("visualize_ascii=false\n")
-            fd.write("treatment=combine" + "\n")
-            fd.write("combination=" + self.combination + "\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "factors={" + self.input_asc + "}\n", isWindows()
-                )
-            )
+        properties_lines: list[str] = []
+
+        properties_lines.append(f"treatment=combine\n")
+        properties_lines.append(f"combination={self.combination}\n")
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"factors={{{self.input_asc}}}\n", isWindows())
+        )
+
+        self.createPropertiesFile(properties_lines)

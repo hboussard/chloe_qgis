@@ -73,7 +73,6 @@ except:
 
 
 class ChloeUtils:
-    JAVA = "JAVA"
 
     supportedRasters = None
     supportedOutputRasters = None
@@ -81,8 +80,8 @@ class ChloeUtils:
     @staticmethod
     def runChloe(commands, feedback=None):
 
-        cwd = os.path.dirname(__file__) + os.sep + "Chloe"
-        # print('cwd : ' + cwd)
+        cwd = f"{os.path.dirname(__file__)}{os.sep}Chloe"
+
         if feedback is None:
             feedback = QgsProcessingFeedback()
         envval = os.getenv("PATH")
@@ -96,9 +95,9 @@ class ChloeUtils:
             os.path.join(QgsApplication.prefixPath(), "bin", "chloeinfo")
         ):
             # Looks like there's a bundled chloe. Let's use it.
-            os.environ["PATH"] = "{}{}{}".format(
-                os.path.join(QgsApplication.prefixPath(), "bin"), os.pathsep, envval
-            )
+            os.environ[
+                "PATH"
+            ] = f'{os.path.join(QgsApplication.prefixPath(), "bin")}{os.pathsep}{envval}'
             os.environ["DYLD_LIBRARY_PATH"] = os.path.join(
                 QgsApplication.prefixPath(), "lib"
             )
@@ -149,8 +148,8 @@ class ChloeUtils:
                 else:
                     raise IOError(
                         str(e)
-                        + u"\nTried 5 times without success. Last iteration stopped after reading {} line(s).\nLast line(s):\n{}".format(
-                            len(loglines), u"\n".join(loglines[-10:])
+                        + "\nTried 5 times without success. Last iteration stopped after reading {} line(s).\nLast line(s):\n{}".format(
+                            len(loglines), "\n".join(loglines[-10:])
                         )
                     )
 

@@ -33,8 +33,8 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-from time import gmtime, strftime
+from processing.tools.system import isWindows
+
 from ..ChloeUtils import ChloeUtils
 
 
@@ -80,8 +80,12 @@ class GridAlgorithm(ChloeAlgorithm):
                     "initialValue": "diversity metrics",
                     "rasterLayerParamName": self.INPUT_LAYER_ASC,
                     "parentWidgetConfig": {
-                        "paramName": self.INPUT_LAYER_ASC,
-                        "refreshMethod": "refreshMappingCombobox",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUT_LAYER_ASC,
+                                "refreshMethod": "refreshMappingCombobox",
+                            },
+                        ]
                     },
                 }
             }
@@ -160,8 +164,12 @@ class GridAlgorithm(ChloeAlgorithm):
         self.metrics = self.parameterAsString(parameters, self.METRICS, context)
 
         # === OUTPUT
-        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_csv = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_CSV, context
+        )
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -175,76 +183,47 @@ class GridAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
-        # === Properties file
-        self.createPropertiesTempFile()
+        # === Properties files
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out_asc + os.sep + name_out_asc + ".prj"
+        f_prj: str = f"{dir_out_asc}{os.sep}{name_out_asc}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
-        """Create Properties File.
+    def createProperties(self):
+        """Create Properties File."""
+        properties_lines: list[str] = []
 
-        Example of properties produced
-        ```
-        #2018-11-01 11:08:49
-        treatment=grid
-        input_ascii=/home/raster.asc
-        output_csv=/home/OUTPUTCSV.csv
-        output_asc=/home/OUTPUTASC.asc
-        grid_sizes={3}
-        maximum_nodata_value_rate=100
-        metrics={MPS-class_1}
-        visualize_ascii=false
-        export_csv=true
-        export_ascii=true
-        ```
-        """
-
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w") as fd:
-            fd.write("#" + s_time + "\n")
-            # fd.write("# "+self.comment+"\n")
-            fd.write("treatment=grid\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_layer_asc + "\n", isWindows()
-                )
+        properties_lines.append("treatment=grid\n")
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"input_ascii={self.input_layer_asc}\n", isWindows()
             )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_csv=" + self.output_csv + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
-            )
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_csv={self.output_csv}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
 
-            fd.write("grid_sizes={" + str(self.grid_sizes) + "}\n")
-            fd.write(
-                "maximum_nodata_value_rate="
-                + str(self.maximum_rate_missing_values)
-                + "\n"
-            )
-            fd.write("metrics={" + self.metrics + "}\n")
+        properties_lines.append(f"grid_sizes={{{str(self.grid_sizes)}}}\n")
+        properties_lines.append(
+            f"maximum_nodata_value_rate={str(self.maximum_rate_missing_values)}\n"
+        )
+        properties_lines.append(f"metrics={{{self.metrics}}}\n")
 
-            fd.write("visualize_ascii=false\n")
+        # Writing the second part of the properties file
+        if self.output_csv:
+            properties_lines.append("export_csv=true\n")
+        else:
+            properties_lines.append("export_csv=false\n")
 
-            # Writing the second part of the properties file
-            if self.output_csv:
-                fd.write("export_csv=true\n")
-            else:
-                fd.write("export_csv=false\n")
+        if self.output_asc:
+            properties_lines.append("export_ascii=true\n")
+        else:
+            properties_lines.append("export_ascii=false\n")
 
-            if self.output_asc:
-                fd.write("export_ascii=true\n")
-            else:
-                fd.write("export_ascii=false\n")
+        self.createPropertiesFile(properties_lines)

@@ -206,9 +206,13 @@ class ClusterAlgorithm(ChloeAlgorithm):
         )
 
         # === OUTPUT
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
 
-        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
+        self.output_csv = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_CSV, context
+        )
 
         self.output_csv = ChloeUtils.adjustExtension(self.output_csv, self.output_asc)
 
@@ -226,58 +230,44 @@ class ClusterAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
         # === Properties file
-        self.createPropertiesTempFile()
-        # Create Properties file (temp or chosed)
-
-        # === CORE
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out + os.sep + name_out + ".prj"
+        f_prj = f"{dir_out}{os.sep}{name_out}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w+") as fd:
-            fd.write("#" + s_time + "\n")
-            fd.write("treatment=cluster\n")
-            fd.write("visualize_ascii=false\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_asc + "\n", isWindows()
-                )
+
+        properties_lines: list[str] = []
+
+        properties_lines.append("treatment=cluster\n")
+        properties_lines.append(
+            ChloeUtils.formatString(f"input_ascii={self.input_asc}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_csv={self.output_csv}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"minimum_total_area={self.cluster_min_area}\n", isWindows()
             )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
+        )
+        properties_lines.append(f"cluster={{{self.cluster}}}\n")
+        properties_lines.append(f"cluster_type={self.cluster_type}\n")
+        properties_lines.append(f"cluster_distance={str(self.cluster_distance)}\n")
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"cluster_friction={str(self.cluster_friction)}\n",
+                isWindows(),
             )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_csv=" + self.output_csv + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "minimum_total_area=" + self.cluster_min_area + "\n", isWindows()
-                )
-            )
-            fd.write("cluster={" + self.cluster + "}\n")
-            fd.write("cluster_type=" + self.cluster_type + "\n")
-            if not (self.cluster_distance is None):
-                fd.write("cluster_distance=" + str(self.cluster_distance) + "\n")
-            if not (self.cluster_friction is None):
-                fd.write(
-                    ChloeUtils.formatString(
-                        "cluster_friction=" + str(self.cluster_friction) + "\n",
-                        isWindows(),
-                    )
-                )
-            fd.write("minimum_total_area=" + self.cluster_min_area + "\n")
+        )
+        properties_lines.append(f"minimum_total_area={self.cluster_min_area}\n")
+
+        self.createPropertiesFile(properties_lines)

@@ -36,8 +36,8 @@ from qgis.core import (
     QgsProcessingParameterFileDestination,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-from time import gmtime, strftime
+from processing.tools.system import isWindows
+
 from ..ChloeUtils import ChloeUtils
 
 
@@ -83,10 +83,13 @@ class SelectedAlgorithm(ChloeAlgorithm):
                     "dictValues": self.types_of_metrics,
                     "initialValue": "diversity metrics",
                     "rasterLayerParamName": self.INPUT_LAYER_ASC,
-                    # 'refreshMappingCombobox'}
                     "parentWidgetConfig": {
-                        "paramName": self.INPUT_LAYER_ASC,
-                        "refreshMethod": "refreshMappingCombobox",
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUT_LAYER_ASC,
+                                "refreshMethod": "refreshMappingCombobox",
+                            },
+                        ]
                     },
                 }
             }
@@ -290,8 +293,12 @@ class SelectedAlgorithm(ChloeAlgorithm):
         self.metrics = self.parameterAsString(parameters, self.METRICS, context)
 
         # === OUTPUT
-        self.output_csv = self.parameterAsString(parameters, self.OUTPUT_CSV, context)
-        self.output_asc = self.parameterAsString(parameters, self.OUTPUT_ASC, context)
+        self.output_csv = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_CSV, context
+        )
+        self.output_asc = self.parameterAsOutputLayer(
+            parameters, self.OUTPUT_ASC, context
+        )
         self.setOutputValue(self.OUTPUT_CSV, self.output_csv)
         self.setOutputValue(self.OUTPUT_ASC, self.output_asc)
 
@@ -305,79 +312,64 @@ class SelectedAlgorithm(ChloeAlgorithm):
             parameters, self.SAVE_PROPERTIES, context
         )
 
-        if f_save_properties:
-            self.f_path = f_save_properties
-        else:
-            if not self.f_path:
-                self.f_path = getTempFilename(ext="properties")
+        self.setOutputValue(self.SAVE_PROPERTIES, f_save_properties)
 
-        # === Properties file
-        self.createPropertiesTempFile()
+        # === Properties files
+        self.createProperties()
 
         # === Projection file
-        f_prj = dir_out_asc + os.sep + name_out_asc + ".prj"
+        f_prj: str = f"{dir_out_asc}{os.sep}{name_out_asc}.prj"
         self.createProjectionFile(f_prj)
 
-    def createPropertiesTempFile(self):
+    def createProperties(self):
         """Create Properties File."""
+        properties_lines: list[str] = []
 
-        s_time = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-        with open(self.f_path, "w") as fd:
-            fd.write("#" + s_time + "\n")
-
-            fd.write("treatment=" + self.name() + "\n")
-            fd.write(
-                ChloeUtils.formatString(
-                    "input_ascii=" + self.input_layer_asc + "\n", isWindows()
-                )
+        properties_lines.append(f"treatment={self.name()}\n")
+        properties_lines.append(
+            ChloeUtils.formatString(
+                f"input_ascii={self.input_layer_asc}\n", isWindows()
             )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_csv=" + self.output_csv + "\n", isWindows()
-                )
-            )
-            fd.write(
-                ChloeUtils.formatString(
-                    "output_asc=" + self.output_asc + "\n", isWindows()
-                )
-            )
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_csv={self.output_csv}\n", isWindows())
+        )
+        properties_lines.append(
+            ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
+        )
 
-            fd.write(
-                "window_sizes={"
-                + str(ChloeUtils.toOddNumber(self.window_sizes))
-                + "}\n"
-            )
-            fd.write(
-                "maximum_nodata_value_rate="
-                + str(self.maximum_rate_missing_values)
-                + "\n"
-            )
-            fd.write("metrics={" + self.metrics + "}\n")
+        properties_lines.append(
+            f"window_sizes={{{str(ChloeUtils.toOddNumber(self.window_sizes))}}}\n"
+        )
+        properties_lines.append(
+            f"maximum_nodata_value_rate={str(self.maximum_rate_missing_values)}\n"
+        )
+        properties_lines.append(f"metrics={{{self.metrics}}}\n")
 
-            if self.analyze_type == "weighted distance":
-                fd.write("distance_function=" + str(self.distance_formula) + "\n")
-            fd.write("shape=" + str(self.window_shape) + "\n")
-            if self.window_shape == "FUNCTIONAL":
-                fd.write("friction=" + self.friction_file + "\n")
+        if self.analyze_type == "weighted distance":
+            properties_lines.append(f"distance_function={str(self.distance_formula)}\n")
+        properties_lines.append(f"shape={str(self.window_shape)}\n")
+        if self.window_shape == "FUNCTIONAL":
+            properties_lines.append(f"friction={self.friction_file}\n")
 
-            pixels_points_files = ChloeUtils.formatString(
-                self.pixels_points_file, isWindows()
-            )
+        pixels_points_files = ChloeUtils.formatString(
+            self.pixels_points_file, isWindows()
+        )
 
-            if self.pixels_point_selection == 0:  # pixel(s) file
-                fd.write("pixels=" + pixels_points_files + "\n")
-            elif self.pixels_point_selection == 1:  # point(s) file
-                fd.write("points=" + pixels_points_files + "\n")
+        if self.pixels_point_selection == 0:  # pixel(s) file
+            properties_lines.append(f"pixels={pixels_points_files}\n")
+        elif self.pixels_point_selection == 1:  # point(s) file
+            properties_lines.append(f"points={pixels_points_files}\n")
 
-            fd.write("visualize_ascii=false\n")
+        # Writing the second part of the properties file
+        if self.output_csv:
+            properties_lines.append("export_csv=true\n")
+        else:
+            properties_lines.append("export_csv=false\n")
 
-            # Writing the second part of the properties file
-            if self.output_csv:
-                fd.write("export_csv=true\n")
-            else:
-                fd.write("export_csv=false\n")
+        if self.output_asc:
+            properties_lines.append("export_ascii=true\n")
+        else:
+            properties_lines.append("export_ascii=false\n")
 
-            if self.output_asc:
-                fd.write("export_ascii=true\n")
-            else:
-                fd.write("export_ascii=false\n")
+        self.createPropertiesFile(properties_lines)
