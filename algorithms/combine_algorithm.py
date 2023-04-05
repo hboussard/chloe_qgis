@@ -14,7 +14,6 @@
 
 """
 
-from builtins import str
 
 __author__ = "Jean-Charles Naud/Alkante"
 __date__ = "2017-10-17"
@@ -26,17 +25,15 @@ __revision__ = "$Format:%H$"
 
 
 import os
-
+from ..helpers.dataclass import CombineFactorTableResult
 from qgis.core import (
     QgsProcessing,
     QgsProcessingParameterMultipleLayers,
-    QgsProcessingParameterString,
     QgsProcessingParameterFileDestination,
+    QgsProcessingParameterMatrix,
 )
 
-from processing.tools.system import getTempFilename, isWindows
-
-from time import gmtime, strftime
+from processing.tools.system import isWindows
 
 from ..ChloeUtils import ChloeUtils
 
@@ -53,6 +50,8 @@ class CombineAlgorithm(ChloeAlgorithm):
     def __init__(self):
         super().__init__()
 
+        self.input_factors: CombineFactorTableResult
+
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
 
@@ -64,7 +63,7 @@ class CombineAlgorithm(ChloeAlgorithm):
         )
 
         # COMBINE EXPRESSION
-        combineParam = QgsProcessingParameterString(
+        combineParam = QgsProcessingParameterMatrix(
             name=self.DOMAINS, description=self.tr("Combination"), defaultValue=""
         )
         combineParam.setMetadata(
@@ -72,14 +71,6 @@ class CombineAlgorithm(ChloeAlgorithm):
                 "widget_wrapper": {
                     "class": "Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper",
                     "input_matrix": self.INPUTS_MATRIX,
-                    "parentWidgetConfig": {
-                        "linkedParams": [
-                            {
-                                "paramName": self.INPUTS_MATRIX,
-                                "refreshMethod": "resetFormula",
-                            },
-                        ]
-                    },
                 }
             }
         )
@@ -123,12 +114,13 @@ class CombineAlgorithm(ChloeAlgorithm):
         """Here is where the processing itself takes place."""
 
         # === INPUT
-        inputFactors = self.parameterAsString(parameters, self.DOMAINS, context).split(
-            ".__."
+
+        input_factors: "list[str]" = self.parameterAsMatrix(
+            parameters, self.DOMAINS, context
         )
 
-        self.combination = inputFactors[1]
-        self.input_asc = inputFactors[0]
+        self.combination = input_factors[1]
+        self.input_asc = input_factors[0]
 
         # print(self.combination)
         # === OUTPUT

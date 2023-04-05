@@ -512,7 +512,7 @@ class ChloeUtils:
             return None
 
     @staticmethod
-    def deduceLayerName(layer, defaultName="output"):
+    def deduceLayerName(layer, defaultName="output") -> str:
         res = defaultName
         if not (layer is None):
             if isinstance(layer, QgsRasterLayer):

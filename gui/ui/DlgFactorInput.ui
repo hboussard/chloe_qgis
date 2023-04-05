@@ -71,7 +71,7 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="leText"/>
+    <widget class="QPlainTextEdit" name="formula_plainTextEdit"/>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">

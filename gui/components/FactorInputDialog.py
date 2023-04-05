@@ -11,132 +11,105 @@
 
 """
 
-__author__ = 'Daan Guillerme'
-__date__ = 'May 2019'
+__author__ = "Daan Guillerme"
+__date__ = "May 2019"
 
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 import os
-import re
+from ...helpers.dataclass import CombineFactorElement, CombineFactorTableResult
+from collections import Counter
 
 from qgis.PyQt import uic, QtCore
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem, QTableWidget
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
-WIDGET, BASE = uic.loadUiType(
-    os.path.join(pluginPath, 'ui', 'DlgFactorInput.ui'))
+WIDGET, BASE = uic.loadUiType(os.path.join(pluginPath, "ui", "DlgFactorInput.ui"))
 
 
 class FactorInputDialog(BASE, WIDGET):
-
-    def __init__(self, title=None, data=None):
+    def __init__(
+        self,
+        table_data: "list[CombineFactorElement]",
+        title: str = "Enter values",
+    ):
         super(FactorInputDialog, self).__init__(None)
         self.setupUi(self)
-        if not title:
-            title = self.tr("Enter values")
-        self.title = title
-        self.combinationValue = None  # Combine formula
-        self.rasterMatrixValue = None  # Rasters involved
-        self.data = data  # data to populate the selected raster table
+        self.title: str = title
+        self.combination_formula: str = ""  # Combine formula
+        self.raster_matrix_value: str = ""  # Rasters involved
+
+        self.factor_table_result: CombineFactorTableResult
+        self.table_data: "list[CombineFactorElement]" = (
+            table_data  # data to populate the selected raster table
+        )
+
+        self.setup_factor_table()
+
+    def setup_factor_table(self) -> None:
         # table widget Setup
-        rNum = len(data)
-        self.tableWidget.setRowCount(rNum)
+        if self.table_data:
+            # table widget Setup
+            row_count: int = len(self.table_data)
+            self.tableWidget.setRowCount(row_count)
+            self.tableWidget.setColumnCount(3)
 
-        # Populate the widget table with the selected rasters
-        row = 0
+            # Populate the widget table with the selected rasters
+            for row, factor in enumerate(self.table_data):
+                self.tableWidget.setItem(row, 0, QTableWidgetItem(factor.factor_name))
+                self.tableWidget.setItem(row, 1, QTableWidgetItem(factor.layer_name))
+                cellinfo = QTableWidgetItem(factor.layer_path.as_posix())
+                self.tableWidget.setItem(row, 2, cellinfo)
 
-        for tup in self.data:
-            col = 0
-            for item in tup:
-                cellinfo = QTableWidgetItem(item)
-                if col == 1 or col == 2:
-                    cellinfo.setFlags(QtCore.Qt.ItemIsEnabled)
-                # cellinfo.setFlags(QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled)  # make cell not editable
-                self.tableWidget.setItem(row, col, cellinfo)
-                col += 1
-            row += 1
+                for col in range(3):
+                    if col == 1 or col == 2:
+                        self.tableWidget.item(row, col).setFlags(
+                            QtCore.Qt.ItemIsEnabled
+                        )
+
+    def check_table_values(self, table: QTableWidget) -> bool:
+        """checks if all the values of the data table are ok"""
+        data = [table.item(row, 0).text() for row in range(table.rowCount())]
+        duplicates = [item for item, count in Counter(data).items() if count > 1]
+        if duplicates:
+            QMessageBox.critical(
+                self,
+                self.tr("Duplicated raster names"),
+                self.tr(f"Duplicated raster names ({', '.join(duplicates)})"),
+            )
+            return False
+        return True
+
+    def setFormulaValue(self, formula: str) -> None:
+        self.formula_plainTextEdit.setPlainText(formula)
 
     def accept(self):
-        if self.checkValues(self.tableWidget):
+        if self.check_table_values(self.tableWidget):
             # export formula expression
-            self.combinationValue = self.leText.toPlainText()  # self.exportValues(self.leText)
+            self.combination_formula = self.formula_plainTextEdit.toPlainText()
             # export raster list
-            lstRaster = []
+            list_rasters: "list[str]" = []
             for i in range(self.tableWidget.rowCount()):
-                lstRaster.append('(' + str(self.tableWidget.item(i, 2).text()) +
-                                 ',' + str(self.tableWidget.item(i, 0).text()) + ')')
-            self.rasterMatrixValue = ';'.join(lstRaster)
+                # append raster : layer_path, factor_name
+                list_rasters.append(
+                    f"({str(self.tableWidget.item(i, 2).text())},{str(self.tableWidget.item(i, 0).text())})"
+                )
+
+            self.raster_matrix_value = ";".join(list_rasters)
 
             QDialog.accept(self)
 
-    def reject(self):
+    def reject(self) -> None:
         QDialog.reject(self)
 
-    def run(self, strInitValue):
+    def run(self, initial_formula: str) -> CombineFactorTableResult:
         self.setWindowTitle(self.title)
-        self.importValues(self.tableWidget, strInitValue)
+        self.setFormulaValue(formula=initial_formula)
         self.exec_()
-        return self.rasterMatrixValue, self.combinationValue
-
-    def checkValues(self, table):
-        state = True
-        lstData = []
-
-        for row in range(table.rowCount()):
-            lstData.append(table.item(row, 0).text())
-
-        res = {}
-
-        for obj in lstData:
-            if obj not in res:
-                res[obj] = 0
-            res[obj] += 1
-
-        lstDuplicate = []
-
-        for key, value in res.items():
-            if value > 1:
-                lstDuplicate.append(key)
-
-        if len(lstDuplicate) > 0:
-            QMessageBox.critical(self, self.tr('Duplicated raster names'),
-                                 self.tr('Duplicated raster names (' + ','.join(lstDuplicate) + ')'))
-            state = False
-
-        return state
-
-    def exportValues(self, lineEdit):
-        result = lineEdit.text()
-        return result
-
-    def importValues(self, table, strValue):
-        """rowValues = strValue.split(";")
-        for r in range(len(rowValues)):
-          row = rowValues[r]
-          if len(row)>2:
-            colValues = (row[1:len(row)-1]).split("-")
-            for c in range(len(colValues)):
-              col = colValues[c]
-              item = QTableWidgetItem()
-              item.setText(col)
-              self.tableWidget.setItem(r, c, item)"""
-        self.leText.setPlainText(strValue)
-
-    def checkFormatClass(self, str):
-        res = True
-        try:
-            val = float(str)
-            if val < 0:
-                res = False
-        except ValueError:
-            res = False
-            return res
-        return res
-
-    def checkFormatDomain(self, str):
-        p = re.compile("[\[\]]-?[0-9\.]*,-?[0-9\.]*[\[\]]")
-        res = not (p.match(str) is None)
-        return res
+        return CombineFactorTableResult(
+            result_matrix=self.raster_matrix_value,
+            combination_formula=self.combination_formula,
+        )
