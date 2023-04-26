@@ -25,17 +25,12 @@ __copyright__ = "(C) 2015, Victor Olaya"
 
 __revision__ = "$Format:%H$"
 
-from functools import partial
-from pprint import pformat
-import time
 import os
-import warnings
 
 # import copy
 import pathlib
+from .helpers.dataclass import CombineFactorElement
 
-
-from qgis.utils import iface
 
 from qgis.PyQt.QtCore import QCoreApplication, QCoreApplication, Qt
 from qgis.PyQt.QtWidgets import (
@@ -47,11 +42,9 @@ from qgis.PyQt.QtWidgets import (
     QComboBox,
     QCheckBox,
     QFileDialog,
-    QLayout,
 )
 
 from qgis.core import (
-    QgsProject,
     QgsApplication,
     QgsSettings,
     QgsProcessingFeedback,
@@ -62,8 +55,9 @@ from qgis.core import (
     QgsProcessingParameterRasterDestination,
     QgsProcessingParameterFile,
     QgsProcessingException,
-    QgsProcessingParameterMultipleLayers,
     QgsProcessingParameterFile,
+    QgsProcessingParameterMultipleLayers,
+    QgsProcessingParameterRasterLayer,
 )
 
 from qgis.gui import (
@@ -87,8 +81,6 @@ from processing.tools.dataobjects import createContext
 from processing.gui.ParametersPanel import ParametersPanel
 
 from processing.gui.AlgorithmDialogBase import AlgorithmDialogBase
-
-from processing.modeler.MultilineTextPanel import MultilineTextPanel
 
 from .ChloePostProcessing import ChloehandleAlgorithmResults
 
@@ -128,7 +120,6 @@ class ChloeAlgorithmDialog(AlgorithmDialog):
 
 class ChloeParametersPanel(ParametersPanel):
     def __init__(self, parent, alg):
-
         super().__init__(parent, alg)
 
         self.dialog = parent
@@ -151,14 +142,13 @@ class ChloeParametersPanel(ParametersPanel):
         self.parametersHaveChanged()
 
     def initWidgets(self):  # heavy overload
-
         super().initWidgets()
 
         for k in self.wrappers:
             w = self.wrappers[k]
             if hasattr(w, "getParentWidgetConfig"):
                 config = w.getParentWidgetConfig()
-                print(config)
+                # print(config)
                 if config is not None:
                     linked_params = config.get("linkedParams", [])
                     for linked_param in linked_params:
@@ -170,16 +160,21 @@ class ChloeParametersPanel(ParametersPanel):
                                 if issubclass(p.__class__, WidgetWrapper)
                                 else p.wrappedWidget()
                             )
+                            # print(type(widget))
+                            print(m)
                             # add here widget signal connections
                             if isinstance(widget, FileSelectionPanel):
                                 widget.leText.textChanged.connect(m)
                             elif isinstance(p, RasterWidgetWrapper):
+                                print("is raster wrapper")
                                 p.combo.valueChanged.connect(m)
-                            elif isinstance(widget, MultipleInputPanel):
+                            elif isinstance(p, MultipleInputPanel):
+                                p.selectionChanged.connect(m)
                                 try:
                                     widget.selectionChanged.connect(m)
                                 except:
-                                    pass
+                                    print("an error occured cant get selectionChanged")
+
                         else:
                             continue
 
@@ -355,6 +350,8 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
         # STANDARD AND BATCH GUI
         if self.dialogType in (DIALOG_STANDARD, DIALOG_BATCH):
             self.widget.setValue(str(value))
+        else:
+            self.widget.setText(str(value))
         # MODELER GUI
         # else:
         #     pass
@@ -369,6 +366,8 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
         # STANDARD AND BATCH GUI
         if self.dialogType in (DIALOG_STANDARD, DIALOG_BATCH):
             return self.widget.getValue()
+        else:
+            return self.widget.text()
         # MODELER GUI
         # else:
         #     pass
@@ -440,61 +439,32 @@ class ChloeClassificationTableWidgetWrapper(WidgetWrapper):
 
 
 class ChloeFactorTableWidgetWrapper(WidgetWrapper):
-    def createLabel(self):
-        """Label create"""
-        if self.dialogType == DIALOG_STANDARD:
-            return None
-        else:
-            return super().createLabel()
-
     def createWidget(self, input_matrix=None, parentWidgetConfig=None):
         """Widget creation to put like panel in dialog"""
         self.parentWidgetConfig = parentWidgetConfig
-        if self.dialogType == DIALOG_STANDARD:
-            return FactorTablePanel(
-                self.dialog, self.param.algorithm(), None, input_matrix
-            )
-        # BATCH AND MODELER GUI
-        else:
-            if self.dialogType == DIALOG_MODELER:
-                print("test modeler")
-                print(
-                    self.dialog.getAvailableValuesOfType(
-                        QgsProcessingParameterMultipleLayers
-                    )
-                )
-            widget = QLineEdit()
-            widget.setPlaceholderText("Combination Formula")
-            if self.parameterDefinition().defaultValue():
-                widget.setText(self.parameterDefinition().defaultValue())
-            else:
-                widget.setText("m1")
-            return widget
+        return FactorTablePanel(
+            self.dialog, self.param.algorithm(), None, input_matrix, self.dialogType
+        )
 
-    def setValue(self, value):
+    def setValue(self, value: "list[list[CombineFactorElement] |str]"):
         """Set value on the widget/component."""
+
         if value is None:
             return
-        if self.dialogType == DIALOG_STANDARD:
-            self.widget.setValue(str(value))
-        # BATCH AND MODELER GUI
-        else:
-            self.widget.setText(str(value))
+        self.widget.setValue(value)
 
     def value(self):
         """Get value on the widget/component."""
-        if self.dialogType == DIALOG_STANDARD:
-            return self.widget.getValue()
-        # BATCH AND MODELER GUI
-        else:
-            return self.widget.text()
+        return self.widget.value()
 
     def getParentWidgetConfig(self):
         return self.parentWidgetConfig
 
     def resetFormula(self):
-        print("rest formula")
         self.widget.resetFormula()
+
+    def refreshFactorTable(self):
+        self.widget.populateTableModel()
 
 
 class ChloeMappingTableWidgetWrapper(WidgetWrapper):
@@ -508,6 +478,7 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
     def createWidget(self, parentWidgetConfig=None):
         """Widget creation to put like panel in dialog"""
         self.parentWidgetConfig = parentWidgetConfig
+
         if self.dialogType == DIALOG_STANDARD:
             return TableReplaceInputPanel(self.dialog, self.param.algorithm(), None)
         # BATCH GUI
@@ -545,15 +516,17 @@ class ChloeMappingTableWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMappingCombobox(self):
-        print("refreshMappingCombobox")
         paramPanel = self.dialog.mainWidget()
-        wrapper = paramPanel.wrappers[self.parentWidgetConfig["paramName"]]
-        widget = wrapper.widget
-        mappingFilepath = widget.getValue()
-        self.widget.updateMapCSV(mapFile=mappingFilepath)
+
+        if self.parentWidgetConfig:
+            for param in self.parentWidgetConfig["linkedParams"]:
+                if param["paramName"] == "MAP_CSV":
+                    wrapper = paramPanel.wrappers[param["paramName"]]
+                    widget = wrapper.widget
+                    mappingFilepath = widget.getValue()
+                    self.widget.updateMapCSV(mapFile=mappingFilepath)
 
     def refreshMappingAsc(self):
-        print("refreshMappingAsc")
         self.widget.updateMapASC()
 
     def emptyMappingAsc(self):
@@ -574,20 +547,21 @@ class ChloeEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
         self.updateDependantWidget(widgetWrapperList)
 
     def updateDependantWidget(self, wrapperList):
-        for c in self.dependantWidgetConfig:
-            dependantWrapperList = list(
-                filter(
-                    lambda w: w.parameterDefinition().name() == c["paramName"],
-                    wrapperList,
+        if self.dependantWidgetConfig:
+            for c in self.dependantWidgetConfig:
+                dependantWrapperList = list(
+                    filter(
+                        lambda w: w.parameterDefinition().name() == c["paramName"],
+                        wrapperList,
+                    )
                 )
-            )
-            if len(dependantWrapperList) > 0:
-                dependantWrapper = dependantWrapperList[0]
-                if isinstance(dependantWrapper, FileWidgetWrapper):
-                    dependantWidget = dependantWrapper.widget
-                else:
-                    dependantWidget = dependantWrapper.wrappedWidget()
-                dependantWidget.setEnabled(self.value() == c["enableValue"])
+                if len(dependantWrapperList) > 0:
+                    dependantWrapper = dependantWrapperList[0]
+                    if isinstance(dependantWrapper, FileWidgetWrapper):
+                        dependantWidget = dependantWrapper.widget
+                    else:
+                        dependantWidget = dependantWrapper.wrappedWidget()
+                    dependantWidget.setEnabled(self.value() == c["enableValue"])
 
 
 class ChloeMultiEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
@@ -606,22 +580,23 @@ class ChloeMultiEnumUpdateStateWidgetWrapper(EnumWidgetWrapper):
         self.updateDependantWidget(widgetWrapperList)
 
     def updateDependantWidget(self, wrapperList):
-        for c in self.dependantWidgetConfig:
-            dependantWrapperList = list(
-                filter(
-                    lambda w: w.parameterDefinition().name() == c["paramName"],
-                    wrapperList,
+        if self.dependantWidgetConfig:
+            for c in self.dependantWidgetConfig:
+                dependantWrapperList = list(
+                    filter(
+                        lambda w: w.parameterDefinition().name() == c["paramName"],
+                        wrapperList,
+                    )
                 )
-            )
-            if len(dependantWrapperList) > 0:
-                dependantWrapper = dependantWrapperList[0]
-                if isinstance(dependantWrapper, FileWidgetWrapper):
-                    dependantWidget = dependantWrapper.widget
-                else:
-                    dependantWidget = dependantWrapper.wrappedWidget()
-                dependantWidget.setEnabled(
-                    str(self.value()) in c["enableValue"].split(",")
-                )
+                if len(dependantWrapperList) > 0:
+                    dependantWrapper = dependantWrapperList[0]
+                    if isinstance(dependantWrapper, FileWidgetWrapper):
+                        dependantWidget = dependantWrapper.widget
+                    else:
+                        dependantWidget = dependantWrapper.wrappedWidget()
+                    dependantWidget.setEnabled(
+                        str(self.value()) in c["enableValue"].split(",")
+                    )
 
 
 class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
@@ -672,14 +647,14 @@ class ChloeDoubleComboboxWidgetWrapper(WidgetWrapper):
         if self.dialogType == DIALOG_STANDARD:
             self.widget.setValue(str(value))
         else:
-            self.widget.setText(str(value))
+            self.widget.setValue(str(value))
 
     def value(self):
         """Get value on the widget/component."""
         if self.dialogType == DIALOG_STANDARD:
             return self.widget.getValue()
         else:
-            return self.widget.text()
+            return self.widget.getValue()
 
     def getParentWidgetConfig(self):
         return self.parentWidgetConfig

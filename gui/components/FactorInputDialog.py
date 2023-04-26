@@ -20,86 +20,128 @@ __date__ = "May 2019"
 __revision__ = "$Format:%H$"
 
 import os
+from pathlib import Path
 from ...helpers.dataclass import CombineFactorElement, CombineFactorTableResult
-from collections import Counter
 
-from qgis.PyQt import uic, QtCore
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QTableWidgetItem, QTableWidget
+from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QMessageBox,
+)
+
+from qgis.PyQt.QtGui import QStandardItemModel
+from qgis.PyQt.QtCore import Qt
 
 pluginPath = os.path.split(os.path.dirname(__file__))[0]
 WIDGET, BASE = uic.loadUiType(os.path.join(pluginPath, "ui", "DlgFactorInput.ui"))
 
 
-class FactorInputDialog(BASE, WIDGET):
-    def __init__(
-        self,
-        table_data: "list[CombineFactorElement]",
-        title: str = "Enter values",
-    ):
-        super(FactorInputDialog, self).__init__(None)
-        self.setupUi(self)
-        self.title: str = title
-        self.combination_formula: str = ""  # Combine formula
-        self.raster_matrix_value: str = ""  # Rasters involved
-
-        self.factor_table_result: CombineFactorTableResult
-        self.table_data: "list[CombineFactorElement]" = (
-            table_data  # data to populate the selected raster table
+class FactorTableModel(QStandardItemModel):
+    def __init__(self):
+        super().__init__()
+        self.setColumnCount(3)
+        self.setHorizontalHeaderLabels(
+            [self.tr("Factor Name"), self.tr("Layer Name"), self.tr("Layer Path")]
         )
 
-        self.setup_factor_table()
+    def get_column_duplicates(self, column_index: int = 0) -> bool:
+        """checks if all values in a given column of the model are unique."""
+        values = []
+        duplicates: "list[str]" = []
+        for row in range(self.rowCount()):
+            item = self.item(row, column_index)
+            if item is not None and item.text() != "":
+                value = item.text()
+                if value in values:
+                    duplicates.append(value)
+                else:
+                    values.append(value)
 
-    def setup_factor_table(self) -> None:
-        # table widget Setup
-        if self.table_data:
-            # table widget Setup
-            row_count: int = len(self.table_data)
-            self.tableWidget.setRowCount(row_count)
-            self.tableWidget.setColumnCount(3)
-
-            # Populate the widget table with the selected rasters
-            for row, factor in enumerate(self.table_data):
-                self.tableWidget.setItem(row, 0, QTableWidgetItem(factor.factor_name))
-                self.tableWidget.setItem(row, 1, QTableWidgetItem(factor.layer_name))
-                cellinfo = QTableWidgetItem(factor.layer_path.as_posix())
-                self.tableWidget.setItem(row, 2, cellinfo)
-
-                for col in range(3):
-                    if col == 1 or col == 2:
-                        self.tableWidget.item(row, col).setFlags(
-                            QtCore.Qt.ItemIsEnabled
-                        )
-
-    def check_table_values(self, table: QTableWidget) -> bool:
-        """checks if all the values of the data table are ok"""
-        data = [table.item(row, 0).text() for row in range(table.rowCount())]
-        duplicates = [item for item, count in Counter(data).items() if count > 1]
         if duplicates:
             QMessageBox.critical(
-                self,
-                self.tr("Duplicated raster names"),
-                self.tr(f"Duplicated raster names ({', '.join(duplicates)})"),
+                None,
+                self.tr("Duplicated factor names"),
+                self.tr(f"Duplicated factor names ({', '.join(duplicates)})"),
             )
             return False
         return True
+
+    def get_empty_layer_names(self, column: int = 0) -> bool:
+        """checks if values of a given column are empty or ""
+        and returns a list of layer names that have an empty value"""
+
+        empty_layer_names: "list[str]" = []
+        for row_index in range(self.rowCount()):
+            item = self.item(row_index, column)
+            if item is None or item.text().strip() == "":
+                layer_name_item = self.item(row_index, 1)
+                if layer_name_item is not None:
+                    empty_layer_names.append(layer_name_item.text())
+
+        if empty_layer_names:
+            QMessageBox.critical(
+                None,
+                self.tr("Rasters with an empty factor name"),
+                self.tr(
+                    f"Rasters with an empty factor name ({', '.join(empty_layer_names)})"
+                ),
+            )
+            return False
+        return True
+
+    def get_combine_factor_elements(self) -> "list[CombineFactorElement]":
+        """Returns a list of CombineFactorElement objects representing each row in the model"""
+        elements = []
+        for row in range(self.rowCount()):
+            factor_name = self.item(row, 0).text()
+            layer_name = self.item(row, 1).text()
+            layer_path = Path(self.item(row, 2).text())
+            elements.append(CombineFactorElement(factor_name, layer_name, layer_path))
+        return elements
+
+    def flags(self, index):
+        if index.column() == 0:
+            return super().flags(index) | Qt.ItemIsEditable
+        else:
+            return super().flags(index) & ~Qt.ItemIsEditable
+
+
+class FactorInputDialog(BASE, WIDGET):
+    def __init__(
+        self,
+        # table_data: "list[CombineFactorElement]",
+        table_model: FactorTableModel,
+        title: str = "Enter values",
+    ):
+        super(FactorInputDialog, self).__init__(None)
+
+        self.setupUi(self)
+        self._table_model: FactorTableModel = table_model
+
+        self.tableView.setModel(self._table_model)
+
+        self.title: str = title
+
+        self.combination_formula: str = ""  # Combine formula
+        self.raster_matrix_value: "list[CombineFactorElement]" = []  # Rasters involved
+
+    def setModel(self, model) -> None:
+        self._table_model = model
 
     def setFormulaValue(self, formula: str) -> None:
         self.formula_plainTextEdit.setPlainText(formula)
 
     def accept(self):
-        if self.check_table_values(self.tableWidget):
+        # check if model exists, if there are empty factor names, and if there are factor names duplicates
+        if (
+            self._table_model
+            and self._table_model.get_empty_layer_names()
+            and self._table_model.get_column_duplicates()
+        ):
             # export formula expression
             self.combination_formula = self.formula_plainTextEdit.toPlainText()
-            # export raster list
-            list_rasters: "list[str]" = []
-            for i in range(self.tableWidget.rowCount()):
-                # append raster : layer_path, factor_name
-                list_rasters.append(
-                    f"({str(self.tableWidget.item(i, 2).text())},{str(self.tableWidget.item(i, 0).text())})"
-                )
-
-            self.raster_matrix_value = ";".join(list_rasters)
-
+            # export raster factor mapping
+            self.raster_matrix_value = self._table_model.get_combine_factor_elements()
             QDialog.accept(self)
 
     def reject(self) -> None:

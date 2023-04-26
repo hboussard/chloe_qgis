@@ -25,8 +25,11 @@ __revision__ = "$Format:%H$"
 
 
 import os
-from ..helpers.dataclass import CombineFactorTableResult
+from pathlib import Path
+from typing import Tuple
+from ..helpers.dataclass import CombineFactorElement
 from qgis.core import (
+    QgsRasterLayer,
     QgsProcessing,
     QgsProcessingParameterMultipleLayers,
     QgsProcessingParameterFileDestination,
@@ -50,8 +53,6 @@ class CombineAlgorithm(ChloeAlgorithm):
     def __init__(self):
         super().__init__()
 
-        self.input_factors: CombineFactorTableResult
-
     def initAlgorithm(self, config=None):
         # === INPUT PARAMETERS ===
 
@@ -71,6 +72,14 @@ class CombineAlgorithm(ChloeAlgorithm):
                 "widget_wrapper": {
                     "class": "Chloe.chloe_algorithm_dialog.ChloeFactorTableWidgetWrapper",
                     "input_matrix": self.INPUTS_MATRIX,
+                    "parentWidgetConfig": {
+                        "linkedParams": [
+                            {
+                                "paramName": self.INPUTS_MATRIX,
+                                "refreshMethod": "refreshFactorTable",
+                            },
+                        ]
+                    },
                 }
             }
         )
@@ -110,19 +119,75 @@ class CombineAlgorithm(ChloeAlgorithm):
     def commandName(self):
         return "combine"
 
+    def replace_empty_layer_path(
+        self,
+        factors: "list[CombineFactorElement]",
+        scoped_raster_layers: "list[Tuple[QgsRasterLayer,str]]",
+    ) -> "list[CombineFactorElement]":
+        new_factors = []
+        """this method replaces the empty Path provided by the domain parameter in MODELER mode. """
+        # Loop through each factor
+        for factor in factors:
+            # If the factor's layer path is empty, search for the corresponding layer in the scoped raster_layers list
+            if factor.layer_path == Path():
+                # print(factor.layer_name)
+                for raster_layer, input_name in scoped_raster_layers:
+                    if factor.layer_id == input_name:
+                        factor.layer_path = Path(raster_layer.source())
+
+            new_factors.append(factor)
+
+        return new_factors
+
+    def get_scoped_layer_list(self, context) -> "list[Tuple[QgsRasterLayer,str]]":
+        scope_layer_list: "list[Tuple[QgsRasterLayer,str]]" = []
+
+        indexOfScope = context.expressionContext().indexOfScope("algorithm_inputs")
+        if indexOfScope >= 0:
+            expContextAlgInputsScope = context.expressionContext().scope(indexOfScope)
+            for varName in expContextAlgInputsScope.variableNames():
+                layerInContext = expContextAlgInputsScope.variable(varName)
+                if isinstance(layerInContext, QgsRasterLayer):
+                    # print(layerInContext)
+                    # print(varName)
+                    scope_layer_list.append((layerInContext, varName))
+
+        return scope_layer_list
+
     def PreRun(self, parameters, context, feedback, executing=True):
         """Here is where the processing itself takes place."""
 
         # === INPUT
 
-        input_factors: "list[str]" = self.parameterAsMatrix(
-            parameters, self.DOMAINS, context
+        input_factors: "list[list[CombineFactorElement] | str]" = (
+            self.parameterAsMatrix(parameters, self.DOMAINS, context)
         )
 
-        self.combination = input_factors[1]
-        self.input_asc = input_factors[0]
+        if not input_factors:
+            feedback.reportError("Domain values are invalid")
+            return False
 
-        # print(self.combination)
+        # get the layer ids
+        scope_layer_list: "list[Tuple[QgsRasterLayer,str]]" = (
+            self.get_scoped_layer_list(context=context)
+        )
+
+        # in case of MODELER the CombineFactorElement.layer_path is an empty Path().
+        # The path of the raster layers are generated during prerun so the empty path values can be replaced by the values from the self.INPUTS_MATRIX parameter. Matching on the raster layers ids
+
+        converted_input_factors: "list[CombineFactorElement]" = [
+            CombineFactorElement.from_string(factor)
+            if not isinstance(factor, CombineFactorElement)
+            else factor
+            for factor in input_factors[0]
+        ]
+
+        self.combination = input_factors[1]
+
+        # replace the empty path with the actual ones
+        self.input_asc: "list[CombineFactorElement]" = self.replace_empty_layer_path(
+            converted_input_factors, scope_layer_list
+        )
         # === OUTPUT
 
         self.output_asc = self.parameterAsOutputLayer(
@@ -159,8 +224,14 @@ class CombineAlgorithm(ChloeAlgorithm):
         properties_lines.append(
             ChloeUtils.formatString(f"output_asc={self.output_asc}\n", isWindows())
         )
+
+        input_asc: str = ";".join(
+            [f"({factor.layer_path},{factor.factor_name})" for factor in self.input_asc]
+        )
+
+        print(input_asc)
         properties_lines.append(
-            ChloeUtils.formatString(f"factors={{{self.input_asc}}}\n", isWindows())
+            ChloeUtils.formatString(f"factors={{{input_asc}}}\n", isWindows())
         )
 
         self.createPropertiesFile(properties_lines)
