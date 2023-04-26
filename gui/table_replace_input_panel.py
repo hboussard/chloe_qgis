@@ -33,7 +33,7 @@ from qgis.core import QgsRasterLayer, QgsProject
 
 from osgeo import gdal
 import numpy as np
-import math
+from pathlib import Path
 
 from ..ChloeUtils import ChloeUtils
 
@@ -60,7 +60,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
         self.twAssociation.itemChanged.connect(self.checkCellValue)
 
     def updateTable(self):
-
         if self.batchGui:
             rasterLayerParam = self.dialog.mainWidget().wrappers[0][0].value()
         else:
@@ -81,7 +80,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
             rasterLayerParam = str(rasterLayerParam)
 
     def updateMapASC(self):
-
         if self.batchGui:
             p = self.dialog.mainWidget().wrappers[0][0].value()
         else:
@@ -140,7 +138,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
             row += 1
 
     def emptyMappingAsc(self):
-
         rows = range(self.twAssociation.rowCount())
         cols = range(self.twAssociation.columnCount())
         for r in rows:
@@ -148,23 +145,55 @@ class TableReplaceInputPanel(BASE, WIDGET):
                 if self.twAssociation.item(r, c) is not None:
                     self.twAssociation.setItem(r, c, None)
 
-    def updateMapCSV(self, mapFile):
+    def updateMapCSV(self, mapFile: str) -> None:
+        """Updates the combobox based on headers of a CSV file specified by the user
+
+        Args:
+            mapFile (str): Path to the CSV file
+
+        Returns:
+            None
+        """
         self.mapFile = mapFile
         self.cmbBox.clear()
-        try:
-            # == Get list index
-            if mapFile:
-                if os.path.exists(mapFile):
-                    with open(mapFile, "r") as f:
-                        line = next(f)
-                    headers = list(filter(None, re.split("\n|;| |,", line)))
-                    # print(str(headers))
-                    self.cmbBox.addItems(headers[1:])
-        except:
-            pass
+        file_path: Path = Path(mapFile)
+
+        if mapFile and file_path.exists():
+            try:
+                # If file exists, open it and get headers
+                with open(file_path, "r") as f:
+                    line = next(f)
+                headers = list(filter(None, re.split("\n|;| |,", line)))
+                # Add headers to the combobox, excluding the first column (ID column)
+                self.cmbBox.addItems(headers[1:])
+
+            except Exception as e:
+                # Handle exceptions related to opening the file or adding items to the combobox
+                QMessageBox.critical(
+                    None,
+                    self.tr("Error"),
+                    self.tr(f"Error loading headers from {mapFile}: {str(e)}"),
+                )
+        else:
+            QMessageBox.critical(
+                None,
+                self.tr("Error"),
+                self.tr(f"{mapFile} does not exist"),
+            )
+
+        # try:
+        #     # == Get list index
+        #     if mapFile:
+        #         if os.path.exists(mapFile):
+        #             with open(mapFile, "r") as f:
+        #                 line = next(f)
+        #             headers = list(filter(None, re.split("\n|;| |,", line)))
+        #             # print(str(headers))
+        #             self.cmbBox.addItems(headers[1:])
+        # except:
+        #     pass
 
     def applyCSVMap(self):
-
         try:
             if self.mapFile:
                 pass
@@ -280,7 +309,6 @@ class TableReplaceInputPanel(BASE, WIDGET):
             raise
 
     def checkCellValue(self, item):
-
         if self.twAssociation.currentItem() is None:
             return
 
@@ -292,9 +320,7 @@ class TableReplaceInputPanel(BASE, WIDGET):
 
         # check if cellValue allready exists in tablewidget
         if self.twAssociation.currentItem().column() == 0:
-
             for row in range(0, self.twAssociation.rowCount()):
-
                 if (
                     self.twAssociation.item(row, 0) is not None
                     and currentValue == self.twAssociation.item(row, 0).text()
