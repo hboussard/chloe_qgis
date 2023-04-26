@@ -73,13 +73,11 @@ except:
 
 
 class ChloeUtils:
-
     supportedRasters = None
     supportedOutputRasters = None
 
     @staticmethod
     def runChloe(commands, feedback=None):
-
         cwd = f"{os.path.dirname(__file__)}{os.sep}Chloe"
 
         if feedback is None:
@@ -584,14 +582,12 @@ class ChloeUtils:
         no_zero_list = list(filter(lambda x: x != 0, clean_list))  # Remove value 0
 
         if len(no_zero_list) < 1000:
-
             for msk in metric_simple.keys():
                 for ms in metric_simple[msk]:
                     for val in no_zero_list:
                         result[msk].append(ms + str(val))
 
             if len(no_zero_list) < 100:
-
                 for mck in metric_cross.keys():
                     for mc in metric_cross[mck]:
                         for val1 in no_zero_list:  # value_list

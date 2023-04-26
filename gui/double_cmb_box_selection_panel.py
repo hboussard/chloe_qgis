@@ -86,7 +86,6 @@ class DoubleCmbBoxSelectionPanel(BASE, WIDGET):
                 w_value.addItems(self.dictValues[filter_txt])
 
     def initCalculateMetric(self):
-
         rasterLayerParam = (
             self.dialog.mainWidget().wrappers[self.rasterLayerParamName].value()
         )

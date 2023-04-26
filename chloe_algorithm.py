@@ -298,7 +298,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         self.output_values[name] = value
 
     def processAlgorithm(self, parameters, context, feedback):
-
         self.PreRun(parameters, context, feedback)
         commands = self.getConsoleCommands(parameters, context, feedback)
         ChloeUtils.runChloe(commands, feedback)
@@ -336,40 +335,40 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
                 context.addLayerToLoadOnCompletion(rlayer.id(), layerDetails)
                 results[self.OUTPUT_ASC] = rlayer.id()
 
-        if "OUTPUT_CSV" in parameters:
-            output_csv_path: str = parameters["OUTPUT_CSV"].sink.value(
-                QgsExpressionContext()
-            )[0]
-            load_on_completion = output_csv_path in context.layersToLoadOnCompletion()
+        # if "OUTPUT_CSV" in parameters:
+        #     output_csv_path: str = parameters["OUTPUT_CSV"].sink.value(
+        #         QgsExpressionContext()
+        #     )[0]
+        #     load_on_completion = output_csv_path in context.layersToLoadOnCompletion()
 
-            if load_on_completion:
-                res: str = str(results["OUTPUT_CSV"])
-                uri = f"file:///{res}?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
+        #     if load_on_completion:
+        #         res: str = str(results["OUTPUT_CSV"])
+        #         uri = f"file:///{res}?type=csv&delimiter=;&detectTypes=yes&geomType=none&subsetIndex=no&watchFile=no"
 
-                output_csv: str = output_csv_path
-                if "OUTPUT_ASC" in parameters:
-                    print(output_csv)
-                    output_asc_path: str = parameters["OUTPUT_ASC"].sink.value(
-                        QgsExpressionContext()
-                    )[0]
-                    output_csv = ChloeUtils.adjustExtension(
-                        output_csv_path, output_asc_path
-                    )
-                    print(output_csv)
+        #         output_csv: str = output_csv_path
+        #         if "OUTPUT_ASC" in parameters:
+        #             print(output_csv)
+        #             output_asc_path: str = parameters["OUTPUT_ASC"].sink.value(
+        #                 QgsExpressionContext()
+        #             )[0]
+        #             output_csv = ChloeUtils.adjustExtension(
+        #                 output_csv_path, output_asc_path
+        #             )
+        #             print(output_csv)
 
-                tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
-                tLayer = QgsVectorLayer(uri, tLayerName, "delimitedtext")
-                if not tLayer.isValid():
-                    raise QgsProcessingException(
-                        self.tr("""Cannot load the output in the application""")
-                    )
+        #         tLayerName = ChloeUtils.deduceLayerName(output_csv, self.name())
+        #         tLayer = QgsVectorLayer(uri, tLayerName, "delimitedtext")
+        #         if not tLayer.isValid():
+        #             raise QgsProcessingException(
+        #                 self.tr("""Cannot load the output in the application""")
+        #             )
 
-                context.temporaryLayerStore().addMapLayer(tLayer)
-                layerDetails = QgsProcessingContext.LayerDetails(
-                    tLayerName, context.project(), self.OUTPUT_CSV
-                )
-                # context.addLayerToLoadOnCompletion(tLayer.id(), layerDetails)
-                results[self.OUTPUT_CSV] = tLayer.id()
+        #         context.temporaryLayerStore().addMapLayer(tLayer)
+        #         layerDetails = QgsProcessingContext.LayerDetails(
+        #             tLayerName, context.project(), self.OUTPUT_CSV
+        #         )
+        #         # context.addLayerToLoadOnCompletion(tLayer.id(), layerDetails)
+        #         results[self.OUTPUT_CSV] = tLayer.id()
 
         # if "OUTPUT_CSV" in parameters:
         #     pass
@@ -552,7 +551,6 @@ class ChloeAlgorithm(QgsProcessingAlgorithm):
         if crs:  # crs given
             crs_output = crs
         elif layer_crs:  # crs from layer
-
             # Constrution des chemins de sortie des fichiers
             dir_in = os.path.dirname(layer_crs)
             base_in = os.path.basename(layer_crs)
