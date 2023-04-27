@@ -4,7 +4,13 @@ from builtins import str
 from builtins import range
 from builtins import object
 from qgis.PyQt.QtCore import Qt, QCoreApplication
-from qgis.PyQt.QtWidgets import QDialog, QListView, QVBoxLayout, QHBoxLayout, QPushButton
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QListView,
+    QVBoxLayout,
+    QHBoxLayout,
+    QPushButton,
+)
 from qgis.PyQt.QtGui import QStandardItem, QStandardItemModel
 
 from random import randint
@@ -63,14 +69,18 @@ class DialListCheckBox(object):
 
     def _check_all(self):
         """Check all item"""
-        for index in range(self.m_sim.rowCount()):  # Iteration sur le model (contient la list des items)
+        for index in range(
+            self.m_sim.rowCount()
+        ):  # Iteration sur le model (contient la list des items)
             item = self.m_sim.item(index)
             if item.isCheckable() and item.checkState() == Qt.Unchecked:  # Si Unchecked
                 item.setCheckState(Qt.Checked)
 
     def _check_nothing(self):
         """Uncheck all item"""
-        for index in range(self.m_sim.rowCount()):  # Iteration sur le model (contient la list des items)
+        for index in range(
+            self.m_sim.rowCount()
+        ):  # Iteration sur le model (contient la list des items)
             item = self.m_sim.item(index)
             if item.isCheckable() and item.checkState() == Qt.Checked:  # Si Checked
                 item.setCheckState(Qt.Unchecked)
@@ -93,13 +103,12 @@ class DialListCheckBox(object):
         self.dial.close()
 
     def run(self):
-
         self.dial.setWindowTitle(self.tr("Select values"))
 
         self.dial.exec_()
         return self.result
 
-    def tr(self, string, context=''):
-        if context == '' or context == None:
+    def tr(self, string, context=""):
+        if context == "" or context == None:
             context = self.__class__.__name__
         return QCoreApplication.translate(context, string)

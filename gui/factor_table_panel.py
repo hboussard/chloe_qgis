@@ -270,40 +270,40 @@ class FactorTablePanel(BASE, WIDGET):
             self.LineEditFormula.setPlaceholderText(self.tr("Combination Formula"))
 
         # Connect the populate button to the populateTableModel method.
-        self.populate.clicked.connect(self.populateTableModel)  # Bouton "...
+        self.populate.clicked.connect(self.populate_table_model)  # Bouton "...
 
     def getModel(self) -> FactorTableModel:
         """Returns the table model."""
         return self._table_model
 
-    def populateTableModel(self):
+    def populate_table_model(self):
         """Populates the table model."""
         if self.is_modeler_dialog:
-            self.populateTableModelForModeler()
+            self.populate_table_model_for_modeler()
         else:
-            self.populateTableModelForStandardBatch()
+            self.populate_table_model_for_standard_batch()
 
-    def populateTableModelForModeler(self):
+    def populate_table_model_for_modeler(self):
         """Populates the table model for the modeler dialog."""
         try:
-            list_layers = self._getListLayersForModeler()
+            list_layers = self.get_list_layers_for_modeler()
         except KeyError:
             print("Error: no modeler wrapper found")
             return
 
-        self._populateTableModelWithData(list_layers)
+        self.populate_table_model_with_data(list_layers)
 
-    def populateTableModelForStandardBatch(self):
+    def populate_table_model_for_standard_batch(self):
         """Populates the table model for the standard batch dialog."""
         try:
-            list_layers = self._getListLayersForStandardBatch()
+            list_layers = self.get_list_layers_for_standard_batch()
         except KeyError:
             print("Error: no standard wrapper found")
             return
 
-        self._populateTableModelWithData(list_layers)
+        self.populate_table_model_with_data(list_layers)
 
-    def _getListLayersForModeler(self) -> "list[Tuple[str, str]]":
+    def get_list_layers_for_modeler(self) -> "list[Tuple[str, str]]":
         """
         Get a list of tuples representing the input layers from the INPUTS_MATRIX parameter in modeler dialog.
 
@@ -347,7 +347,7 @@ class FactorTablePanel(BASE, WIDGET):
 
         return list_layers
 
-    def _getListLayersForStandardBatch(self) -> "list[Tuple[str, str]]":
+    def get_list_layers_for_standard_batch(self) -> "list[Tuple[str, str]]":
         """
         Get a list of tuples representing the input layers from the INPUTS_MATRIX parameter in standard or batch dialog.
 
@@ -364,7 +364,7 @@ class FactorTablePanel(BASE, WIDGET):
 
         return list_layers
 
-    def _populateTableModelWithData(self, list_layers: "list[Tuple[str, str]]"):
+    def populate_table_model_with_data(self, list_layers: "list[Tuple[str, str]]"):
         """
         Populates the table model with data based on the given list of layers.
 

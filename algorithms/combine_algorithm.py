@@ -229,7 +229,6 @@ class CombineAlgorithm(ChloeAlgorithm):
             [f"({factor.layer_path},{factor.factor_name})" for factor in self.input_asc]
         )
 
-        print(input_asc)
         properties_lines.append(
             ChloeUtils.formatString(f"factors={{{input_asc}}}\n", isWindows())
         )

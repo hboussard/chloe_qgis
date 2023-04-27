@@ -161,12 +161,10 @@ class ChloeParametersPanel(ParametersPanel):
                                 else p.wrappedWidget()
                             )
                             # print(type(widget))
-                            print(m)
                             # add here widget signal connections
                             if isinstance(widget, FileSelectionPanel):
                                 widget.leText.textChanged.connect(m)
                             elif isinstance(p, RasterWidgetWrapper):
-                                print("is raster wrapper")
                                 p.combo.valueChanged.connect(m)
                             elif isinstance(p, MultipleInputPanel):
                                 p.selectionChanged.connect(m)
@@ -336,7 +334,6 @@ class ChloeValuesWidgetWrapper(WidgetWrapper):
             # if isinstance(layout, (QVBoxLayout)):
             #     if layout.objectName() == target_layout_name:
             #         layout.insertWidget(position, widget)
-            print(super().__dict__)
             widget = QLineEdit()  # QgsPanelWidget()
             # widget.setPlaceholderText("1;2;5")
             # if self.parameterDefinition().defaultValue():
@@ -716,7 +713,6 @@ class ChloeMultipleMetricsSelectorWidgetWrapper(WidgetWrapper):
         return self.parentWidgetConfig
 
     def refreshMetrics(self):
-        print("refresh metrics")
         self.widget.update()
 
 
